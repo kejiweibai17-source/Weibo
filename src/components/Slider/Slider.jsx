@@ -8,21 +8,31 @@ import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+// 🌟 替換為昔馬 SMASMALL 專屬文案
 const slides = [
   {
-    title:
-      "Under the soft hum of streetlights she watches the world ripple through glass, her calm expression mirrored in the fragments of drifting light.",
-    image: "/slider_img_1.jpg",
+    title: "獨創全合金壓鑄機身",
+    description:
+      "拋棄傳統塑膠材質，汲取重機與航空機身靈感，打造扎實且耐用的全合金機身。握感沉穩、冰冷俐落，完美展現復古未來主義的獨特品味。",
+    image: "/images/index/banner-01.png",
   },
   {
-    title:
-      "A car slices through the desert, shadow chasing the wind as clouds of dust rise behind, blurring the horizon into gold and thunder.",
-    image: "/slider_img_2.jpg",
+    title: "業界首創磁吸快拆刀頭",
+    description:
+      "搭載高精密磁吸結構，一秒即可無縫貼合與拆卸。不僅大幅縮短日常清理時間，更徹底解決傳統機械卡榫易斷裂、易磨損的問題。",
+    image: "/images/index/banner-02.png",
   },
   {
-    title:
-      "Reflections ripple across mirrored faces, each one a fragment of identity, caught between defiance, doubt, and the silence of thought.",
-    image: "/slider_img_3.jpg",
+    title: "荷蘭進口精鋼刀片",
+    description:
+      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀網與自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的剃鬚體驗。",
+    image: "/images/index/banner-03.png",
+  },
+  {
+    title: "IPX7 頂級全機防水",
+    description:
+      "支援全機身水洗與乾濕兩用。無論是搭配刮鬍泡的深層淨容，或是淋浴時的快速剃鬚，都能輕鬆應對，用水一沖即淨，衛生無死角。",
+    image: "/images/index/banner-04.png",
   },
 ];
 
@@ -36,7 +46,7 @@ export default function Slider() {
   useGSAP(
     () => {
       let activeSlide = 0;
-      let currentSplit = null;
+      let currentSplits = [];
 
       const pinDistance = window.innerHeight * slides.length;
 
@@ -148,31 +158,51 @@ export default function Slider() {
       function animateNewTitle(index) {
         if (!sliderTitleRef.current) return;
 
-        if (currentSplit) {
-          currentSplit.revert();
+        if (currentSplits.length > 0) {
+          currentSplits.forEach((split) => split.revert());
+          currentSplits = [];
         }
 
-        sliderTitleRef.current.innerHTML = `<h1>${slides[index].title}</h1>`;
+        // 更新 HTML
+        sliderTitleRef.current.innerHTML = `
+          <h1>${slides[index].title}</h1>
+          <p class="description">${slides[index].description}</p>
+        `;
 
-        currentSplit = new SplitText(
+        // 拆分 <h1>
+        const titleSplit = new SplitText(
           sliderTitleRef.current.querySelector("h1"),
-          {
-            type: "lines",
-            linesClass: "line",
-            mask: "lines",
-          },
+          { type: "lines", linesClass: "line" },
         );
 
-        gsap.set(currentSplit.lines, {
-          yPercent: 100,
-          opacity: 0,
-        });
+        // 拆分 <p>
+        const descSplit = new SplitText(
+          sliderTitleRef.current.querySelector("p.description"),
+          { type: "lines", linesClass: "line" },
+        );
 
-        gsap.to(currentSplit.lines, {
+        currentSplits.push(titleSplit, descSplit);
+
+        // 🌟 分別設定初始狀態，才能分開控制動畫
+        gsap.set(titleSplit.lines, { yPercent: 100, opacity: 0 });
+        gsap.set(descSplit.lines, { yPercent: 100, opacity: 0 });
+
+        // 🌟 標題動畫 (沒有延遲)
+        gsap.to(titleSplit.lines, {
           yPercent: 0,
           opacity: 1,
           duration: 0.75,
-          stagger: 0.1,
+          stagger: 0.05,
+          ease: "power3.out",
+        });
+
+        // 🌟 描述動畫 (加上 delay: 0.5)
+        gsap.to(descSplit.lines, {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.75,
+          delay: 0.2, // 這裡設定了 0.5 秒的延遲
+          stagger: 0.05,
           ease: "power3.out",
         });
       }
@@ -203,7 +233,9 @@ export default function Slider() {
       });
 
       return () => {
-        if (currentSplit) currentSplit.revert();
+        if (currentSplits.length > 0) {
+          currentSplits.forEach((split) => split.revert());
+        }
         ScrollTrigger.getAll().forEach((st) => st.kill());
       };
     },
@@ -213,15 +245,17 @@ export default function Slider() {
   return (
     <section className="slider" ref={sliderRef}>
       <div className="slider-images" ref={sliderImagesRef}>
-        <img src="/slider_img_1.jpg" alt="Slide 1" />
+        <img src={slides[0].image} alt="Slide 1" />
       </div>
 
-      <div className="slider-title" ref={sliderTitleRef}>
-        <h1>
-          Under the soft hum of streetlights she watches the world ripple
-          through glass, her calm expression mirrored in the fragments of
-          drifting light.
-        </h1>
+      <div
+        className="slider-title ml-[90px] max-w-[500px]"
+        ref={sliderTitleRef}
+      >
+        <h1>{slides[0].title}</h1>
+        <p className=" !leading-10 mt-5 !text-[18.5px]">
+          {slides[0].description}
+        </p>
       </div>
 
       <div className="slider-indicator">

@@ -58,20 +58,16 @@ const ParallaxPage = () => {
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
-            <h1>Design & Strategy for the Vision-Driven</h1>
+            <h1 className=" text-2xl md:text-3xl text-stone-600 xl:text-5xl leading-normal">
+              合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
+            </h1>
           </Copy>
 
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          >
-            <p className="text-sm font-mono leading-relaxed">
-              WE HAVE METICULOUSLY HONED THE CRITICAL FACETS OF DESIGN AND
-              FUNCTIONALITY. EXACTING PRECISION IN OUR LINES, SHAPES, CURVES...
+          <Copy>
+            <p className="text-[16px] text-stone-600 font-mono leading-relaxed">
+              1小時快速充電，可約續航60分鐘，日常使用約20天
             </p>
-          </motion.div>
+          </Copy>
         </div>
       </div>
 
@@ -80,33 +76,38 @@ const ParallaxPage = () => {
       */}
       <div
         ref={calibreRef}
-        className="relative z-10 bg-[#e5e5e5] min-h-screen w-full flex flex-col items-center pt-32 pb-24 overflow-hidden"
+        className="relative z-10 bg-[#e5e5e5]  min-h-screen w-full flex flex-col items-center pt-32 pb-24 overflow-hidden"
       >
-        {/* 區塊標題 */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20 z-20"
-        >
-          <h2 className="text-4xl font-bold text-black tracking-tight mb-2">
-            CALIBRE AMB+
-          </h2>
-          <p className="text-lg text-gray-700">
-            Developed by le Cercle des Horlogers
-          </p>
-        </motion.div>
+        <div className="w-[85%] flex  justify-center items-center flex-col">
+          {/* 區塊標題 */}
+          <Copy>
+            <h2 className="text-4xl  font-bold text-black tracking-tight mb-2">
+              捍衛者+
+            </h2>
+          </Copy>
+          <Copy>
+            {" "}
+            <p className="text-[16px] text-stone-800 text-center">
+              合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
+            </p>
+          </Copy>
+          <Copy>
+            {" "}
+            <p className="text-[16px] text-stone-800 text-center">
+              全套征服全臉的修容武裝禮盒
+            </p>
+          </Copy>
+        </div>
 
         {/* 核心視差物件：動態套用 scale, opacity, y
          */}
         <motion.div
           style={{ scale, opacity, y }}
-          className="relative w-full max-w-4xl aspect-square flex items-center justify-center z-10"
+          className="relative w-full max-w-2xl aspect-square flex items-center justify-center z-10"
         >
           {/* 替換成機芯去背圖 (PNG) */}
           <img
-            src="機芯去背圖網址.png"
+            src="/images/捍衛者/捍衛者-01.png"
             alt="Calibre AMB+"
             className="w-full h-full object-contain drop-shadow-2xl"
           />

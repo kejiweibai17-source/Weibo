@@ -7,13 +7,89 @@ import { motion, AnimatePresence } from "framer-motion";
 // ============================================================================
 const PRODUCTS = [
   {
+    id: 3,
+    badge: "$20 OFF",
+    name: "電動刮鬍刀配件-雙環開放式圓刀",
+    currentPrice: "$480",
+    originalPrice: "$480",
+    thumbUrl: "/images/捍衛者/捍衛者-01.png",
+    mainUrl: "/images/捍衛者/捍衛者-01.png",
+    features: [
+      {
+        title: "雙環開放式刀頭 2.0版",
+        bullets: ["德國進口材料，日本加工技術", "開放式圓刀+獨立浮動刀網"],
+        boxPos: "top-[15%] left-[10%]",
+        lineClass:
+          "top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 4,
+    badge: "$20 OFF",
+    name: "電動刮鬍刀配件-雙環開放式圓刀",
+    currentPrice: "$480",
+    originalPrice: "$480",
+    thumbUrl: "/images/捍衛者/捍衛者-02.png",
+    mainUrl: "/images/捍衛者/捍衛者-02.png",
+    features: [
+      {
+        title: "雙環開放式刀頭 2.0版",
+        bullets: ["德國進口材料，日本加工技術", "開放式圓刀+獨立浮動刀網"],
+        boxPos: "top-[15%] left-[10%]",
+        lineClass:
+          "top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 5,
+    badge: "$20 OFF",
+    name: "電動刮鬍刀配件-雙環開放式圓刀",
+    currentPrice: "$480",
+    originalPrice: "$480",
+    thumbUrl: "/images/捍衛者/捍衛者-03.png",
+    mainUrl: "/images/捍衛者/捍衛者-03.png",
+    features: [
+      {
+        title: "雙環開放式刀頭 2.0版",
+        bullets: ["德國進口材料，日本加工技術", "開放式圓刀+獨立浮動刀網"],
+        boxPos: "top-[15%] left-[10%]",
+        lineClass:
+          "top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 6,
+    badge: "$20 OFF",
+    name: "電動刮鬍刀配件-雙環開放式圓刀",
+    currentPrice: "$480",
+    originalPrice: "$480",
+    thumbUrl: "/images/捍衛者/捍衛者-05.png",
+    mainUrl: "/images/捍衛者/捍衛者-05.png",
+    features: [
+      {
+        title: "雙環開放式刀頭 2.0版",
+        bullets: ["德國進口材料，日本加工技術", "開放式圓刀+獨立浮動刀網"],
+        boxPos: "top-[15%] left-[10%]",
+        lineClass:
+          "top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
     id: 1,
     badge: "15% OFF",
     name: "電動刮鬍刀配件-雙環開放式圓刀",
     currentPrice: "$480",
     originalPrice: "$480",
     thumbUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
-    mainUrl: "/images/1731575318_6ddbd86976c9b624412a.png",
+    mainUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
     features: [
       {
         title: "Deliver Wired-Level Speed",
@@ -55,25 +131,6 @@ const PRODUCTS = [
       },
     ],
   },
-  {
-    id: 2,
-    badge: "$20 OFF",
-    name: "電動刮鬍刀配件-雙環開放式圓刀",
-    currentPrice: "$480",
-    originalPrice: "$480",
-    thumbUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
-    mainUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
-    features: [
-      {
-        title: "雙環開放式刀頭 2.0版",
-        bullets: ["德國進口材料，日本加工技術", "開放式圓刀+獨立浮動刀網"],
-        boxPos: "top-[15%] left-[10%]",
-        lineClass:
-          "top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[5deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
 ];
 
 export default function ProductShowcase() {
@@ -82,11 +139,11 @@ export default function ProductShowcase() {
   const currentProduct = PRODUCTS[activeIndex] || PRODUCTS[0];
 
   return (
-    <section className="w-full bg-[#050507] font-sans pt-16 pb-24 overflow-hidden min-h-screen flex flex-col relative">
+    <section className="w-full bg-[#050507] font-sans pt-16 pb-[150px]  h-auto  flex flex-col relative">
       {/* ==================================================
           科技感背景光暈 (Glow Effect)
           ================================================== */}
-      <div className="absolute inset-0 z-0 flex items-start justify-center pointer-events-none mt-[10vh] overflow-hidden">
+      <div className="absolute inset-0 z-0 flex items-start justify-center pointer-events-none pt-[13vh] ">
         <div className="absolute w-[80%] max-w-[1200px] h-[400px] bg-[#1a4b8c] opacity-[0.35] blur-[120px] rounded-[100%]"></div>
         <div className="absolute w-[50%] max-w-[600px] h-[200px] bg-white opacity-[0.12] blur-[80px] rounded-[100%] mt-[50px]"></div>
       </div>
@@ -94,7 +151,7 @@ export default function ProductShowcase() {
       {/* ==================================================
           上方：動態大圖與產品賣點展示區塊
           ================================================== */}
-      <div className="relative w-full max-w-[1400px] mx-auto h-[450px] md:h-[550px] mb-12 z-10">
+      <div className="relative w-full max-w-[1400px] mx-auto h-[450px] md:h-[650px] mb-12 z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeIndex}
@@ -105,7 +162,7 @@ export default function ProductShowcase() {
             className="absolute inset-0 w-full h-full flex items-center justify-center"
           >
             {/* 核心大圖 */}
-            <div className="relative w-[50%] h-[90%] flex items-center justify-center z-10 pointer-events-none">
+            <div className="relative w-[80%] h-[90%] flex items-center justify-center z-10 pointer-events-none">
               <img
                 src={currentProduct.mainUrl}
                 alt={currentProduct.name}
@@ -152,7 +209,7 @@ export default function ProductShowcase() {
       {/* ==================================================
           下方：產品 Hover 卡片列
           ================================================== */}
-      <div className="w-full max-w-[1600px] mx-auto px-6 overflow-x-auto pb-8 custom-scrollbar z-10">
+      <div className="w-full max-w-[1600px] mx-auto px-6 overflow-x-auto pb-8  custom-scrollbar z-10">
         <div className="flex justify-center gap-4 min-w-max mx-auto">
           {PRODUCTS.map((product, index) => {
             const isActive = activeIndex === index;

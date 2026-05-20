@@ -269,7 +269,7 @@ export default function Navbar() {
         { label: "多功能組合禮盒", href: "/product01" },
       ],
     },
-    { label: "關於威柏科技", href: "/accessories" },
+    { label: "關於我們", href: "/about" },
     { label: "昔馬SMSMALL", href: "/brand" },
     { label: "聯絡我們", href: "/support" },
     { label: "Gallery", href: "/gallery" },
@@ -295,7 +295,7 @@ export default function Navbar() {
         animate={navState === "global" ? "visible" : "hidden"}
         // 🌟 修正：移除這行最後面的 relative，確保 fixed 能正常運作
         className={`fixed top-0 left-0 w-full h-[72px] z-[1000] transition-colors duration-300 ${
-          isScrolled ? "bg-black/90 backdrop-blur-md" : "bg-transparent"
+          isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-transparent"
         }`}
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-6 lg:px-10">
@@ -310,8 +310,8 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="w-[60%] flex justify-center lg:justify-start">
-            <nav className="hidden lg:flex items-center gap-4 max-w-[900px]">
+          <div className="w-[60%] flex justify-center lg:justify-center">
+            <nav className="hidden lg:flex mx-auto   items-center gap-4 max-w-[780px]">
               {globalLinks.map((link) => (
                 <div
                   key={link.label}
@@ -386,7 +386,7 @@ export default function Navbar() {
         initial="hidden"
         animate={navState === "product" ? "visible" : "hidden"}
         // 🌟 修正：同樣移除這行最後面的 relative
-        className="fixed top-0 left-0 w-full h-[64px] bg-black/90 backdrop-blur-md z-[990]"
+        className="fixed top-0 left-0 w-full h-[64px] bg-black/80 backdrop-blur-md z-[990]"
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-6 lg:px-10">
           <div className="flex items-center">

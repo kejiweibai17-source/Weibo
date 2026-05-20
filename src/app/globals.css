@@ -49,12 +49,12 @@ nav .logo {
   overflow: hidden;
 }
 
-section {
+/* section {
   position: relative;
   width: 100%;
   height: 100svh;
   overflow: hidden;
-}
+} */
 
 .intro,
 .outro {

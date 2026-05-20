@@ -236,7 +236,7 @@ export default function AboutPage() {
       />
 
       {/* 渲染包含動畫的 Client 端元件 */}
-      <Client faqs={aboutFAQs} />
+      <Client />
     </>
   );
 }

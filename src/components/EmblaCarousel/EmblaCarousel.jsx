@@ -148,7 +148,7 @@ const EmblaCarousel = (props) => {
 
       <div className="flex justify-center w-full mt-[-250px] relative z-50">
         <Image
-          src="/images/傳奇灰.png"
+          src="/images/ezgif.com-animated-gif-maker.gif"
           width={1000}
           height={1000}
           className="w-[550px]"

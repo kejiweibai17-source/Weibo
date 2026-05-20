@@ -388,8 +388,6 @@ export default function Slider() {
           <span className="logo-sub"> SMSMALL</span>
         </div>
 
-        <div className="top-right-badge">UPDATED. 2022.09.30 FRI — Taiwan</div>
-
         <div className="center-title" ref={titleRef}>
           {slides.map((slide, idx) => (
             <div key={`title-${idx}`} className="title-group" data-index={idx}>
