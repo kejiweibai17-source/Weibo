@@ -243,7 +243,7 @@ export default function Slider() {
   );
 
   return (
-    <section className="slider" ref={sliderRef}>
+    <section className="slider section-slider" ref={sliderRef}>
       <div className="slider-images" ref={sliderImagesRef}>
         <img src={slides[0].image} alt="Slide 1" />
       </div>
