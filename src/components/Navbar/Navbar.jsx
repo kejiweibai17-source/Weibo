@@ -155,7 +155,6 @@ function UserMenu({ isLoggedIn, user, onLogin, onLogout }) {
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const openerRef = useRef(null);
-
   const overlayRef = useRef(null);
   const tl = useRef(null);
 
@@ -179,23 +178,37 @@ export default function Navbar() {
 
   useGSAP(
     () => {
-      gsap.set(".menu-link-item-holder", { y: 75 });
+      gsap.set(".line", { y: "100%" });
+
       tl.current = gsap
         .timeline({ paused: true })
-        .to(overlayRef.current, {
-          duration: 1.25,
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-          ease: "power4.inOut",
+        // 1. 科技感背景層次展開
+        .to(".nav-bg", {
+          scaleY: 1,
+          duration: 0.75,
+          stagger: 0.1,
+          ease: "power3.inOut",
         })
+        // 2. 主選單區塊遮罩滑入
         .to(
-          ".menu-link-item-holder",
+          ".nav-items",
           {
-            y: 0,
-            duration: 1,
-            stagger: 0.1,
-            ease: "power4.out",
+            clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            duration: 0.75,
+            ease: "power3.inOut",
           },
-          "-=0.75",
+          "-=0.6",
+        )
+        // 3. 連結文字滑入
+        .to(
+          ".line",
+          {
+            y: "0%",
+            duration: 0.75,
+            stagger: 0.05,
+            ease: "power3.out",
+          },
+          0.85,
         );
     },
     { scope: overlayRef },
@@ -293,7 +306,6 @@ export default function Navbar() {
         variants={headerVariants}
         initial="visible"
         animate={navState === "global" ? "visible" : "hidden"}
-        // 🌟 修正：移除這行最後面的 relative，確保 fixed 能正常運作
         className={`fixed top-0 left-0 w-full h-[72px] z-[1000] transition-colors duration-300 ${
           isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-transparent"
         }`}
@@ -311,12 +323,13 @@ export default function Navbar() {
           </div>
 
           <div className="w-[60%] flex justify-center lg:justify-center">
-            <nav className="hidden lg:flex mx-auto   items-center gap-4 max-w-[780px]">
+            <nav className="hidden lg:flex mx-auto items-center gap-4 max-w-[780px]">
               {globalLinks.map((link) => (
                 <div
                   key={link.label}
                   className="relative h-full flex items-center group cursor-pointer"
                 >
+                  {/* 電腦版恢復為原本的 hover:text-gray-300 */}
                   <Link
                     href={link.href}
                     className="text-[13px] font-medium text-white group-hover:text-gray-300 transition-colors tracking-wide h-full flex items-center px-2"
@@ -333,6 +346,7 @@ export default function Navbar() {
                             <Link
                               key={idx}
                               href={sub.href}
+                              // 電腦版下拉選單恢復原本的 hover:text-black 效果
                               className="group/item flex items-center px-6 py-3.5 text-[13px] font-medium text-gray-500 hover:bg-slate-50 transition-colors duration-300 overflow-hidden"
                             >
                               <span className="transform transition-all duration-300 group-hover/item:translate-x-1.5 group-hover/item:text-black">
@@ -373,7 +387,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* 滿版進度條 */}
+        {/* 電腦版滿版進度條恢復灰色 */}
         <motion.div
           className="absolute bottom-0 left-0 h-[1px] bg-gray-300 origin-left z-[2100] w-full"
           style={{ scaleX: scrollYProgress }}
@@ -385,26 +399,26 @@ export default function Navbar() {
         variants={headerVariants}
         initial="hidden"
         animate={navState === "product" ? "visible" : "hidden"}
-        // 🌟 修正：同樣移除這行最後面的 relative
         className="fixed top-0 left-0 w-full h-[64px] bg-black/80 backdrop-blur-md z-[990]"
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-6 lg:px-10">
           <div className="flex items-center">
             <a href="https://www.weiboltd.com" target="_blank">
-              {" "}
               <Image
                 src="/images/logo-white.png"
                 width={300}
                 height={150}
                 className="w-[120px]"
                 priority
-              ></Image>
+                alt="Logo"
+              />
             </a>
           </div>
 
           <div className="flex items-center gap-8">
             <Link
               href="https://www.weiz.com.tw"
+              // 恢復原本的按鈕樣式
               className="bg-white text-black text-[13px] font-medium px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors tracking-wide"
             >
               購物商城
@@ -420,52 +434,97 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* 滿版進度條 */}
         <motion.div
           className="absolute bottom-0 left-0 h-[1px] bg-gray-300 origin-left z-[2100] w-full"
           style={{ scaleX: scrollYProgress }}
         />
       </motion.header>
 
-      {/* 3. 手機版全螢幕選單 */}
+      {/* =======================================================
+          3. 🌟 新版：手機版全螢幕選單 (3C Tech 科技感)
+          ======================================================= */}
       <div
         ref={overlayRef}
-        style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
-        className="fixed inset-0 z-[2000] bg-black flex flex-col px-6 py-8 lg:hidden h-[100dvh] w-full"
+        className={`fixed inset-0 z-[2000] w-full h-[100dvh] lg:hidden ${
+          menuOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
       >
-        <div className="flex justify-between items-center mb-16 h-[72px]">
-          <span className="text-[22px] font-light tracking-[0.2em] text-white uppercase opacity-0">
-            SMASMALL
-          </span>
-          <div className="opacity-0 pointer-events-none">
-            <MenuToggleButton open={true} onClick={() => {}} />
-          </div>
-        </div>
+        {/* 多層次科技感背景動畫區塊 */}
+        <div className="nav-bg absolute inset-0 w-full h-full bg-[#1A1A2E] origin-top scale-y-0" />
+        <div className="nav-bg absolute inset-0 w-full h-full bg-[#16213E] origin-top scale-y-0" />
+        <div className="nav-bg absolute inset-0 w-full h-full bg-[#0F3460] origin-top scale-y-0" />
+        <div className="nav-bg absolute inset-0 w-full h-full bg-[#00B4D8] origin-top scale-y-0" />
 
-        <nav className="flex flex-col gap-6">
-          {globalLinks.map((link) => (
-            <div key={link.label} className="overflow-hidden">
-              <div className="menu-link-item-holder" onClick={closeMenu}>
-                <Link
-                  href={link.href}
-                  className="block text-4xl font-light text-white hover:text-gray-400 tracking-widest leading-normal"
-                >
-                  {link.label}
-                </Link>
-              </div>
+        {/* 內容區塊 */}
+        <div
+          className="nav-items relative z-10 flex flex-col justify-center h-full px-8 bg-[#050505] pt-16 pb-8"
+          style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
+        >
+          {/* HUD 風格背景裝飾線 */}
+          <div className="absolute left-6 top-[15%] bottom-[15%] w-[1px] bg-gradient-to-b from-transparent via-[#00B4D8]/30 to-transparent pointer-events-none" />
+
+          {/* 🌟 頂部：Logo 佔位與實體的「關閉按鈕」 */}
+          <div className="absolute top-0 left-0 w-full h-[72px] flex justify-between items-center px-6">
+            <span className="text-[20px] font-light tracking-[0.2em] text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] pointer-events-none">
+              SMASMALL
+            </span>
+            <div className="pointer-events-auto">
+              <MenuToggleButton open={true} onClick={closeMenu} />
             </div>
-          ))}
-        </nav>
+          </div>
 
-        <div className="mt-auto flex flex-col gap-6 pt-8 border-t border-white/10">
-          <div className="overflow-hidden">
-            <div className="menu-link-item-holder" onClick={closeMenu}>
+          <div className="flex flex-col gap-6 pl-4">
+            {/* 主要導覽連結 */}
+            <div className="flex flex-col gap-5">
+              {globalLinks.map((link, idx) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={closeMenu}
+                  className="block overflow-hidden group"
+                >
+                  <div className="line flex items-center gap-4 transform translate-y-[100%] transition-transform duration-300 group-hover:translate-x-2">
+                    {/* 字體調整：縮小數字與主要文字的尺寸 */}
+                    <span className="text-[#00B4D8] text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
+                      0{idx + 1}
+                    </span>
+                    {/* 主要文字從 2rem 縮小至 1.5rem (24px) */}
+                    <span className="text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
+                      {link.label}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* 次要連結區 (會員 / 語言) */}
+            <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-4 relative">
+              <div className="absolute top-0 left-0 w-2 h-[1px] bg-[#00B4D8]"></div>
+
               <Link
                 href={isLoggedIn ? "/account" : "/login"}
-                className="block text-[15px] font-medium text-gray-400 tracking-widest hover:text-white transition-colors"
+                onClick={closeMenu}
+                className="block overflow-hidden group"
               >
-                {isLoggedIn ? "我的帳戶" : "會員登入 / 註冊"}
+                {/* 文字從 1rem 縮小為 0.875rem (14px) */}
+                <div className="line text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-gray-600 rounded-full group-hover:bg-[#00B4D8] group-hover:shadow-[0_0_5px_#00B4D8] transition-all" />
+                  {isLoggedIn ? "我的帳戶 ACCOUNT" : "會員登入 LOGIN"}
+                </div>
               </Link>
+              <div
+                className="block overflow-hidden group cursor-pointer"
+                onClick={closeMenu}
+              >
+                <div className="line text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                  <Globe
+                    size={15}
+                    strokeWidth={1.5}
+                    className="group-hover:text-[#00B4D8] transition-colors"
+                  />
+                  <span>語言 LANG : EN</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

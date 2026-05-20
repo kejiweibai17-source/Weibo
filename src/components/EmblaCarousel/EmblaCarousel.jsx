@@ -98,7 +98,7 @@ const EmblaCarousel = (props) => {
   return (
     <>
       <div className="embla">
-        {/* 🌟 修改 1：將控制區塊 (controls) 移到輪播圖 viewport 的上方 */}
+        {/* 🌟 頂部控制區塊 (按鈕與導覽點) */}
         <div className="embla__controls">
           <div className="embla__buttons">
             <PrevButton
@@ -146,18 +146,18 @@ const EmblaCarousel = (props) => {
         </div>
       </div>
 
-      <div className="flex justify-center w-full mt-[-250px] relative z-50">
+      {/* 🌟 優化 GIF 圖片的響應式：手機版縮小重疊比例 (mt-[-100px])，電腦版維持 (md:mt-[-250px]) */}
+      <div className="flex justify-center w-full mt-[-100px] md:mt-[-250px] relative z-50 px-4 pointer-events-none">
         <Image
           src="/images/ezgif.com-animated-gif-maker.gif"
           width={1000}
           height={1000}
-          className="w-[550px]"
+          className="w-full max-w-[300px] md:max-w-[550px]"
           placeholder="empty"
           alt="傳奇灰"
         />
       </div>
 
-      {/* 🌟 修改 2：將按鈕改為高級感黑色毛玻璃，並居中對齊 */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -189,7 +189,7 @@ const EmblaCarousel = (props) => {
         }
 
         .embla__parallax {
-          border-radius: .5rem;
+        
           height: var(--slide-height);
           overflow: hidden;
           background-color: #111;
@@ -205,24 +205,24 @@ const EmblaCarousel = (props) => {
 
         .embla__parallax__img {
           max-width: none;
-       flex: 0 0 calc(92% + (var(--slide-spacing) * 2));
+          flex: 0 0 calc(92% + (var(--slide-spacing) * 2));
           object-fit: cover;
         }
 
-        /* 🌟 按鈕區塊：改為黑色毛玻璃、水平置中、圓角膠囊狀 */
+        /* 控制區塊 (毛玻璃膠囊設計) */
         .embla__controls {
           display: flex;
           justify-content: center;
           align-items: center;
           width: fit-content;
-          margin: 0 auto 2.5rem auto; /* 水平置中，並與下方圖片拉開距離 */
+          margin: 0 auto 2.5rem auto;
           padding: 0.5rem 1.25rem;
           gap: 1.5rem;
-          background-color: rgba(0, 0, 0, 0.65); /* 黑色半透明底 */
-          backdrop-filter: blur(12px); /* 毛玻璃模糊效果 */
-          -webkit-backdrop-filter: blur(12px); /* 支援 Safari */
-          border-radius: 9999px; /* 完美膠囊圓角 */
-          border: 1px solid rgba(255, 255, 255, 0.1); /* 微弱的白色反光邊框 */
+          background-color: rgba(0, 0, 0, 0.65);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border-radius: 9999px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
           z-index: 10;
         }
@@ -247,14 +247,14 @@ const EmblaCarousel = (props) => {
           width: 2.2rem;
           height: 2.2rem;
           border-radius: 50%;
-          color: white; /* 箭頭改為白色 */
+          color: white;
           align-items: center;
           justify-content: center;
           transition: all 0.3s ease;
         }
 
         .embla__button:hover {
-          background-color: rgba(255, 255, 255, 0.15); /* Hover 時微亮 */
+          background-color: rgba(255, 255, 255, 0.15);
         }
 
         .embla__button:disabled {
@@ -296,15 +296,46 @@ const EmblaCarousel = (props) => {
           width: 0.4rem;
           height: 0.4rem;
           border-radius: 50%;
-          background-color: rgba(255, 255, 255, 0.35); /* 未選中的點點 (半透明白) */
+          background-color: rgba(255, 255, 255, 0.35);
           transition: all 0.3s ease;
         }
 
         .embla__dot--selected:after {
-          background-color: white; /* 選中的點點 (純白) */
+          background-color: white;
           width: 0.5rem;
           height: 0.5rem;
-          box-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* 選中時加一點微光 */
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 🌟 RWD 手機與平板尺寸最佳化 */
+        @media (max-width: 1024px) {
+          .embla {
+            --slide-height: 28rem;
+            --slide-size: 75%;
+          }
+          .embla__slide {
+            margin-right: 20px;
+            margin-left: 20px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .embla {
+            margin: 2rem auto;
+            --slide-height: 22rem; /* 手機版降低高度避免過長 */
+            --slide-spacing: 1rem; /* 縮小卡片間距 */
+            --slide-size: 82%;     /* 放大佔比，讓左右微微露出 */
+          }
+          .embla__slide {
+            /* 手機版移除寫死的 margin，改用 Embla 預設的 padding spacing 來運算，滑動才不會卡頓 */
+            margin-right: 0px;
+            margin-left: 0px;
+          }
+          .embla__controls {
+            padding: 0.4rem 1rem;
+            gap: 1rem;
+            transform: scale(0.95); /* 手機版膠囊稍微縮小一點 */
+          }
         }
       `,
         }}
