@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import QaClient from "./client";
 
-// 🌟 動態獲取網址：預設 fallback 可改為未來的子網域
+// 🌟 動態獲取網址：已替換為目前的臨時網域
 const getSiteUrl = () => {
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  if (process.env.NEXT_PUBLIC_VERCEL_URL)
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
-  return "https://smasmall.weiz.com.tw"; // 預設使用未來規劃的子網域
+  return "https://weibo-alpha.vercel.app"; // 🌟 這裡已更新
 };
 
 const SITE_URL = getSiteUrl();
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     canonical: "/product01",
   },
   openGraph: {
-    type: "website", // 🌟 將這裡從 "product" 改回 "website" 即可解決報錯
+    type: "website", // 維持 website，避免型別報錯
     locale: "zh_TW",
     url: "/product01",
     siteName: "SMASMALL 昔馬 by 威柏科技",
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
       "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
     images: [
       {
-        url: "/images/捍衛者-001.png", // <--- 🌟 這裡是用戶要求修改的地方
+        url: "/images/defender-og.png", // 🌟 確保這張圖片是全英文檔名
         width: 1200,
         height: 630,
         alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
@@ -55,9 +54,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    images: ["/images/捍衛者/捍衛者-01.png"],
+    images: ["/images/defender-og.png"], // 🌟 Twitter 也要同步更新
   },
 };
+
 // ============================================================================
 // 2. Server Component 主頁面與強化的 JSON-LD
 // ============================================================================
