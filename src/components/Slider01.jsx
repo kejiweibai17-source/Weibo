@@ -3,16 +3,13 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-
+import Copy from "../components/Copy";
 const slides = [
   {
-    image: "/images/004.png",
+    image: "/images/捍衛者/3d922fff-8ec9-4ec6-97b1-35b15933b297.png",
   },
   {
-    image: "/images/002.png",
-  },
-  {
-    image: "/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png",
+    image: "/images/捍衛者/昔馬電動刮鬍刀-捍衛者-banner.png",
   },
 ];
 
@@ -388,20 +385,23 @@ export default function Slider() {
           <span className="logo-sub"> SMSMALL</span>
         </div>
 
-        <div className="center-title" ref={titleRef}>
+        {/* <div className="center-title" ref={titleRef}>
           {slides.map((slide, idx) => (
             <div key={`title-${idx}`} className="title-group" data-index={idx}>
-              <span className="text-[50px] tracking-widest !font-normal">
-                Exquisite Detail
-              </span>
-              <br></br>
-              <span className="text-[32px] tracking-widest !font-normal">
-                {" "}
-                Exceptional Quality.
-              </span>
+              <Copy>
+                <span className="text-[50px] tracking-widest !font-normal">
+                  捍衛者
+                </span>
+              </Copy>
+              <Copy>
+                <span className="text-[22px] tracking-widest !font-normal">
+                  {" "}
+                  刻畫捍衛本色
+                </span>
+              </Copy>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="bottom-left-text">
           <span className="underline">NEW WORK STYLE</span>

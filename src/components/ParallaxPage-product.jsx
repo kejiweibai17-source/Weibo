@@ -5,7 +5,10 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
+import Link from "next/link";
 import Copy from "@/components/Copy";
+import { ParallaxProvider, Parallax } from "react-scroll-parallax";
+import Marquee from "react-marquee-slider";
 
 const ParallaxPage = () => {
   // 控制影片彈窗的狀態
@@ -52,20 +55,42 @@ const ParallaxPage = () => {
         </div>
 
         {/* Section 2: 橘色文字區塊 (Ethos Section) */}
-        <div className="relative z-10 bg-[#ea580c] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32">
-          <div className="max-w-3xl text-center space-y-16">
+        <div className="relative z-10 bg-[#ea580c] min-h-screen w-full flex flex-col items-center justify-center text-black  py-32">
+          <div className="max-w-3xlmb-10 text-center space-y-16">
             <Copy>
-              <h1 className=" text-2xl md:text-3xl text-stone-200 xl:text-5xl leading-normal">
-                合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
+              <h1 className=" text-2xl py-8 md:text-3xl text-stone-200 xl:text-4xl leading-normal">
+                [ 合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記 ]
               </h1>
             </Copy>
-
-            <Copy>
-              <p className="text-[16px] text-stone-200 font-mono leading-relaxed">
-                1小時快速充電，可約續航60分鐘，日常使用約20天
-              </p>
-            </Copy>
           </div>
+          <ParallaxProvider>
+            <section className="flex relative gap-4 ">
+              <div className="text absolute left-1/2 -translate-x-1/2 top-[40%] -translate-y-1/2 z-50"></div>
+              <Marquee velocity={25}>
+                {[
+                  "/images/捍衛者/捍衛者-禮盒內容_威柏科技.png",
+                  "/images/捍衛者/捍衛者-硬派外觀_沙漠配色_威柏科技.png",
+                  "/images/捍衛者/捍衛者-輕鬆水洗_不留鬍渣_威柏科技.pngg",
+                  "/images/捍衛者/捍衛者-精緻強悍_高能之選_威柏科技.png",
+                  "/images/捍衛者/捍衛者-雙環開放式刀頭_威柏科技.png",
+                  "/images/捍衛者/捍衛者-經典延續_手動情懷_手動刮鬍刀_威柏科技.png",
+                  "/images/捍衛者/捍衛者-專利太空倉設計_便利隨行_昔馬蛋收納倉_威柏科技.png",
+                  "/images/捍衛者/捍衛者-精緻手感_解壓潮玩_昔馬鼻毛修剪器_威柏科技.png",
+                  "/images/捍衛者/捍衛者-靈魂之蓋_昔馬電動刮鬍刀_威柏科技.png",
+                  "/images/捍衛者/捍衛者-淬煉金屬質感_昔馬電動刮鬍刀_威柏科技.png",
+                  "/images/捍衛者/捍衛者-為捍衛者而生_昔馬電動刮鬍刀套裝組_威柏科技.png",
+                  "/images/捍衛者/捍衛者02_昔馬電動刮鬍刀_威柏科技.png",
+                  "/images/捍衛者/捍衛者01_昔馬電動刮鬍刀_威柏科技.png",
+                ].map((src, index) => (
+                  <div key={index} className="px-2">
+                    <Parallax speed={index % 2 === 0 ? 10 : 5}>
+                      <img src={src} className="w-[480px] " alt="Handbag" />
+                    </Parallax>
+                  </div>
+                ))}
+              </Marquee>
+            </section>
+          </ParallaxProvider>
         </div>
 
         {/* Section 3: 淺灰色機芯展示區 (Calibre Section) */}
@@ -89,6 +114,15 @@ const ParallaxPage = () => {
                 全套征服全臉的修容武裝禮盒
               </p>
             </Copy>
+            <Link
+              href="https://www.weiz.com.tw/"
+              target="_blank"
+              className="mt-5"
+            >
+              <div className="max-w-[200px] rounded-full transition-all duration-200 py-2 px-4 bg-orange-600 text-white shadow-lg hover:shadow-orange-500">
+                前往選購
+              </div>
+            </Link>
           </div>
 
           <motion.div

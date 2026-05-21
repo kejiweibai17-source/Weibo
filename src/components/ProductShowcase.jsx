@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Image from "next/image";
 // ============================================================================
 // 昔馬 捍衛者 (Defender) 產品線資料
 // ============================================================================
@@ -304,6 +304,30 @@ export default function ProductShowcase() {
               </div>
             );
           })}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 max-w-[1420px] w-[95%] sm:w-[80%] xl:w-[70%] mx-auto">
+        <div className="p-3">
+          <Image
+            src="/images/捍衛者/捍衛者-產品規格-01_威柏科技.png"
+            alt=""
+            width={1000}
+            height={1000}
+            placeholder="empty"
+            loading="lazy"
+            className="w-full"
+          ></Image>
+        </div>
+        <div className="p-3">
+          <Image
+            src="/images/捍衛者/捍衛者-產品規格-02_威柏科技.png"
+            alt=""
+            width={1000}
+            height={1000}
+            placeholder="empty"
+            loading="lazy"
+            className="w-full"
+          ></Image>
         </div>
       </div>
 

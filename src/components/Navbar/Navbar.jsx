@@ -509,29 +509,14 @@ export default function Navbar() {
               <div className="absolute top-0 left-0 w-2 h-[1px] bg-[#00B4D8]"></div>
 
               <Link
-                href={isLoggedIn ? "/account" : "/login"}
-                onClick={closeMenu}
-                className="block overflow-hidden group"
+                href="https://www.weiz.com.tw/"
+                target="_blank"
+                className="block overflow-hidden group cursor-pointer"
               >
-                {/* 🌟 修改：字體響應式縮小 text-[0.8rem] */}
-                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 bg-gray-600 rounded-full group-hover:bg-[#00B4D8] group-hover:shadow-[0_0_5px_#00B4D8] transition-all" />
-                  {isLoggedIn ? "我的帳戶 ACCOUNT" : "會員登入 LOGIN"}
+                <div className="line text-[0.8rem]  sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                  <span> 前往威柏科技選購 </span>
                 </div>
               </Link>
-              <div
-                className="block overflow-hidden group cursor-pointer"
-                onClick={closeMenu}
-              >
-                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
-                  <Globe
-                    size={14}
-                    strokeWidth={1.5}
-                    className="group-hover:text-[#00B4D8] transition-colors"
-                  />
-                  <span>語言 LANG : EN</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>

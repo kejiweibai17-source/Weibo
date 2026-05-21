@@ -22,18 +22,20 @@ const Icons = {
       <path d="M20.2 11.5c0-4.6-4.6-8.5-10.2-8.5S0 6.9 0 11.5c0 4.2 3.7 7.7 8.5 8.3v4.1c0 .5.5.7.8.4l4.5-4c2.8-.5 6.4-3 6.4-8.8zM6.5 13.5h-2c-.3 0-.5-.2-.5-.5v-3c0-.3.2-.5.5-.5s.5.2.5.5v2.5h1.5c.3 0 .5.2.5.5s-.2.5-.5.5v3c0 .3-.2.5-.5.5zm1.5-3.5c0-.3.2-.5.5-.5s.5.2.5.5v3c0 .3-.2.5-.5.5s-.5-.2-.5-.5v-3zm5.5 1.5c0 .3-.2.5-.5.5h-1.5v1c0 .3-.2.5-.5.5s-.5-.2-.5-.5v-3c0-.3.2-.5.5-.5h2c.3 0 .5.2.5.5s-.2.5-.5.5v1h1.5c.3 0 .5.2.5.5z" />
     </svg>
   ),
-  Mail: (props) => (
+  // 🌟 新增 Instagram SVG 圖示
+  Instagram: (props) => (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}
     >
-      <rect width="20" height="16" x="2" y="4" rx="2" />
-      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
     </svg>
   ),
   ArrowRight: (props) => (
@@ -63,13 +65,13 @@ export default function Content() {
   return (
     <div className="relative w-full bg-white text-slate-800">
       <Section2 />
-      <ShareWidget />
+      <ContactWidget />
     </div>
   );
 }
 
 // ============================================================================
-// Footer 內容區塊 (完美參照 Vaonis 設計，置換為 SMASMALL / 威柏科技 內容)
+// Footer 內容區塊
 // ============================================================================
 const Section2 = () => {
   return (
@@ -78,7 +80,6 @@ const Section2 = () => {
         {/* 頂部 Logo (置中) */}
         <div className="flex justify-center mb-20">
           <Link href="/" className="flex items-center gap-2">
-            {/* 你可以將這裡替換成 SMASMALL 或 威柏科技 的 SVG Logo */}
             <span className="text-3xl font-light tracking-[0.25em] text-black uppercase">
               SMASMALL
             </span>
@@ -210,7 +211,7 @@ const Section2 = () => {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="#"
+                  href="https://www.facebook.com/249wzrtv/"
                   target="_blank"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -219,7 +220,7 @@ const Section2 = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/weiz.3c/?hl=zh-tw"
                   target="_blank"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -228,7 +229,7 @@ const Section2 = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="https://page.line.me/157yqtwl?oat_content=url&openQrModal=true"
                   target="_blank"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -307,9 +308,9 @@ const Section2 = () => {
 };
 
 // ============================================================================
-// Share Widget
+// Contact Widget (取代原本的 Share Widget)
 // ============================================================================
-function ShareWidget() {
+function ContactWidget() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -322,29 +323,17 @@ function ShareWidget() {
     return () => window.removeEventListener("click", handleClick);
   }, [isOpen]);
 
-  const handleShare = (platform) => {
-    const currentUrl = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(
-      "來看看極致工藝的 昔馬 SMASMALL 電動刮鬍刀！",
-    );
-
-    if (platform === "facebook")
-      window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${currentUrl}`,
-        "_blank",
-      );
+  // 🌟 修改：點擊後直接跳轉對應社群連結
+  const handleLinkClick = (platform) => {
     if (platform === "line")
       window.open(
-        `https://line.me/R/msg/text/?${text}%0D%0A${currentUrl}`,
+        "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true",
         "_blank",
       );
-    if (platform === "x")
-      window.open(
-        `https://twitter.com/intent/tweet?url=${currentUrl}&text=${text}`,
-        "_blank",
-      );
-    if (platform === "mail")
-      window.location.href = `mailto:?subject=${text}&body=${currentUrl}`;
+    if (platform === "facebook")
+      window.open("https://www.facebook.com/249wzrtv/", "_blank");
+    if (platform === "instagram")
+      window.open("https://www.instagram.com/weiz.3c/?hl=zh-tw", "_blank");
 
     setIsOpen(false);
   };
@@ -369,7 +358,6 @@ function ShareWidget() {
                 e.stopPropagation();
                 setIsOpen(true);
               }}
-              // 初始的圓角按鈕也加上毛玻璃效果
               className="flex items-center gap-2 bg-black/60 border border-white/20 backdrop-blur-md px-6 py-2.5 rounded-full hover:bg-black/80 hover:scale-105 transition-all duration-300 group shadow-lg"
             >
               <span className="font-serif font-bold text-white tracking-wider text-sm">
@@ -385,7 +373,6 @@ function ShareWidget() {
         ) : (
           <motion.div
             key="share-bar"
-            // 🌟 這裡修改：加入 bg-black/80, backdrop-blur-md, 以及細微邊框
             className="pointer-events-auto w-full h-[60px] md:h-[70px] grid grid-cols-3 bg-black/80 backdrop-blur-md border-t border-white/10"
             style={{ boxShadow: "0 -4px 30px rgba(0,0,0,0.3)" }}
             initial={{ y: "100%" }}
@@ -394,33 +381,37 @@ function ShareWidget() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* 將按鈕底色移除 (bg-transparent)，讓毛玻璃背景透出來 */}
+            {/* 🌟 替換功能與點擊事件 */}
             <ShareBlock
               bg="bg-transparent"
               icon={
                 <Icons.Line width={28} height={28} className="text-white" />
               }
-              ariaLabel="分享至 LINE"
-              onClick={() => handleShare("line")}
-              hoverColor="hover:bg-[#00B900]/80" /* Hover 時顯示品牌色 */
+              ariaLabel="加入官方 LINE"
+              onClick={() => handleLinkClick("line")}
+              hoverColor="hover:bg-[#00B900]/80" /* LINE 綠色 */
             />
             <ShareBlock
               bg="bg-transparent"
               icon={
                 <Icons.Facebook width={28} height={28} className="text-white" />
               }
-              ariaLabel="分享至 Facebook"
-              onClick={() => handleShare("facebook")}
-              hoverColor="hover:bg-[#3B5998]/80" /* Hover 時顯示品牌色 */
+              ariaLabel="前往 Facebook 粉絲專頁"
+              onClick={() => handleLinkClick("facebook")}
+              hoverColor="hover:bg-[#3B5998]/80" /* Facebook 藍色 */
             />
             <ShareBlock
               bg="bg-transparent"
               icon={
-                <Icons.Mail width={28} height={28} className="text-white" />
+                <Icons.Instagram
+                  width={26}
+                  height={26}
+                  className="text-white"
+                />
               }
-              ariaLabel="透過 Email 分享"
-              onClick={() => handleShare("mail")}
-              hoverColor="hover:bg-[#E04F3F]/80" /* Hover 時顯示品牌色 */
+              ariaLabel="前往 Instagram"
+              onClick={() => handleLinkClick("instagram")}
+              hoverColor="hover:bg-[#E1306C]/80" /* Instagram 漸層主色代表 */
             />
           </motion.div>
         )}
@@ -429,7 +420,6 @@ function ShareWidget() {
   );
 }
 
-// 🌟 修改 ShareBlock 支援 hover 變色
 function ShareBlock({ bg, icon, onClick, ariaLabel, hoverColor }) {
   return (
     <button
