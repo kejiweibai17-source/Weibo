@@ -8,7 +8,7 @@ import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-// 🌟 替換為昔馬 SMASMALL 專屬文案
+// 🌟 昔馬 SMASMALL 專屬文案
 const slides = [
   {
     title: "獨創全合金壓鑄機身",
@@ -163,10 +163,10 @@ export default function Slider() {
           currentSplits = [];
         }
 
-        // 更新 HTML
+        // 🌟 修復 2：加上 Tailwind class，確保第二張以後的排版跟第一張一模一樣
         sliderTitleRef.current.innerHTML = `
-          <h1>${slides[index].title}</h1>
-          <p class="description">${slides[index].description}</p>
+          <h1 class="text-4xl md:text-5xl font-bold tracking-wider mb-5">${slides[index].title}</h1>
+          <p class="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">${slides[index].description}</p>
         `;
 
         // 拆分 <h1>
@@ -183,11 +183,9 @@ export default function Slider() {
 
         currentSplits.push(titleSplit, descSplit);
 
-        // 🌟 分別設定初始狀態，才能分開控制動畫
         gsap.set(titleSplit.lines, { yPercent: 100, opacity: 0 });
         gsap.set(descSplit.lines, { yPercent: 100, opacity: 0 });
 
-        // 🌟 標題動畫 (沒有延遲)
         gsap.to(titleSplit.lines, {
           yPercent: 0,
           opacity: 1,
@@ -196,12 +194,11 @@ export default function Slider() {
           ease: "power3.out",
         });
 
-        // 🌟 描述動畫 (加上 delay: 0.5)
         gsap.to(descSplit.lines, {
           yPercent: 0,
           opacity: 1,
           duration: 0.75,
-          delay: 0.2, // 這裡設定了 0.5 秒的延遲
+          delay: 0.2,
           stagger: 0.05,
           ease: "power3.out",
         });
@@ -243,28 +240,133 @@ export default function Slider() {
   );
 
   return (
-    <section className="slider section-slider" ref={sliderRef}>
-      <div className="slider-images" ref={sliderImagesRef}>
-        <img src={slides[0].image} alt="Slide 1" />
-      </div>
-
-      <div
-        className="slider-title ml-[90px] max-w-[500px]"
-        ref={sliderTitleRef}
-      >
-        <h1>{slides[0].title}</h1>
-        <p className=" !leading-10 mt-5 !text-[18.5px]">
-          {slides[0].description}
-        </p>
-      </div>
-
-      <div className="slider-indicator">
-        <div className="slider-indices" ref={sliderIndicesRef}></div>
-
-        <div className="slider-progress-bar">
-          <div className="slider-progress" ref={progressBarRef}></div>
+    <>
+      <section className="slider section-slider" ref={sliderRef}>
+        <div className="slider-images" ref={sliderImagesRef}>
+          <img src={slides[0].image} alt="Slide 1" />
         </div>
-      </div>
-    </section>
+
+        <div
+          className="slider-title ml-[5%] md:ml-[10%] max-w-[600px] px-4 md:px-0"
+          ref={sliderTitleRef}
+        >
+          <h1 className="text-4xl md:text-5xl font-bold tracking-wider mb-5">
+            {slides[0].title}
+          </h1>
+          <p className="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">
+            {slides[0].description}
+          </p>
+        </div>
+
+        <div className="slider-indicator hidden md:flex">
+          <div className="slider-indices" ref={sliderIndicesRef}></div>
+          <div className="slider-progress-bar">
+            <div className="slider-progress" ref={progressBarRef}></div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🌟 核心修復：封裝在此元件專用的 CSS，不依賴全域樣式 */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .section-slider {
+          position: relative;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+          background-color: #050507;
+        }
+
+        /* 圖片容器 */
+        .slider-images {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+        }
+
+        /* 讓 JS 動態加入的所有圖片都能滿版並維持比例 */
+        .slider-images img {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          will-change: transform, opacity;
+        }
+
+        /* 暗色漸層遮罩，讓文字永遠清晰可見 */
+        .slider-images::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+          z-index: 1;
+          pointer-events: none;
+        }
+
+        /* 標題定位 */
+        .slider-title {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          color: white;
+        }
+
+        /* 右側指示器定位 */
+        .slider-indicator {
+          position: absolute;
+          top: 50%;
+          right: 5%;
+          transform: translateY(-50%);
+          z-index: 10;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        .slider-indices p {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-bottom: 24px;
+          color: white;
+          font-family: monospace;
+          font-size: 14px;
+        }
+
+        .slider-indices .marker {
+          display: block;
+          width: 24px;
+          height: 2px;
+          background-color: white;
+          transform-origin: right;
+        }
+
+        .slider-progress-bar {
+          width: 2px;
+          height: 200px;
+          background-color: rgba(255, 255, 255, 0.2);
+          position: relative;
+        }
+
+        .slider-progress {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: white;
+          transform-origin: top;
+        }
+      `,
+        }}
+      />
+    </>
   );
 }
