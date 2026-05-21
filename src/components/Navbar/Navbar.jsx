@@ -23,7 +23,8 @@ function MenuToggleButton({ open, onClick, className = "", buttonRef }) {
       aria-label={open ? "關閉選單" : "開啟選單"}
       aria-expanded={open}
       whileTap={{ scale: 0.95 }}
-      className={`inline-flex items-center justify-center focus:outline-none transition-colors z-[2100] relative ${className}`}
+      // 🌟 確保按鈕有足夠高的 z-index，且大小固定
+      className={`inline-flex items-center justify-center focus:outline-none transition-colors z-[2100] relative w-10 h-10 ${className}`}
     >
       <motion.svg
         width="22"
@@ -218,10 +219,17 @@ export default function Navbar() {
     if (tl.current) {
       if (menuOpen) {
         tl.current.play();
+        // 🌟 打開選單時鎖定背景滾動
+        document.body.style.overflow = "hidden";
       } else {
         tl.current.reverse();
+        document.body.style.overflow = "unset";
       }
     }
+    // 元件卸載時恢復滾動
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [menuOpen]);
 
   const refreshAuth = useCallback(async () => {
@@ -310,26 +318,26 @@ export default function Navbar() {
           isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-transparent"
         }`}
       >
-        <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-6 lg:px-10">
-          <div className="w-[20%]">
-            <div className="w-[180px] flex items-center">
+        <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
+          <div className="w-[30%] md:w-[20%]">
+            <div className="flex items-center">
               <Link
                 href="/"
-                className="text-[22px] font-light tracking-[0.2em] text-white uppercase relative z-[2100]"
+                // 🌟 縮小手機版 Logo 字體
+                className="text-[18px] md:text-[22px] font-light tracking-[0.2em] text-white uppercase relative z-[2100]"
               >
                 SMASMALL
               </Link>
             </div>
           </div>
 
-          <div className="w-[60%] flex justify-center lg:justify-center">
-            <nav className="hidden lg:flex mx-auto items-center gap-4 max-w-[780px]">
+          <div className="hidden lg:flex w-[60%] justify-center">
+            <nav className="mx-auto items-center gap-4 max-w-[780px] flex">
               {globalLinks.map((link) => (
                 <div
                   key={link.label}
                   className="relative h-full flex items-center group cursor-pointer"
                 >
-                  {/* 電腦版恢復為原本的 hover:text-gray-300 */}
                   <Link
                     href={link.href}
                     className="text-[13px] font-medium text-white group-hover:text-gray-300 transition-colors tracking-wide h-full flex items-center px-2"
@@ -346,7 +354,6 @@ export default function Navbar() {
                             <Link
                               key={idx}
                               href={sub.href}
-                              // 電腦版下拉選單恢復原本的 hover:text-black 效果
                               className="group/item flex items-center px-6 py-3.5 text-[13px] font-medium text-gray-500 hover:bg-slate-50 transition-colors duration-300 overflow-hidden"
                             >
                               <span className="transform transition-all duration-300 group-hover/item:translate-x-1.5 group-hover/item:text-black">
@@ -363,7 +370,7 @@ export default function Navbar() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-6 w-[20%] justify-end h-full">
+          <div className="flex items-center gap-4 md:gap-6 w-[70%] md:w-[20%] justify-end h-full">
             <div className="hidden md:flex items-center gap-2 text-white hover:text-gray-300 transition-colors cursor-pointer text-[13px] font-medium">
               <Globe size={16} strokeWidth={1.5} /> En
             </div>
@@ -387,7 +394,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* 電腦版滿版進度條恢復灰色 */}
         <motion.div
           className="absolute bottom-0 left-0 h-[1px] bg-gray-300 origin-left z-[2100] w-full"
           style={{ scaleX: scrollYProgress }}
@@ -401,25 +407,24 @@ export default function Navbar() {
         animate={navState === "product" ? "visible" : "hidden"}
         className="fixed top-0 left-0 w-full h-[64px] bg-black/80 backdrop-blur-md z-[990]"
       >
-        <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-6 lg:px-10">
+        <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
           <div className="flex items-center">
-            <a href="https://www.weiboltd.com" target="_blank">
+            <a href="https://www.weiboltd.com" target="_blank" rel="noreferrer">
               <Image
                 src="/images/logo-white.png"
                 width={300}
                 height={150}
-                className="w-[120px]"
+                className="w-[100px] md:w-[120px]"
                 priority
                 alt="Logo"
               />
             </a>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
             <Link
               href="https://www.weiz.com.tw"
-              // 恢復原本的按鈕樣式
-              className="bg-white text-black text-[13px] font-medium px-6 py-2.5 rounded-full hover:bg-gray-200 transition-colors tracking-wide"
+              className="bg-white text-black text-[12px] md:text-[13px] font-medium px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-200 transition-colors tracking-wide"
             >
               購物商城
             </Link>
@@ -443,9 +448,10 @@ export default function Navbar() {
       {/* =======================================================
           3. 🌟 新版：手機版全螢幕選單 (3C Tech 科技感)
           ======================================================= */}
+      {/* 🌟 修正：確保 z-[3000] 高於 Navbar，且 h-[100dvh] 解決 iOS 底部列問題 */}
       <div
         ref={overlayRef}
-        className={`fixed inset-0 z-[2000] w-full h-[100dvh] lg:hidden ${
+        className={`fixed top-0 left-0 w-full h-[100dvh] z-[3000] lg:hidden ${
           menuOpen ? "pointer-events-auto" : "pointer-events-none"
         }`}
       >
@@ -457,15 +463,15 @@ export default function Navbar() {
 
         {/* 內容區塊 */}
         <div
-          className="nav-items relative z-10 flex flex-col justify-center h-full px-8 bg-[#050505] pt-16 pb-8"
+          className="nav-items relative z-10 flex flex-col justify-between h-full px-6 md:px-8 bg-[#050505] overflow-hidden"
           style={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
         >
           {/* HUD 風格背景裝飾線 */}
-          <div className="absolute left-6 top-[15%] bottom-[15%] w-[1px] bg-gradient-to-b from-transparent via-[#00B4D8]/30 to-transparent pointer-events-none" />
+          <div className="absolute left-6 top-[15%] bottom-[15%] w-[1px] bg-gradient-to-b from-transparent via-[#00B4D8]/30 to-transparent pointer-events-none hidden sm:block" />
 
-          {/* 🌟 頂部：Logo 佔位與實體的「關閉按鈕」 */}
-          <div className="absolute top-0 left-0 w-full h-[72px] flex justify-between items-center px-6">
-            <span className="text-[20px] font-light tracking-[0.2em] text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] pointer-events-none">
+          {/* 🌟 頂部 Header：Logo 與關閉按鈕 */}
+          <div className="w-full h-[72px] flex justify-between items-center mt-2 shrink-0">
+            <span className="text-[18px] md:text-[20px] font-light tracking-[0.2em] text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
               SMASMALL
             </span>
             <div className="pointer-events-auto">
@@ -473,9 +479,10 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 pl-4">
+          {/* 主要內容區，使用 flex-1 自動推擠，並確保在小螢幕不被截斷 */}
+          <div className="flex-1 flex flex-col justify-center gap-6 sm:gap-8 pl-0 sm:pl-4 mt-8 pb-8">
             {/* 主要導覽連結 */}
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4 sm:gap-5">
               {globalLinks.map((link, idx) => (
                 <Link
                   key={link.label}
@@ -484,12 +491,12 @@ export default function Navbar() {
                   className="block overflow-hidden group"
                 >
                   <div className="line flex items-center gap-4 transform translate-y-[100%] transition-transform duration-300 group-hover:translate-x-2">
-                    {/* 字體調整：縮小數字與主要文字的尺寸 */}
-                    <span className="text-[#00B4D8] text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
+                    {/* 數字 */}
+                    <span className="text-[#00B4D8] text-[0.7rem] sm:text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
                       0{idx + 1}
                     </span>
-                    {/* 主要文字從 2rem 縮小至 1.5rem (24px) */}
-                    <span className="text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
+                    {/* 🌟 修改：字體響應式縮小 text-[1.25rem] */}
+                    <span className="text-[1.25rem] sm:text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
                       {link.label}
                     </span>
                   </div>
@@ -498,7 +505,7 @@ export default function Navbar() {
             </div>
 
             {/* 次要連結區 (會員 / 語言) */}
-            <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-4 relative">
+            <div className="mt-6 pt-6 border-t border-white/10 flex flex-col gap-4 relative">
               <div className="absolute top-0 left-0 w-2 h-[1px] bg-[#00B4D8]"></div>
 
               <Link
@@ -506,8 +513,8 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className="block overflow-hidden group"
               >
-                {/* 文字從 1rem 縮小為 0.875rem (14px) */}
-                <div className="line text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                {/* 🌟 修改：字體響應式縮小 text-[0.8rem] */}
+                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
                   <span className="w-1.5 h-1.5 bg-gray-600 rounded-full group-hover:bg-[#00B4D8] group-hover:shadow-[0_0_5px_#00B4D8] transition-all" />
                   {isLoggedIn ? "我的帳戶 ACCOUNT" : "會員登入 LOGIN"}
                 </div>
@@ -516,9 +523,9 @@ export default function Navbar() {
                 className="block overflow-hidden group cursor-pointer"
                 onClick={closeMenu}
               >
-                <div className="line text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
                   <Globe
-                    size={15}
+                    size={14}
                     strokeWidth={1.5}
                     className="group-hover:text-[#00B4D8] transition-colors"
                   />
