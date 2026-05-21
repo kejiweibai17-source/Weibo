@@ -34,16 +34,17 @@ export const metadata: Metadata = {
     canonical: "/product01",
   },
   openGraph: {
-    type: "website", // 維持 website，避免型別報錯
+    type: "website",
     locale: "zh_TW",
-    url: "/product01",
+    url: "https://weibo-alpha.vercel.app/product01", // 直接寫死絕對路徑
     siteName: "SMASMALL 昔馬 by 威柏科技",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description:
       "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
     images: [
       {
-        url: "/images/defender-og.png", // 🌟 確保這張圖片是全英文檔名
+        // 🌟 核心修復：直接貼上你找到的、已經過 URL 編碼的正確圖片網址
+        url: "https://weibo-alpha.vercel.app/images/%E6%8D%8D%E8%A1%9B%E8%80%85-001.png",
         width: 1200,
         height: 630,
         alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
@@ -54,7 +55,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    images: ["/images/defender-og.png"], // 🌟 Twitter 也要同步更新
+    // 🌟 這裡也同步更新為編碼後的網址
+    images: [
+      "https://weibo-alpha.vercel.app/images/%E6%8D%8D%E8%A1%9B%E8%80%85-001.png",
+    ],
   },
 };
 
