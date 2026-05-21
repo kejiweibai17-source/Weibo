@@ -55,13 +55,13 @@ const ParallaxPage = () => {
         <div className="relative z-10 bg-[#ea580c] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32">
           <div className="max-w-3xl text-center space-y-16">
             <Copy>
-              <h1 className=" text-2xl md:text-3xl text-stone-600 xl:text-5xl leading-normal">
+              <h1 className=" text-2xl md:text-3xl text-stone-200 xl:text-5xl leading-normal">
                 合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
               </h1>
             </Copy>
 
             <Copy>
-              <p className="text-[16px] text-stone-600 font-mono leading-relaxed">
+              <p className="text-[16px] text-stone-200 font-mono leading-relaxed">
                 1小時快速充電，可約續航60分鐘，日常使用約20天
               </p>
             </Copy>
@@ -93,7 +93,7 @@ const ParallaxPage = () => {
 
           <motion.div
             style={{ scale, opacity, y }}
-            className="relative w-full  border aspect-square flex items-center justify-center z-10 mt-12"
+            className="relative w-full max-w-[650px] pb-14  border aspect-square flex items-center justify-center z-10 mt-12"
           >
             {/* 主體：機芯/刮鬍刀圖 */}
             <img
@@ -104,7 +104,7 @@ const ParallaxPage = () => {
 
             {/* 充電線插入動畫 */}
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 30, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: false, amount: 0.8 }}
               transition={{
@@ -112,12 +112,12 @@ const ParallaxPage = () => {
                 ease: "easeOut",
                 delay: 0.2,
               }}
-              className="absolute bottom-[-20%] left-[50%] -translate-x-1/2    z-10"
+              className="absolute max-w-[160px]  bottom-[-22%] left-[35%] md:left-[39%] -translate-x-1/2    z-10"
             >
               <img
                 src="/images/charging.png"
                 alt="Charging Cable"
-                className="w-full h-auto object-contain"
+                className="w-full h-auto   object-contain"
               />
             </motion.div>
 

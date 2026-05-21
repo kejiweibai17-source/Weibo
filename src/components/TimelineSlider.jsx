@@ -53,13 +53,13 @@ export default function TimelineSlider() {
         <Copy>
           {" "}
           <span className="text-[11px] font-bold tracking-widest text-[#EA580C] uppercase mb-4">
-            The Journey
+            Features
           </span>
         </Copy>
         <Copy>
           {" "}
           <h2 className="text-3xl md:text-4xl font-light text-black tracking-wide">
-            A Legacy of <span className="font-bold">Craftsmanship</span>
+            昔馬電動刮鬍刀-捍衛者<span className="font-bold">產品特色</span>
           </h2>
         </Copy>
       </div>
