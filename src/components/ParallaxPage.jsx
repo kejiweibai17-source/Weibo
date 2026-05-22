@@ -1,6 +1,8 @@
+"use client";
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Copy from "@/components/Copy";
+
 const ParallaxPage = () => {
   // 針對第三區塊（灰色機芯區）建立滾動參考點
   const calibreRef = useRef(null);
@@ -54,7 +56,7 @@ const ParallaxPage = () => {
       {/* Section 2: 橘色文字區塊 (Ethos Section) 
         使用 relative z-10，在滾動時會自然蓋過上面 sticky 的黑色區塊
       */}
-      <div className="relative z-10 bg-[#ea580c] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32">
+      <div className="relative z-10 bg-[#f5f5f5] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32">
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
@@ -78,51 +80,6 @@ const ParallaxPage = () => {
       {/* Section 3: 淺灰色機芯展示區 (Calibre Section) 
         綁定 calibreRef 來追蹤視差滾動進度
       */}
-      <div
-        ref={calibreRef}
-        className="relative z-10 bg-[#e5e5e5] min-h-screen w-full flex flex-col items-center pt-32 pb-24 overflow-hidden"
-      >
-        {/* 區塊標題 */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20 z-20"
-        >
-          <h2 className="text-4xl font-bold text-black tracking-tight mb-2">
-            CALIBRE AMB+
-          </h2>
-          <p className="text-lg text-gray-700">
-            Developed by le Cercle des Horlogers
-          </p>
-        </motion.div>
-
-        {/* 核心視差物件：動態套用 scale, opacity, y
-         */}
-        <motion.div
-          style={{ scale, opacity, y }}
-          className="relative w-full max-w-4xl aspect-square flex items-center justify-center z-10"
-        >
-          {/* 替換成機芯去背圖 (PNG) */}
-          <img
-            src="機芯去背圖網址.png"
-            alt="Calibre AMB+"
-            className="w-full h-full object-contain drop-shadow-2xl"
-          />
-
-          {/* 影片中附著在機芯上的橘色標記 'A' */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.5, type: "spring" }}
-            className="absolute top-[30%] left-[35%] w-8 h-8 bg-[#ea580c] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg cursor-pointer hover:scale-110 transition-transform"
-          >
-            A
-          </motion.div>
-        </motion.div>
-      </div>
     </div>
   );
 };

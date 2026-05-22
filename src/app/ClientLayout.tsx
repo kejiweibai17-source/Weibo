@@ -1,6 +1,7 @@
 // app/ClientLayout.tsx
 "use client";
-import { ReactLenis } from "@studio-freight/react-lenis";
+import { ReactLenis } from "lenis/react";
+import "lenis/dist/lenis.css";
 
 import "yakuhanjp";
 import { ViewTransitions } from "next-view-transitions";

@@ -1,266 +1,245 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  useMotionTemplate,
-  AnimatePresence,
-} from "framer-motion";
-import Image from "next/image";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Info, ChevronDown } from "lucide-react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ============================================================================
-// 手風琴選單資料
+// 🛒 昔馬 SMASMALL 文案資料配置
 // ============================================================================
+const INTRO_DATA = {
+  label: "Original Craftsmanship",
+  title: "獨創全合金壓鑄機身",
+  description:
+    "拋棄傳統塑膠材質，汲取重機與航空機身靈感，打造扎實且耐用的全合金機身。握感沉穩、冰冷俐落，完美展現復古未來主義的獨特品味。",
+  image: "/images/index/banner-01.png",
+};
+
 const ACCORDION_DATA = [
   {
-    id: "item-1",
-    category: "雙環開放式刀頭 2.0版",
-    title: "德國進口材料，日本加工技術",
-    desc: "SMASMALL 昔馬電動刮鬍刀，以高質感鋅合金機身打造，搭配極簡俐落外型，讓刮鬍不只是整理，而是一種生活品味。輕巧尺寸、精準貼面刀頭，從第一眼到第一刮，都展現成熟男性魅力",
-    img: "/images/about/晶透源頭：LiposoMax微脂體穀胱甘肽.png",
+    id: "feature-1",
+    label: "Magnetic design",
+    title: "業界首創磁吸快拆刀頭",
+    description:
+      "搭載高精密磁吸結構，一秒即可無縫貼合與拆卸。不僅大幅縮短日常清理時間，更徹底解決傳統機械卡榫易斷裂、易磨損的問題。",
   },
   {
-    id: "item-2",
-    category: "雙環開放式刀頭 2.0版",
-    title: "德國進口材料，日本加工技術",
-    desc: "SMASMALL 昔馬電動刮鬍刀，以高質感鋅合金機身打造，搭配極簡俐落外型，讓刮鬍不只是整理，而是一種生活品味。輕巧尺寸、精準貼面刀頭，從第一眼到第一刮，都展現成熟男性魅力",
+    id: "feature-2",
+    label: "Premium materials",
+    title: "荷蘭進口精鋼刀片",
+    description:
+      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀網與自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的剃鬚體驗。",
   },
-  // 你可以隨時在這裡新增第三、第四個特色，佈局會自動適應！
+  {
+    id: "feature-3",
+    label: "Waterproof capability",
+    title: "IPX7 頂級全機防水",
+    description:
+      "支援全機身水洗與乾濕兩用。無論是搭配刮鬍泡的深層淨容，或是淋浴時的快速剃鬚，都能輕鬆應對，用水一沖即淨，衛生無死角。",
+  },
 ];
 
-// 小巧精緻的箭頭 Icon
-const ChevronIcon = ({ className }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <polyline points="6 9 12 15 18 9"></polyline>
-  </svg>
-);
-
-const TextParallaxContentExample = () => {
-  // ... (保留你原本的 scrollYProgress 等邏輯)
-  const sectionRef = useRef(null);
-
-  return (
-    <>
-      <div className="bg-white relative isolate">
-        <TextParallaxContent
-          subheading="雙環開放式刀頭 2.0版"
-          heading="「合金工藝 × 極簡設計 × 高效刮淨」"
-        >
-          {/* 調整了 padding 與高度，讓畫面更有呼吸空間 */}
-          <div className="min-h-[120vh] px-4 md:px-8 pt-[12vh] pb-32">
-            <ExampleContent />
-          </div>
-        </TextParallaxContent>
-      </div>
-    </>
-  );
-};
-
-/* ===== TextParallaxContent / StickyBackground / OverlayCopy 保留你原本的設定 ===== */
-const TextParallaxContent = ({ subheading, heading, children }) => {
+export default function ElegantScrollSection() {
   const containerRef = useRef(null);
+  const bgRef = useRef(null);
+  const [openAccordion, setOpenAccordion] = useState("feature-1");
+
+  useGSAP(
+    () => {
+      // 1. 釘死背景
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        pin: bgRef.current,
+        pinSpacing: false,
+      });
+
+      // 2. 背景視差 (scrub: 2 創造極大的滾動延遲感)
+      gsap.to(".slider-bg", {
+        scale: 1.15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 2,
+        },
+      });
+
+      // ==========================================
+      // 🌟 動畫順序 1：開場文字 Fade-up 進場
+      // ==========================================
+      gsap.fromTo(
+        ".intro-item",
+        { opacity: 0, y: 100 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.8,
+          stagger: 0.2,
+          ease: "expo.out",
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: ".intro-container",
+            start: "top 75%", // 當區塊頂部到達畫面 75% 時進場
+            toggleActions: "play none none reverse",
+          },
+        },
+      );
+
+      // ==========================================
+      // 🌟 動畫順序 2：開場文字隨滾動「往上飄移淡出」
+      // ==========================================
+      gsap.to(".intro-content", {
+        opacity: 0,
+        y: -150, // 往上偏移
+        scrollTrigger: {
+          trigger: ".intro-container",
+          start: "top 20%", // 當滾動到接近頂部時開始淡出
+          end: "top -20%", // 滾出畫面一點點時完全消失
+          scrub: 1, // 綁定滾輪，讓退場有順滑的跟隨感
+        },
+      });
+
+      // ==========================================
+      // 🌟 動畫順序 3：手風琴面板 Fade-up 接著出場
+      // ==========================================
+      gsap.fromTo(
+        ".accordion-wrapper",
+        { opacity: 0, y: 100 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.8,
+          ease: "expo.out",
+          immediateRender: false,
+          scrollTrigger: {
+            trigger: ".accordion-container",
+            start: "top 80%", // 等待上面的文字完全淡出後，這裡才剛好觸發進場
+            toggleActions: "play none none reverse",
+          },
+        },
+      );
+
+      return () => {
+        ScrollTrigger.getAll().forEach((st) => st.kill());
+      };
+    },
+    { scope: containerRef },
+  );
+
   return (
-    <div ref={containerRef} className="relative isolate">
-      <div className="sticky top-0 h-screen z-0 overflow-hidden will-change-transform">
-        <StickyBackground containerRef={containerRef} />
-        <OverlayCopy
-          heading={heading}
-          subheading={subheading}
-          containerRef={containerRef}
+    <section ref={containerRef} className="relative w-full bg-[#050507]">
+      {/* =========================================
+          🌟 1. 固定的背景層
+          ========================================= */}
+      <div
+        ref={bgRef}
+        className="absolute top-0 left-0 w-full h-screen overflow-hidden z-0"
+      >
+        <img
+          src={INTRO_DATA.image}
+          alt="Background"
+          className="slider-bg w-full h-full object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent pointer-events-none" />
       </div>
-      <div className="relative z-10">{children}</div>
-    </div>
-  );
-};
 
-const StickyBackground = ({ containerRef }) => {
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-  const rawScale = useTransform(scrollYProgress, [0, 1], [1.05, 1.15]);
-  const rawY = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const scale = useSpring(rawScale, { damping: 30, stiffness: 120 });
-  const y = useSpring(rawY, { damping: 30, stiffness: 120 });
+      {/* =========================================
+          🌟 2. 正常滾動的內容層
+          ========================================= */}
+      <div className="relative z-10 w-full text-white pt-[15vh] pb-[30vh]">
+        {/* --- 區塊 A：開場標題與介紹 --- */}
+        <div className="intro-container min-h-screen flex items-center px-[6%] md:px-[10%]">
+          {/* 🌟 增加一層 intro-content 專門用來控制退場動畫 */}
+          <div className="intro-content w-full flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 lg:gap-24">
+            <div className="intro-item w-full lg:w-1/2">
+              <div className="flex items-center gap-3 text-gray-400 mb-6">
+                <Info size={18} />
+                <span className="text-sm font-medium tracking-wider uppercase">
+                  {INTRO_DATA.label}
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-5xl   font-normal tracking-wide leading-tight drop-shadow-lg">
+                {INTRO_DATA.title}
+              </h1>
+            </div>
 
-  return (
-    <motion.div
-      className="absolute inset-0 bg-[url('/images/003-01.png')] bg-center bg-cover bg-no-repeat"
-      style={{ scale, y, transform: "translateZ(0)", willChange: "transform" }}
-    />
-  );
-};
-
-const OverlayCopy = ({ subheading, heading, containerRef }) => {
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-  const rawY = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const rawOpacity = useTransform(
-    scrollYProgress,
-    [0.15, 0.5, 0.85],
-    [0, 1, 0],
-  );
-  const y = useSpring(rawY, { damping: 30, stiffness: 120 });
-  const opacity = useSpring(rawOpacity, { damping: 30, stiffness: 120 });
-
-  return (
-    <motion.div
-      style={{
-        y,
-        opacity,
-        transform: "translateZ(0)",
-        willChange: "transform",
-      }}
-      className="absolute left-0 top-0 flex h-screen w-full flex-col items-start justify-center text-white px-4"
-    >
-      <div className="flex items-center justify-center w-full">
-        <div className="w-full md:w-1/2 flex flex-col items-center">
-          <p className="mb-2 text-center text-xl md:mb-4 md:text-3xl drop-shadow-md">
-            {subheading}
-          </p>
-          <p className="text-center text-4xl font-bold   drop-shadow-lg">
-            {heading}
-          </p>
+            <div className="intro-item w-full lg:w-[40%]">
+              <p className="text-lg md:text-xl text-gray-300 leading-relaxed font-light">
+                {INTRO_DATA.description}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="hidden md:block w-1/2"></div>
-      </div>
-    </motion.div>
-  );
-};
 
-/* ============================================================================
-   🌟 全新改寫的 ExampleContent (Vaonis 風格手風琴佈局)
-   ============================================================================ */
-const ExampleContent = () => {
-  const txtRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const { scrollYProgress } = useScroll({
-    target: txtRef,
-    offset: ["start 0.85", "end 0.15"],
-  });
-
-  const rawOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0, 1, 1, 0],
-  );
-  const rawY = useTransform(scrollYProgress, [0, 1], [40, -40]);
-  const opacity = useSpring(rawOpacity, { damping: 20, stiffness: 100 });
-  const y = useSpring(rawY, { damping: 20, stiffness: 100 });
-
-  return (
-    <motion.div
-      ref={txtRef}
-      style={{ opacity, y }}
-      className="w-full max-w-[1400px] mx-auto"
-    >
-      {/* 左右雙欄佈局：左側選單，右側圖片 */}
-      <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-12 lg:gap-20">
-        {/* 左側：暗黑毛玻璃手風琴選單 */}
-        <div className="w-full lg:w-[45%] flex justify-center lg:justify-end z-20">
-          <div className="w-full max-w-[500px] bg-[#cdcdcd]/20 backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        {/* --- 區塊 B：左側手風琴選單 (毛玻璃面板) --- */}
+        {/* 🌟 修改 trigger 用的 class 名稱以完美銜接動畫 */}
+        <div className="accordion-container min-h-screen flex items-start px-[6%] md:px-[10%] pt-[10vh]">
+          <div className="accordion-wrapper w-full md:w-[60%] lg:w-[35%] flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 p-6 md:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
             {ACCORDION_DATA.map((item, index) => {
-              const isActive = activeIndex === index;
+              const isOpen = openAccordion === item.id;
 
               return (
                 <div
                   key={item.id}
                   className="border-b border-white/10 last:border-none"
                 >
-                  {/* Header 點擊區塊 */}
-                  <div
-                    className="flex items-center justify-between py-5 cursor-pointer group"
-                    onClick={() => setActiveIndex(index)}
+                  <button
+                    onClick={() => setOpenAccordion(isOpen ? "" : item.id)}
+                    className="w-full py-8 flex flex-col gap-4 text-left group"
                   >
-                    <span
-                      className={`text-[14px] font-medium tracking-wide transition-colors duration-300 ${
-                        isActive
+                    <div className="w-full flex justify-between items-center">
+                      <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
+                        {item.label}
+                      </span>
+                      <div className="w-8 h-8 bg-white/5 flex items-center justify-center border border-white/5 group-hover:bg-white/10 transition-colors duration-300">
+                        <ChevronDown
+                          size={16}
+                          className={`text-gray-400 transition-transform duration-500 ease-in-out ${
+                            isOpen
+                              ? "rotate-180 text-white"
+                              : "group-hover:text-white"
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <h3
+                      className={`text-lg md:text-xl font-medium tracking-wide transition-colors duration-300 ${
+                        isOpen
                           ? "text-white"
                           : "text-gray-400 group-hover:text-gray-200"
                       }`}
                     >
-                      {item.category}
-                    </span>
+                      {item.title}
+                    </h3>
+                  </button>
 
-                    {/* 右側箭頭 Icon */}
-                    <div className="w-[26px] h-[26px] flex items-center justify-center bg-white/5 border border-white/10 rounded-[4px] group-hover:bg-white/10 transition-colors duration-300">
-                      <motion.div
-                        animate={{ rotate: isActive ? 180 : 0 }}
-                        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                      >
-                        <ChevronIcon className="w-4 h-4 text-gray-400" />
-                      </motion.div>
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100 pb-8"
+                        : "grid-rows-[0fr] opacity-0 pb-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="text-gray-300 leading-8 text-[14px] md:text-[15px] font-light">
+                        {item.description}
+                      </p>
                     </div>
                   </div>
-
-                  {/* 展開的內容區塊 */}
-                  <AnimatePresence initial={false}>
-                    {isActive && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                        className="overflow-hidden"
-                      >
-                        {/* 內部 Padding 確保展開時的呼吸空間 */}
-                        <div className="pb-6 pt-2">
-                          <h3 className="text-[20px] md:text-[22px] text-white font-medium mb-3 leading-snug">
-                            {item.title}
-                          </h3>
-                          <p className="text-[14px] text-gray-400 leading-relaxed">
-                            {item.desc}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* 右側：根據選單動態切換的高清圖片 */}
-        <div className="w-full lg:w-[50%] flex justify-center items-center h-[350px] md:h-[500px] relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeIndex}
-              initial={{ opacity: 0, scale: 0.95, filter: "blur(8px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, scale: 1.05, filter: "blur(8px)" }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <Image
-                src={ACCORDION_DATA[activeIndex].img}
-                placeholder="empty"
-                width={800}
-                height={800}
-                className="w-full max-w-[450px] h-auto object-contain drop-shadow-2xl"
-                alt={ACCORDION_DATA[activeIndex].title}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </div>
       </div>
-    </motion.div>
+    </section>
   );
-};
-
-export default TextParallaxContentExample;
+}

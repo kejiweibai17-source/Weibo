@@ -291,6 +291,7 @@ export default function Navbar() {
       ],
     },
     { label: "關於我們", href: "/about" },
+    { label: "產品配件", href: "/accessories" },
     { label: "昔馬SMSMALL", href: "/brand" },
     { label: "聯絡我們", href: "/support" },
     { label: "Gallery", href: "/gallery" },
@@ -314,9 +315,7 @@ export default function Navbar() {
         variants={headerVariants}
         initial="visible"
         animate={navState === "global" ? "visible" : "hidden"}
-        className={`fixed top-0 left-0 w-full h-[72px] z-[1000] transition-colors duration-300 ${
-          isScrolled ? "bg-black/80 backdrop-blur-md" : "bg-transparent"
-        }`}
+        className="fixed top-0 left-0 w-full h-[72px] z-[1000] bg-black/50 backdrop-blur-md transition-colors duration-300"
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
           <div className="w-[30%] md:w-[20%]">
@@ -405,7 +404,7 @@ export default function Navbar() {
         variants={headerVariants}
         initial="hidden"
         animate={navState === "product" ? "visible" : "hidden"}
-        className="fixed top-0 left-0 w-full h-[64px] bg-black/80 backdrop-blur-md z-[990]"
+        className="fixed top-0 left-0 w-full h-[64px] bg-black/50 backdrop-blur-md z-[990]"
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
           <div className="flex items-center">
