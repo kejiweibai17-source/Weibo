@@ -97,12 +97,13 @@ export default function HomeHero({ pageContentRef }) {
         />
 
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4">
-          <h1 className="hero-title text-5xl md:text-7xl lg:text-[6rem] font-light tracking-[0.2em] opacity-0 uppercase drop-shadow-xl">
+          <h1 className="hero-title text-white text-5xl md:text-7xl lg:text-[6rem] font-light tracking-[0.2em] opacity-0 uppercase drop-shadow-xl">
             SMASMALL
           </h1>
           <p className="hero-sub mt-6 text-xl md:text-3xl text-gray-200 font-light opacity-0 drop-shadow-md">
-            A professional grooming tool, <br className="md:hidden" />
-            reinvented for your space.
+            昔馬電動刮鬍刀系列
+            <br className="md:hidden" />
+            威柏科技代理
           </p>
         </div>
 

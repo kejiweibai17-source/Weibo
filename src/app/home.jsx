@@ -9,6 +9,7 @@ import EmblaCarousel from "@/components/EmblaCarousel/index";
 import TextParallaxContentExample02 from "../components/TextParallaxContent02/page";
 import Slider from "../components/Slider/Slider";
 import TextScrollSequence from "../components/TextScrollSequence";
+import ContactSection from "../components/ContactSection";
 import S3 from "../components/S3GroomingPrecision";
 const OPTIONS = { dragFree: true, loop: true };
 const SLIDES = [
@@ -46,6 +47,7 @@ export default function Home() {
         <S3 />
         <TextParallaxContentExample02 />
         <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+        <ContactSection />
       </div>
     </main>
   );

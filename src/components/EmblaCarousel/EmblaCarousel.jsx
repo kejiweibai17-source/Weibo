@@ -1,30 +1,20 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import {
-  NextButton,
-  PrevButton,
-  usePrevNextButtons,
-} from "./EmblaCarouselArrowButtons";
-import { DotButton, useDotButton } from "./EmblaCarosuelDotButton";
+import Autoplay from "embla-carousel-autoplay"; // 🌟 引入自動輪播套件
 import Image from "next/image";
-
+import Copy from "@/components/Copy";
 const TWEEN_FACTOR_BASE = 0.2;
 
 const EmblaCarousel = (props) => {
   const { slides, options } = props;
-  const [emblaRef, emblaApi] = useEmblaCarousel(options);
+
+  // 🌟 加入 Autoplay 插件，設定每 3 秒自動切換，且互動後不停止
+  const [emblaRef, emblaApi] = useEmblaCarousel(options, [
+    Autoplay({ delay: 3000, stopOnInteraction: false }),
+  ]);
+
   const tweenFactor = useRef(0);
   const tweenNodes = useRef([]);
-
-  const { selectedIndex, scrollSnaps, onDotButtonClick } =
-    useDotButton(emblaApi);
-
-  const {
-    prevBtnDisabled,
-    nextBtnDisabled,
-    onPrevButtonClick,
-    onNextButtonClick,
-  } = usePrevNextButtons(emblaApi);
 
   const setTweenNodes = useCallback((emblaApi) => {
     tweenNodes.current = emblaApi.slideNodes().map((slideNode) => {
@@ -96,37 +86,54 @@ const EmblaCarousel = (props) => {
   if (!slides || slides.length === 0) return null;
 
   return (
-    <>
-      <div className="embla">
-        {/* 🌟 頂部控制區塊 (按鈕與導覽點) */}
-        <div className="embla__controls">
-          <div className="embla__buttons">
-            <PrevButton
-              onClick={onPrevButtonClick}
-              disabled={prevBtnDisabled}
-            />
+    <section className="w-full pt-20 pb-10">
+      {/* =========================================================
+          🌟 新增：完美復刻圖片的左右文字排版 (黑底白字版)
+          ========================================================= */}
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 mb-12 lg:mb-20 flex flex-col lg:flex-row justify-between items-start gap-8 lg:gap-16">
+        {/* 左側：標籤與大標題 */}
+        <div className="w-full lg:w-1/2">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-6 h-6 rounded-full bg-white text-black text-xs flex items-center justify-center font-bold">
+              4
+            </div>
+            <Copy>
+              <span className="text-sm font-semibold tracking-wider text-stone-700 uppercase">
+                品味展現
+              </span>
+            </Copy>
           </div>
-
-          <div className="embla__dots">
-            {scrollSnaps.map((_, index) => (
-              <DotButton
-                key={index}
-                onClick={() => onDotButtonClick(index)}
-                className={"embla__dot".concat(
-                  index === selectedIndex ? " embla__dot--selected" : "",
-                )}
-              />
-            ))}
-          </div>
-
-          <div className="embla__buttons">
-            <NextButton
-              onClick={onNextButtonClick}
-              disabled={nextBtnDisabled}
-            />
-          </div>
+          <Copy>
+            <h2 className="text-4xl md:text-5xl text-stone-800 lg:text-[2.5rem] font-light !leading-[1.2] tracking-wide">
+              讓您的專屬空間，
+              <br className="hidden md:block" />
+              化為展現品味的私人藝廊。
+            </h2>
+          </Copy>
         </div>
 
+        {/* 右側：兩段式描述內文 */}
+        <div className="w-full lg:w-[45%] flex flex-col gap-6 text-stone-600 text-[15px] md:text-[16px] leading-relaxed lg:pt-14 font-light">
+          <Copy>
+            {" "}
+            <p>
+              昔馬 SMASMALL
+              將日常的理容過程，轉化為一場純粹的自我對話。無論是晨間的快速整理、出差旅途中的隨身攜帶，或是重要時刻前的精心準備，它都能以最優雅的姿態，完美融入您的生活場景。
+            </p>
+          </Copy>
+          <Copy>
+            {" "}
+            <p>
+              從獨具匠心的全合金壓鑄，到極致貼合的剃鬚體驗，這不僅僅是一把刮鬍刀，更是展現個人風格的質感配件。每一次的俐落刮除，都在詮釋著成熟男士對細節的極致追求。
+            </p>
+          </Copy>
+        </div>
+      </div>
+
+      {/* =========================================================
+          🌟 輪播區塊 (已移除箭頭與點點，純淨自動輪播)
+          ========================================================= */}
+      <div className="embla">
         <div className="embla__viewport" ref={emblaRef}>
           <div className="embla__container">
             {slides.map((slide, idx) => (
@@ -146,7 +153,7 @@ const EmblaCarousel = (props) => {
         </div>
       </div>
 
-      {/* 🌟 優化 GIF 圖片的響應式：手機版縮小重疊比例 (mt-[-100px])，電腦版維持 (md:mt-[-250px]) */}
+      {/* 🌟 底部置中的 GIF */}
       <div className="flex justify-center w-full mt-[-100px] md:mt-[-250px] relative z-50 px-4 pointer-events-none">
         <Image
           src="/images/ezgif.com-animated-gif-maker.gif"
@@ -158,13 +165,14 @@ const EmblaCarousel = (props) => {
         />
       </div>
 
+      {/* 🌟 乾淨的樣式表 (已移除所有按鈕樣式) */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
         .embla {
           max-width: 2400px;
-          margin: 4rem auto;
-          --slide-height: 31rem;
+          margin: 0 auto;
+          --slide-height: 35rem;
           --slide-spacing: 2rem;
           --slide-size: 60%;
         }
@@ -189,10 +197,10 @@ const EmblaCarousel = (props) => {
         }
 
         .embla__parallax {
-        
           height: var(--slide-height);
           overflow: hidden;
           background-color: #111;
+       
         }
 
         .embla__parallax__layer {
@@ -209,104 +217,6 @@ const EmblaCarousel = (props) => {
           object-fit: cover;
         }
 
-        /* 控制區塊 (毛玻璃膠囊設計) */
-        .embla__controls {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: fit-content;
-          margin: 0 auto 2.5rem auto;
-          padding: 0.5rem 1.25rem;
-          gap: 1.5rem;
-          background-color: rgba(0, 0, 0, 0.65);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-radius: 9999px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-          z-index: 10;
-        }
-
-        .embla__buttons {
-          display: flex;
-          gap: 0.5rem;
-          align-items: center;
-        }
-
-        .embla__button {
-          -webkit-appearance: none;
-          appearance: none;
-          background-color: transparent;
-          touch-action: manipulation;
-          display: inline-flex;
-          text-decoration: none;
-          cursor: pointer;
-          border: none;
-          padding: 0;
-          margin: 0;
-          width: 2.2rem;
-          height: 2.2rem;
-          border-radius: 50%;
-          color: white;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-        }
-
-        .embla__button:hover {
-          background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .embla__button:disabled {
-          color: rgba(255, 255, 255, 0.3);
-          cursor: not-allowed;
-          background-color: transparent;
-        }
-
-        .embla__button__svg {
-          width: 45%;
-          height: 45%;
-        }
-
-        .embla__dots {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.6rem;
-          align-items: center;
-        }
-
-        .embla__dot {
-          -webkit-appearance: none;
-          appearance: none;
-          background-color: transparent;
-          cursor: pointer;
-          position: relative;
-          padding: 0;
-          margin: 0;
-          width: 1.2rem;
-          height: 1.2rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 0;
-        }
-
-        .embla__dot:after {
-          content: "";
-          width: 0.4rem;
-          height: 0.4rem;
-          border-radius: 50%;
-          background-color: rgba(255, 255, 255, 0.35);
-          transition: all 0.3s ease;
-        }
-
-        .embla__dot--selected:after {
-          background-color: white;
-          width: 0.5rem;
-          height: 0.5rem;
-          box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-        }
-
         /* 🌟 RWD 手機與平板尺寸最佳化 */
         @media (max-width: 1024px) {
           .embla {
@@ -321,26 +231,19 @@ const EmblaCarousel = (props) => {
 
         @media (max-width: 768px) {
           .embla {
-            margin: 2rem auto;
-            --slide-height: 22rem; /* 手機版降低高度避免過長 */
-            --slide-spacing: 1rem; /* 縮小卡片間距 */
-            --slide-size: 82%;     /* 放大佔比，讓左右微微露出 */
+            --slide-height: 22rem; 
+            --slide-spacing: 1rem; 
+            --slide-size: 82%; 
           }
           .embla__slide {
-            /* 手機版移除寫死的 margin，改用 Embla 預設的 padding spacing 來運算，滑動才不會卡頓 */
             margin-right: 0px;
             margin-left: 0px;
           }
-          .embla__controls {
-            padding: 0.4rem 1rem;
-            gap: 1rem;
-            transform: scale(0.95); /* 手機版膠囊稍微縮小一點 */
-          }
         }
-      `,
+        `,
         }}
       />
-    </>
+    </section>
   );
 };
 

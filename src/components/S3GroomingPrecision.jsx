@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -11,8 +11,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 const EXPLORER_DATA = [
   {
     id: 1,
-    image: "/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png",
-    // 放大程度顯著提升
+    image: "/images/focus/carousel-01.png",
     bgScale: 2.2,
     hotspot: { top: "35%", left: "50%" },
     info: {
@@ -31,9 +30,9 @@ const EXPLORER_DATA = [
   },
   {
     id: 2,
-    image: "/images/001.png",
-    // 放大程度顯著提升
-    bgScale: 1.8,
+    // 🌟 已經幫你替換成第二張圖的正確路徑
+    image: "/images/index/banner-04.png",
+    bgScale: 1.4,
     hotspot: { top: "52%", left: "50%" },
     info: {
       target: "精密內部結構",
@@ -56,19 +55,6 @@ export default function InteractiveExplorer() {
   const [viewMode, setViewMode] = useState("full"); // "full" | "detail"
   const currentData = EXPLORER_DATA[currentIndex];
 
-  useEffect(() => {
-    const handleWheel = (e) => {
-      if (e.deltaY > 50 && viewMode === "full") {
-        setViewMode("detail");
-      } else if (e.deltaY < -50 && viewMode === "detail") {
-        setViewMode("full");
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel);
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, [viewMode]);
-
   const nextSlide = () => {
     setViewMode("full");
     setCurrentIndex((prev) => (prev + 1) % EXPLORER_DATA.length);
@@ -82,20 +68,18 @@ export default function InteractiveExplorer() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0a0c] overflow-hidden font-sans select-none">
+    <div className="relative w-full h-screen bg-[#0a0a0c] overflow-hidden font-sans select-none flex items-center justify-center">
       {/* =========================================================
-          1. 背景圖片層 (滿版 + 動態對焦中心 + 強力 Easing Out)
+          1. 背景圖片層 (🌟 已拔除 16:9 限制，現在是真正的全螢幕滿版)
           ========================================================= */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         animate={{
           scale: viewMode === "detail" ? currentData.bgScale : 1,
           opacity: viewMode === "detail" ? 0.7 : 1,
           filter: viewMode === "detail" ? "brightness(0.6)" : "brightness(1)",
-          // 動態改變放大的基準點，讓畫面聚焦在點擊的閃爍點上
           transformOrigin: `${currentData.hotspot.left} ${currentData.hotspot.top}`,
         }}
-        // 使用非常平滑的 Easing-out 曲線 (easeOutExpo)，並將時間拉長增加質感
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <AnimatePresence mode="wait">
@@ -105,8 +89,9 @@ export default function InteractiveExplorer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="w-full h-full relative"
+            className="absolute inset-0 w-full h-full"
           >
+            {/* 🌟 確保使用 object-cover，這樣圖片才會完美撐滿整個畫面 */}
             <Image
               src={currentData.image}
               alt="Smasmall Product"

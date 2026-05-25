@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 // 🌟 1. 引入 next-view-transitions 的 Link
 import { Link } from "next-view-transitions";
-
+import Copy from "@/components/Copy";
 // ============================================================================
 // 🛒 昔馬商品配件資料
 // ============================================================================
@@ -120,11 +120,15 @@ export default function AccessoriesPage() {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         {/* 標題區塊 */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-          <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-2xl leading-tight text-gray-900">
-            探索專屬配件，
-            <br className="hidden md:block" />
-            將您的昔馬理容體驗提升至全新境界。
-          </h1>
+          <Copy>
+            {" "}
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-2xl leading-tight text-gray-900">
+              探索專屬配件，
+              <br className="hidden md:block" />
+              將您的昔馬理容體驗提升至全新境界。
+            </h1>
+          </Copy>
+
           <button className="md:hidden flex items-center gap-2 text-sm font-medium border border-gray-300 px-4 py-2 rounded-full">
             <SlidersHorizontal size={16} /> 篩選
           </button>

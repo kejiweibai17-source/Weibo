@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Globe, ArrowRight } from "lucide-react";
-
+import Copy from "@/components/Copy";
 // ============================================================================
 // 昔馬 SMASMALL 品牌故事資料設定
 // ============================================================================
@@ -105,15 +105,19 @@ export default function SmasmallStory() {
       <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
         {/* 頂部橫向大標題 */}
         <div className="max-w-4xl mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
-            A Global Premium Shaver Brand <br />
-            Driven by Ultimate Craftsmanship
-          </h2>
-          <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide">
-            To build a playground where makers inspire makers,
-            <br />
-            To create brands that the world desires.
-          </p>
+          <Copy>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
+              A Global Premium Shaver Brand <br />
+              Driven by Ultimate Craftsmanship{" "}
+            </h2>
+          </Copy>
+          <Copy>
+            <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide">
+              To build a playground where makers inspire makers,
+              <br />
+              To create brands that the world desires.
+            </p>
+          </Copy>
         </div>
 
         {/* 下方左右內容：左側形象大圖，右側數據與敘述 */}
@@ -125,10 +129,13 @@ export default function SmasmallStory() {
 
           {/* 右側文字與數據面板 */}
           <div className="lg:col-span-5 flex flex-col justify-between h-full">
-            <p className="text-gray-600 text-[14px] md:text-[15px] leading-relaxed mb-12">
-              SMASMALL
-              昔馬由台灣總代理「威柏科技」原廠授權引進。我們堅信理容工具不只是消耗品，更是彰顯個人品味的桌面藝術。拋棄廉價的塑膠，將重機與航空線條融入壓鑄合金，為亞洲男士帶來極致有感的科技理容美學。
-            </p>
+            <Copy>
+              {" "}
+              <p className="text-gray-600 text-[14px] md:text-[15px] leading-relaxed mb-12">
+                SMASMALL
+                昔馬由台灣總代理「威柏科技」原廠授權引進。我們堅信理容工具不只是消耗品，更是彰顯個人品味的桌面藝術。拋棄廉價的塑膠，將重機與航空線條融入壓鑄合金，為亞洲男士帶來極致有感的科技理容美學。
+              </p>
+            </Copy>
 
             {/* 核心數據網格佈局 */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-gray-200 pt-8">
@@ -154,12 +161,20 @@ export default function SmasmallStory() {
         <div className="max-w-[1600px] w-full mx-auto px-6 lg:px-16">
           {/* Part A: 昔馬品牌旗艦視覺牆 */}
           <div className="mb-20">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-              SMASMALL 昔馬
-            </h3>
-            <p className="text-gray-600 text-sm max-w-4xl leading-relaxed mb-8">
-              專注於全合金工藝與高端磁吸機構的研發，結合頂級自銳技術刀片，讓每一次剃鬚都成為一種享受。威柏科技與昔馬品牌深度戰略合作，於台灣設立專屬售後體系，引領潮流男士的生活新風尚。
-            </p>
+            <Copy>
+              {" "}
+              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+                SMASMALL 昔馬
+              </h3>
+            </Copy>
+            <Copy>
+              {" "}
+              <p className="text-gray-600 text-sm max-w-4xl leading-relaxed mb-8">
+                專注於全合金工藝與高端磁吸機構的研發，結合頂級自銳技術刀片，讓每一次剃鬚都成為一種享受。威柏科技與昔馬品牌深度戰略合作，於台灣設{" "}
+                立專屬售後體系，引領潮流男士的生活新風尚。
+              </p>
+            </Copy>
+
             <a
               href="#"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900 hover:underline"
@@ -167,7 +182,6 @@ export default function SmasmallStory() {
               <span>Click here to learn more.</span>
               <ArrowRight size={14} />
             </a>
-
             {/* 完美還原：對稱分裂冷藍色光芒品牌巨幅卡片 */}
             <div className="w-full h-[220px] md:h-[320px] bg-gradient-to-r from-blue-900 via-sky-800 to-blue-900 rounded-lg mt-8 flex items-center justify-center relative overflow-hidden shadow-inner">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)]" />
@@ -186,13 +200,19 @@ export default function SmasmallStory() {
           {/* Part B: 總代理威柏科技營運與現代化大樓 */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-12 border-t border-gray-100">
             <div className="lg:col-span-5">
-              <h4 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">
-                威柏科技有限公司
-              </h4>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                台灣唯一官方授權總代理——威柏科技有限公司（Weibo
-                Technology），運營核心與現代化倉儲配送基地布署於台灣核心樞紐，配備超過多個專業售後服務據點與線上即時客服團隊，全面保障每位昔馬用戶的頂級售後尊榮權益。
-              </p>
+              <Copy>
+                {" "}
+                <h4 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">
+                  威柏科技有限公司
+                </h4>
+              </Copy>
+              <Copy>
+                {" "}
+                <p className="text-gray-500 text-sm leading-relaxed">
+                  台灣唯一官方授權總代理——威柏科技有限公司（Weibo
+                  Technology），運營核心與現代化倉儲配送基地布署於台灣核心樞紐，配備超過多個專業售後服務據點與線上即時客服團隊，全面保障每位昔馬用戶的頂級售後尊榮權益。
+                </p>
+              </Copy>
             </div>
             {/* 右側：宏偉的代理商現代化總部/工藝基地大樓 */}
             <div className="lg:col-span-7 h-[300px] md:h-[420px] relative rounded-lg overflow-hidden shadow-sm bg-gray-100">
@@ -206,9 +226,12 @@ export default function SmasmallStory() {
           SECTION 4: Mission & Vision (參照 截圖 2.57.58)
           ==================================================================== */}
       <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
-          Our Mission and Vision
-        </h2>
+        <Copy>
+          {" "}
+          <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
+            Our Mission and Vision
+          </h2>
+        </Copy>
 
         {/* 雙欄等寬卡片排版 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -217,7 +240,7 @@ export default function SmasmallStory() {
             <div className="absolute inset-0 bg-[url('/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png')] bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             <div className="relative z-10 text-white">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">Mission</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">Mission</h3>{" "}
               <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
                 Ignite possibilities through ultimate innovation. <br />
                 以復古未來主義理容科技，重塑現代男士的精緻生活品味。
@@ -246,9 +269,12 @@ export default function SmasmallStory() {
           ==================================================================== */}
       <section className="w-full py-24 bg-white border-t border-gray-200">
         <div className="max-w-[1600px] w-full mx-auto px-6 lg:px-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
-            Our Values
-          </h2>
+          <Copy>
+            {" "}
+            <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
+              Our Values
+            </h2>
+          </Copy>
 
           {/* 🌟 核心組件：完全重現影片中滑鼠 Hover 寬度流暢拉伸與變更的 Flex 橫切卡片 */}
           <div className="flex flex-col lg:flex-row w-full gap-4 h-auto lg:h-[420px] overflow-hidden mb-20">
