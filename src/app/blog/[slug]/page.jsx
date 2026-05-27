@@ -7,7 +7,8 @@ import { notFound } from "next/navigation";
 // 引入結構化資料元件
 import ArticleJsonLd from "./ArticleJsonLd";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.uflow.space";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://weibo-alpha.vercel.app";
 
 // ===================== 🌟 共用圖片萃取工具 =====================
 function getPostImage(post) {

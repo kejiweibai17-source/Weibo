@@ -1,7 +1,8 @@
 // app/blog/page.jsx
 import HomeClient from "./ProjectListClient";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.uflow.space";
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://weibo-alpha.vercel.app";
 
 // 🏆 核心設定：開啟 ISR 模式，每 60 秒自動在背景重新生成頁面 (抓取新文章)
 export const revalidate = 60;
