@@ -1,5 +1,4 @@
-import fs from "fs";
-import path from "path";
+import mediaManifest from "@/data/accessories-media-manifest.json";
 
 const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 
@@ -17,29 +16,20 @@ function naturalSort(files) {
  */
 export function listImagesInPublicDir(publicUrlPath) {
   if (!publicUrlPath || publicUrlPath.includes("..")) return [];
-
-  const rel = publicUrlPath.replace(/^\//, "");
-  const abs = path.join(process.cwd(), "public", rel);
-
-  if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) {
-    return [];
-  }
-
-  const files = fs
-    .readdirSync(abs)
-    .filter((name) => IMAGE_EXT.has(path.extname(name).toLowerCase()));
+  const files = (mediaManifest[publicUrlPath] ?? []).filter((name) => {
+    const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+    return IMAGE_EXT.has(ext);
+  });
 
   return naturalSort(files).map((name) => `${publicUrlPath}/${name}`);
 }
 
 function resolveFilesAtSeriesRoot(imageDir, files) {
   if (!files?.length) return [];
+  const rootFiles = new Set(mediaManifest[imageDir] ?? []);
   return files
     .map((name) => `${imageDir}/${name}`)
-    .filter((url) => {
-      const abs = path.join(process.cwd(), "public", url.replace(/^\//, ""));
-      return fs.existsSync(abs);
-    });
+    .filter((url) => rootFiles.has(url.split("/").pop()));
 }
 
 /**
@@ -85,12 +75,8 @@ export function buildCarouselFromFolders(
 
   if (mediaFolder) {
     const fallback = `${imageDir}/${mediaFolder}.png`;
-    const fallbackAbs = path.join(
-      process.cwd(),
-      "public",
-      fallback.replace(/^\//, ""),
-    );
-    if (fs.existsSync(fallbackAbs)) return [fallback];
+    const rootFiles = new Set(mediaManifest[imageDir] ?? []);
+    if (rootFiles.has(`${mediaFolder}.png`)) return [fallback];
   }
 
   return [];

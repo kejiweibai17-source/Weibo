@@ -1,6 +1,5 @@
 import { listImagesInPublicDir } from "@/lib/accessoryCarousel";
-import fs from "fs";
-import path from "path";
+import mediaManifest from "@/data/accessories-media-manifest.json";
 import {
   ACCESSORY_CATALOG,
   ACCESSORY_SERIES,
@@ -63,14 +62,13 @@ function relativeImageNames(imageDir, subdir) {
 }
 
 function relativeFilesByExt(imageDir, subdir, exts) {
-  const rel = `${imageDir}/${subdir}`.replace(/^\/+/, "");
-  const abs = path.join(process.cwd(), "public", rel);
-  if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) return [];
+  const targetDir = `${imageDir}/${subdir}`;
+  const filesInDir = mediaManifest[targetDir] ?? [];
+  if (!filesInDir.length) return [];
   const lowerExts = exts.map((e) => e.toLowerCase());
-  const files = fs
-    .readdirSync(abs)
+  const files = filesInDir
     .filter((name) => {
-      const ext = path.extname(name).toLowerCase();
+      const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
       return lowerExts.includes(ext);
     })
     .sort((a, b) =>
