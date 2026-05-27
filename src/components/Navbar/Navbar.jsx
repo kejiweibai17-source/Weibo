@@ -291,9 +291,9 @@ export default function Navbar() {
       ],
     },
     { label: "關於我們", href: "/about" },
-    { label: "產品配件", href: "/accessories" },
+    { label: "昔馬產品", href: "/accessories" },
     { label: "昔馬SMSMALL", href: "/brand" },
-    { label: "聯絡我們", href: "/support" },
+    { label: "聯絡我們", href: "/contact" },
     { label: "Gallery", href: "/gallery" },
   ];
 
