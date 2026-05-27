@@ -43,7 +43,6 @@ export const metadata = {
     "威柏科技",
     "Weibo",
   ],
-  icons: { icon: "/images/logo-white.png" }, // 建議替換為你的 favicon
   openGraph: {
     type: "website",
     locale: "zh_TW",
@@ -54,12 +53,19 @@ export const metadata = {
       "顛覆傳統的理容革命！SMASMALL 昔馬全合金電動刮鬍刀，搭載創新磁吸刀頭與精鋼刀網，威柏科技原廠代理保固，為品味男士打造專屬的極致刮鬍體驗。",
     images: [
       {
-        url: "/images/og-image.png", // 建議替換為昔馬的高清質感宣傳圖
+        url: SEO_CONFIG.defaultOgImage,
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬全合金電動刮鬍刀",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SMASMALL 昔馬｜頂級全合金電動刮鬍刀",
+    description:
+      "SMASMALL 昔馬全合金電動刮鬍刀，由威柏科技台灣總代理。",
+    images: [SEO_CONFIG.defaultOgImage],
   },
   alternates: { canonical: "/" },
 };

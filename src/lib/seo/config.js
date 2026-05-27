@@ -75,7 +75,11 @@ export const SEO_CONFIG = {
     "https://www.instagram.com/weiz.3c/?hl=zh-tw",
     "https://page.line.me/157yqtwl",
   ],
-  defaultOgImage: "/images/og-image.png",
+  /** 首頁與未指定 OG 頁面的預設社群預覽圖 */
+  defaultOgImage: "/images/003-01.png",
+  /** 瀏覽器分頁 / 書籤圖示 */
+  favicon: "/favicon.ico",
+  appleTouchIcon: "/images/logo-white.png",
 };
 
 export function absoluteUrl(siteUrl, path = "") {

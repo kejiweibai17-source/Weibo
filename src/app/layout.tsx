@@ -31,12 +31,27 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_TW",
     siteName: SEO_CONFIG.siteName,
+    images: [
+      {
+        url: SEO_CONFIG.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: SEO_CONFIG.brand.name,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [SEO_CONFIG.defaultOgImage],
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: "/images/logo-white.png",
-    shortcut: "/images/logo-white.png",
-    apple: "/images/logo-white.png",
+    icon: [
+      { url: SEO_CONFIG.favicon },
+      { url: SEO_CONFIG.appleTouchIcon, type: "image/png" },
+    ],
+    shortcut: SEO_CONFIG.favicon,
+    apple: SEO_CONFIG.appleTouchIcon,
   },
 };
 
