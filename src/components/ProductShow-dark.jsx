@@ -11,8 +11,8 @@ const PRODUCTS = [
     badge: "配件 1",
     name: "捍衛者-全合金戰損刮鬍刀",
     tags: ["全合金壓鑄", "戰損塗裝", "IPX7全機防水"],
-    thumbUrl: "/images/捍衛者/捍衛者-01.png",
-    mainUrl: "/images/捍衛者/捍衛者-01.png",
+    thumbUrl: "/images/accessories/黑夜騎士/黑夜騎士-01.png",
+    mainUrl: "/images/accessories/黑夜騎士/黑夜騎士-01.png",
     features: [
       {
         title: "硬派美學，戰損塗裝",
@@ -38,97 +38,18 @@ const PRODUCTS = [
   {
     id: 2,
     badge: "配件 2",
-    name: "雙環開放式浮動圓刀頭",
+    name: "昔馬蛋收納倉",
     tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
-    thumbUrl: "/images/捍衛者/捍衛者-02.png",
-    mainUrl: "/images/捍衛者/捍衛者-02.png",
+    thumbUrl: "/images/accessories/黑夜騎士/1.png",
+    mainUrl: "/images/accessories/黑夜騎士/1.png",
     features: [
       {
-        title: "精準捕捉，毫秒切割",
-        bullets: ["雙環超薄刀網，進刀量提升50%", "無縫貼合下巴與顎骨曲線"],
+        title: "專利太空艙設計",
+        bullets: ["便利隨行"],
         boxPos: "md:absolute md:top-[20%] md:left-[10%]",
         lineClass:
           "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
         dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-      {
-        title: "黑科技自體研磨刀片",
-        bullets: [
-          "越用越鋒利，告別卡鬚與拉扯",
-          "一秒磁吸快拆，水洗清潔毫不費力",
-        ],
-        boxPos: "md:absolute md:top-[35%] md:right-[5%]",
-        lineClass:
-          "hidden md:block top-[50%] right-full w-[140px] h-[1px] origin-right rotate-[-10deg]",
-        dotClass: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 3,
-    badge: "配件 3",
-    name: "磁吸式戰術鬢角修剪器",
-    tags: ["精準修容", "一秒替換", "俐落塑型"],
-    thumbUrl: "/images/捍衛者/捍衛者-03.png",
-    mainUrl: "/images/捍衛者/捍衛者-03.png",
-    features: [
-      {
-        title: "多功能修容武裝",
-        bullets: ["快速替換刀頭，一機多用", "專為亞洲男士輪廓設計的精準刀口"],
-        boxPos: "md:absolute md:top-[25%] md:left-[8%]",
-        lineClass:
-          "hidden md:block top-[50%] left-full w-[180px] h-[1px] origin-left rotate-[10deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 4,
-    badge: "配件 4",
-    name: "無痛立體鼻毛修剪刀",
-    tags: ["立體圓頂", "安全不傷膚", "高速運轉"],
-    thumbUrl: "/images/捍衛者/捍衛者-05.png",
-    mainUrl: "/images/捍衛者/捍衛者-05.png",
-    features: [
-      {
-        title: "立體圓頂安全刀網",
-        bullets: [
-          "貼合鼻腔曲線，徹底杜絕刮傷",
-          "內建微型高扭力馬達，俐落不拉扯",
-        ],
-        boxPos: "md:absolute md:bottom-[20%] md:right-[10%]",
-        lineClass:
-          "hidden md:block top-[50%] right-full w-[160px] h-[1px] origin-right rotate-[15deg]",
-        dotClass: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 5,
-    badge: "配件 5",
-    name: "專屬戰術防撞旅行盒",
-    tags: ["軍規防護", "量身訂製", "便攜收納"],
-    thumbUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
-    mainUrl: "/images/截圖-2026-05-17-晚上7.35.34.png",
-    features: [
-      {
-        title: "軍規級防撞保護",
-        bullets: ["高強度抗震材質，完美保護機身", "防刮內襯設計，抵抗劇烈晃動"],
-        boxPos: "md:absolute md:top-[15%] md:left-[8%]",
-        lineClass:
-          "hidden md:block top-[50%] left-full w-[150px] h-[1px] origin-left rotate-[15deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-      {
-        title: "一體化收納空間",
-        bullets: [
-          "精準孔位設計，機身與配件各自歸位",
-          "商務旅行、戶外探索的最佳裝備",
-        ],
-        boxPos: "md:absolute md:top-[40%] md:right-[5%]",
-        lineClass:
-          "hidden md:block top-[50%] right-full w-[160px] h-[1px] origin-right rotate-[-10deg]",
-        dotClass: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
       },
     ],
   },
@@ -306,21 +227,10 @@ export default function ProductShowcase() {
           })}
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 max-w-[1420px] w-[95%] sm:w-[80%] xl:w-[70%] mx-auto">
+      <div className="grid grid-cols-1 max-w-[1420px] w-[95%] sm:w-[80%] xl:w-[70%] mx-auto">
         <div className="p-3">
           <Image
-            src="/images/捍衛者/捍衛者-產品規格-01_威柏科技.png"
-            alt=""
-            width={1000}
-            height={1000}
-            placeholder="empty"
-            loading="lazy"
-            className="w-full"
-          ></Image>
-        </div>
-        <div className="p-3">
-          <Image
-            src="/images/捍衛者/捍衛者-產品規格-02_威柏科技.png"
+            src="/images/accessories/黑夜騎士/說明書/昔馬_黑夜騎士禮盒說明書.png"
             alt=""
             width={1000}
             height={1000}

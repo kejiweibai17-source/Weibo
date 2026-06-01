@@ -89,7 +89,7 @@ export default function HomeHero({ pageContentRef }) {
       <section className="relative w-full h-screen overflow-hidden bg-black z-0">
         <video
           className="absolute inset-0 w-full h-full object-cover opacity-70"
-          src="https://vaonis.com/cdn/shop/videos/c/vp/1a4c100aa99349bba6460252485f9d50/1a4c100aa99349bba6460252485f9d50.HD-1080p-2.5Mbps-65658264.mp4?v=0"
+          src="/video/0001-0240.mp4"
           autoPlay
           loop
           muted

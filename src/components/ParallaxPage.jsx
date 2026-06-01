@@ -31,15 +31,14 @@ const ParallaxPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="text-[6rem] font-bold text-white tracking-tighter z-10 leading-none"
+          className="text-[7vmin] font-bold text-white tracking-tighter z-10 leading-none"
         >
-          SMSMALL
+          有力量，也有細節。
         </motion.h1>
         <Copy>
           {" "}
           <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm">
-            Sleek design. High-tech minimalism. The perfect harmony between
-            design and precision engineering.
+            強勁動力不易卡毛，細緻刀網舒適貼面，兼顧效率與膚感。
           </p>
         </Copy>
 
@@ -48,7 +47,7 @@ const ParallaxPage = () => {
         <div
           className="absolute inset-0 opacity-50 bg-cover bg-center z-[-1]"
           style={{
-            backgroundImage: `url('/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png')`,
+            backgroundImage: `url('/images/2863f91d-4ff8-45c9-9c4c-f9a80a210e2d.png')`,
           }}
         />
       </div>

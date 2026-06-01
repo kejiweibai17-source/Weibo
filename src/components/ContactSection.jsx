@@ -10,10 +10,10 @@ export default function ContactSection() {
       {/* =========================================================
           左側：滿版產品情境圖
           ========================================================= */}
-      <div className="w-full lg:w-[45%] relative min-h-[40vh] lg:min-h-screen bg-gray-100">
+      <div className="w-full lg:w-[50%] relative min-h-[40vh] lg:min-h-screen bg-gray-100">
         {/* 記得將 src 替換為你實際要放的左側產品圖路徑 */}
         <Image
-          src="/images/7c01c62f-c36b-41af-a2e9-2d499a0bc218.png"
+          src="/images/contact.png"
           alt="Contact Product"
           fill
           className="object-cover object-center"
@@ -23,7 +23,7 @@ export default function ContactSection() {
       {/* =========================================================
           右側：聯絡表單區域
           ========================================================= */}
-      <div className="w-full lg:w-[55%] flex items-center justify-center p-8 md:p-16 lg:p-20 xl:px-28">
+      <div className="w-full lg:w-[50%] flex items-center justify-center p-8 md:p-16 lg:p-20 xl:px-28">
         <div className="w-full max-w-xl">
           {/* 標題區 */}
           <div className="mb-14">

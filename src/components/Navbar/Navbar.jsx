@@ -283,9 +283,9 @@ export default function Navbar() {
       label: "產品資訊",
       href: "/product01",
       dropdown: [
-        { label: "青春版電動刮鬍刀 (S1系列)", href: "/product01" },
-        { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product01" },
-        { label: "小金剛旗艦三刀頭 (S3系列)", href: "/product01" },
+        { label: "捍衛者套裝", href: "/product01" },
+        { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product02" },
+        { label: "青春版電動刮鬍刀禮盒-三色", href: "/product03" },
         { label: "星座系列 (CQ系列)", href: "/product01" },
         { label: "多功能組合禮盒", href: "/product01" },
       ],

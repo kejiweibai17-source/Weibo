@@ -13,6 +13,11 @@ export type WooProduct = {
   short_description?: string;
   description?: string;
   attributes?: Array<{ name: string; options: string[] }>;
+  categories?: Array<{ id: number; name: string; slug: string }>;
+  average_rating?: string;
+  rating_count?: number;
+  meta_data?: Array<{ id?: number; key: string; value: any }>;
+  [key: string]: any;
 };
 
 const getEnv = () => {
@@ -55,6 +60,10 @@ const mapWoo = (p: any): WooProduct => {
     short_description: p.short_description,
     description: p.description,
     attributes: p.attributes || [],
+    categories: p.categories || [],
+    average_rating: p.average_rating || "0",
+    rating_count: Number(p.rating_count || 0),
+    meta_data: p.meta_data || [],
   } as WooProduct;
 };
 

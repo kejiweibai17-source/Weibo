@@ -3,6 +3,7 @@ import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
+import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
 
 const SITE_URL = getSiteUrl();
 
@@ -72,7 +73,8 @@ export const metadata = {
 
 export const revalidate = 60;
 
-export default function Page() {
+export default async function Page() {
+  const carouselSlides = await getHomeCarouselSlides();
   const schemas = buildHomePageSchemas({
     siteUrl: SITE_URL,
     faqs: homeFAQs,
@@ -101,7 +103,7 @@ export default function Page() {
   return (
     <>
       <JsonLd data={schemas} />
-      <Client faqs={homeFAQs} />
+      <Client faqs={homeFAQs} carouselSlides={carouselSlides} />
     </>
   );
 }

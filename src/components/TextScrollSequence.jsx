@@ -15,19 +15,16 @@ if (typeof window !== "undefined") {
 const slides = [
   {
     title:
-      "Under the soft hum of streetlights she watches the world ripple through glass, her calm expression mirrored in the fragments of drifting light.",
+      "小巧。強悍。剛剛好。以合金機身、雙環刀頭與 IPX7 防水設計，讓每一次刮鬍都更俐落、更順手。",
   },
   {
-    title:
-      "A car slices through the desert, shadow chasing the wind as clouds of dust rise behind, blurring the horizon into gold and thunder.",
+    title: "浮動刀網貼近臉部線條，順著輪廓移動，輕鬆修整每一處細節。",
   },
   {
-    title:
-      "Reflections ripple across mirrored faces, each one a fragment of identity, caught between defiance, doubt, and the silence of thought.",
+    title: "刮鬍、鼻毛修剪、手動細修與收納，一次整合，日常更簡單。",
   },
   {
-    title:
-      "Soft light spills through the café windows as morning settles into wood and metal, capturing the rhythm of quiet human routine.",
+    title: "1 小時快速充電，約 60 分鐘續航；臨時出門，3 分鐘快充也能從容應對。",
   },
 ];
 

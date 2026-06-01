@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getAccessoryDetailFromCatalog } from "@/data/accessories.server";
+import { fetchAccessoryDetailBySlug } from "@/lib/accessoriesWoo.server";
 
 export async function GET(_request, { params }) {
   const { id } = await params;
-  const product = getAccessoryDetailFromCatalog(id);
+  const product = await fetchAccessoryDetailBySlug(id);
 
   if (!product) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

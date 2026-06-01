@@ -53,9 +53,7 @@ export default function AccessoryDetailClient({ productId }) {
       }
 
       try {
-        const infoRes = await fetch(
-          `/api/accessories/${id}/product-info`,
-        );
+        const infoRes = await fetch(`/api/accessories/${id}/product-info`);
         if (!infoRes.ok || cancelled) return;
         const info = await infoRes.json();
         if (cancelled) return;
@@ -153,9 +151,9 @@ export default function AccessoryDetailClient({ productId }) {
       </div>
 
       {/* 主區：左 50% 全高輪播 + 右 50% 商品資訊（參考 Vaonis 版型） */}
-      <div className="w-full flex flex-col lg:flex-row lg:min-h-[calc(100vh-72px)]">
+      <div className="w-full flex flex-col lg:flex-row">
         <div
-          className="group relative w-full h-[60vh] sm:h-[55vh] lg:w-1/2 lg:h-[calc(100vh-72px)] lg:sticky lg:top-[72px] shrink-0 overflow-hidden"
+          className="group relative w-full h-[100vh] lg:w-1/2 lg:sticky lg:top-[72px] shrink-0 overflow-hidden bg-[#d1d5db]"
           onMouseEnter={() => setCarouselPaused(true)}
           onMouseLeave={() => setCarouselPaused(false)}
           onFocusCapture={() => setCarouselPaused(true)}
@@ -200,7 +198,7 @@ export default function AccessoryDetailClient({ productId }) {
                   alt={`${product.title} ${mainImgIdx + 1}`}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
+                  className="object-contain object-center"
                   priority
                 />
               </motion.div>

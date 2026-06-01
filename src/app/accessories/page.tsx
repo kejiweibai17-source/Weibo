@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
 import { buildAccessoryProducts } from "@/data/accessories.server";
+import { fetchAccessoriesFromWoo } from "@/lib/accessoriesWoo.server";
 import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildAccessoriesCollectionSchemas } from "@/lib/seo/schemas";
 import AccessoriesPageClient from "./AccessoriesPageClient";
@@ -55,8 +56,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AccessoriesPage() {
-  const products = buildAccessoryProducts();
+export default async function AccessoriesPage() {
+  let products = [];
+
+  try {
+    products = await fetchAccessoriesFromWoo();
+  } catch {
+    // 若 WooCommerce 暫時不可用，回退到原本本地資料，避免頁面中斷
+    products = buildAccessoryProducts();
+  }
+
   const schemas = buildAccessoriesCollectionSchemas(products, SITE_URL);
 
   return (

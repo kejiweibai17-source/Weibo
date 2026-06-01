@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/seo/JsonLd";
-import { resolveSeriesImages } from "@/data/accessories";
 import {
   buildAccessoryCatalog,
-  getAccessoryCatalogItem,
 } from "@/data/accessories.server";
+import {
+  fetchAccessoryDetailBySlug,
+  fetchAccessoriesFromWoo,
+} from "@/lib/accessoriesWoo.server";
 import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildAccessoryDetailSchemas } from "@/lib/seo/schemas";
 import AccessoryDetailClient from "./AccessoryDetailClient";
@@ -15,7 +17,12 @@ const SITE_URL = getSiteUrl();
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return buildAccessoryCatalog().map((item) => ({ id: item.id }));
+  try {
+    const products = await fetchAccessoriesFromWoo();
+    return products.map((item) => ({ id: item.id }));
+  } catch {
+    return buildAccessoryCatalog().map((item) => ({ id: item.id }));
+  }
 }
 
 type PageProps = {
@@ -26,21 +33,17 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const item = getAccessoryCatalogItem(id);
+  const detail = await fetchAccessoryDetailBySlug(id);
 
-  if (!item) {
+  if (!detail) {
     return { title: "商品不存在" };
   }
 
-  const title = `${item.title}｜昔馬 SMASMALL`;
+  const title = `${detail.title}｜昔馬 SMASMALL`;
   const description =
-    item.detail?.shortDesc ??
-    `探索昔馬 SMASMALL ${item.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
-  const images = resolveSeriesImages(
-    item.series,
-    item.detail?.imageFiles ?? item.imageFiles ?? [],
-  );
-  const ogImage = images[0] ?? SEO_CONFIG.defaultOgImage;
+    detail.shortDesc ??
+    `探索昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
+  const ogImage = detail.images?.[0] ?? SEO_CONFIG.defaultOgImage;
   const pageUrl = `/accessories/${id}`;
 
   return {
@@ -50,7 +53,7 @@ export async function generateMetadata({
     keywords: [
       "昔馬",
       "SMASMALL",
-      item.title,
+      detail.title,
       "電動刮鬍刀",
       "威柏科技",
       "配件",
@@ -69,7 +72,7 @@ export async function generateMetadata({
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: item.title,
+          alt: detail.title,
         },
       ],
     },
@@ -84,13 +87,28 @@ export async function generateMetadata({
 
 export default async function AccessoryDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const item = getAccessoryCatalogItem(id);
+  const detail = await fetchAccessoryDetailBySlug(id);
 
-  if (!item) {
+  if (!detail) {
     notFound();
   }
 
-  const schemas = buildAccessoryDetailSchemas(item, SITE_URL);
+  const schemaSeed = {
+    id: detail.id,
+    title: detail.title,
+    category: "Misc",
+    series: "Defender",
+    imageFiles: [],
+    detail: {
+      shortDesc: detail.shortDesc,
+      imageFiles: detail.images ?? [],
+      features: detail.features ?? [],
+      details: detail.details ?? "",
+      rating: detail.rating,
+      reviews: detail.reviews,
+    },
+  };
+  const schemas = buildAccessoryDetailSchemas(schemaSeed, SITE_URL);
 
   return (
     <>

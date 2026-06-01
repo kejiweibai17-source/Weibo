@@ -2,9 +2,9 @@
 import Parallax from "@/components/ParallaxPage";
 import Parallax01 from "@/components/ParallaxPage-product";
 import { useRef } from "react";
-import TimelineSlider from "@/components/TimelineSlider";
+import TimelineSlider from "@/components/TimelineSlider-01";
 import gsap from "gsap";
-import ProductShow from "@/components/ProductShowcase";
+import ProductShow from "@/components/ProductShow-defender";
 import { CustomEase } from "gsap/CustomEase";
 import Slider from "@/components/Slider01";
 const QaClient = () => {

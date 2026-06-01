@@ -172,9 +172,9 @@ const EmblaCarousel = (props) => {
         .embla {
           max-width: 2400px;
           margin: 0 auto;
-          --slide-height: 35rem;
+          --slide-height: 38rem;
           --slide-spacing: 2rem;
-          --slide-size: 60%;
+          --slide-size: 53%;
         }
 
         .embla__viewport {
