@@ -12,6 +12,18 @@ import TextScrollSequence from "../components/TextScrollSequence";
 import ContactSection from "../components/ContactSection";
 import S3 from "../components/S3GroomingPrecision";
 
+const HomeSima3D = dynamic(
+  () => import("@/components/home/HomeSima3D"),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="flex h-[min(60vh,640px)] w-full items-center justify-center bg-[#0a0a0a] text-sm text-white/50">
+        載入 3D 展示…
+      </section>
+    ),
+  },
+);
+
 export default function Home({ carouselSlides = [] }) {
   const containerRef = useRef(null);
   const pageContentRef = useRef(null);
@@ -40,6 +52,7 @@ export default function Home({ carouselSlides = [] }) {
         </section>
         <EmblaCarousel slides={carouselSlides} options={OPTIONS} />
         <ContactSection />
+        <HomeSima3D />
       </div>
     </main>
   );
