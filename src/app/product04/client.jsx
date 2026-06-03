@@ -1,12 +1,12 @@
 "use client";
 import Parallax from "@/components/ParallaxPage";
-import Parallax01 from "@/components/ParallaxPage-product-03";
+import Parallax01 from "@/components/ParallaxPage-product-04";
 import { useRef } from "react";
-import TimelineSlider from "@/components/TimelineSlider-03";
+import TimelineSlider from "@/components/TimelineSlider-04";
 import gsap from "gsap";
-import ProductShow from "@/components/ProductShow-three";
+import ProductShow from "@/components/ProductShow-star";
 import { CustomEase } from "gsap/CustomEase";
-import Slider from "@/components/Slider03";
+import Slider from "@/components/Slider04";
 const QaClient = () => {
   return (
     <>

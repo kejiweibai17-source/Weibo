@@ -50,14 +50,14 @@ export default function Preloader({ onComplete }) {
           SMASMALL
         </h1>
         <p className="text-gray-400 text-sm md:text-base font-light tracking-wide mb-10">
-          The power of precision. Made accessible.
+          修容，也可以很講究。
         </p>
 
         <button
           onClick={playIntro}
           className="group flex items-center gap-3 px-6 py-2.5 border border-white/40 rounded-full text-white text-sm font-medium transition-all duration-300 hover:bg-white hover:text-black"
         >
-          Enter the Experience
+          探索昔馬電動刮鬍刀
           <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
             →
           </span>

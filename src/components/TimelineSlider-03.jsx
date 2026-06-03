@@ -4,69 +4,111 @@ import useEmblaCarousel from "embla-carousel-react";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Copy from "@/components/Copy";
 
-// ============================================================================
-// 昔馬 SMASMALL 品牌歷史資料 (黑夜騎士系列)
-// ============================================================================
+const IMG_BASE = "/images/accessories/青春版電動刮鬍刀禮盒-三色/文宣";
+
+// 青春版電動刮鬍刀禮盒 — 文宣圖與對應文案
 const TIMELINE_DATA = [
   {
     year: "01",
-    title: "化身黑夜騎士",
-    desc: "每個人都是自己的黑夜騎士。披上披風、抬起胸膛，穿梭在每個城市的角落。你的存在，讓城市的黑暗變得溫暖。",
-    img: "/images/accessories/黑夜騎士/文宣/1.jpg",
+    title: "隨時隨地，俐落出門",
+    desc: "輕鬆握在掌心，一鍵啟動即可整理門面。昔馬青春版電動刮鬍刀，讓日常理容變得簡單又自信。",
+    img: `${IMG_BASE}/1.jpg`,
   },
   {
     year: "02",
-    title: "秒懂男人的禮物",
-    desc: "GIFT BOX 精美動心的禮盒，送禮送到心坎裡；更是日常理容、外出使用的絕佳好幫手，低調奢華有內涵。",
-    img: "/images/accessories/黑夜騎士/文宣/9.jpg",
+    title: "八大核心 一次到位",
+    desc: "集結強勁動力、浮動刀網、掌心尺寸、IPX7 防水、Type-C 快充、合金機身與高顏值設計，滿足日常與差旅需求。",
+    img: `${IMG_BASE}/2.jpg`,
   },
   {
     year: "03",
-    title: "黑夜騎士 3合1禮盒",
-    desc: "精緻三合一禮盒搭配，採用抽拉式包裝設計，燙金紅字體炙熱奪目。沉穩考究的傳奇灰，展現低調奢華的極致品味。",
-    img: "/images/accessories/黑夜騎士/文宣/3.jpg",
+    title: "掌心尺寸 輕巧便攜",
+    desc: "單手即可掌握，放進口袋或洗漱包都不佔空間。出差、健身、旅行，隨身帶著走也不負擔。",
+    img: `${IMG_BASE}/3.jpg`,
   },
   {
     year: "04",
-    title: "禮盒專屬內容物",
-    desc: "一次擁有齊全裝備：昔馬鼻毛修剪器、電動刮鬍刀、定製收納皮套、Type-C充電線、清潔毛刷、配件盒、精緻禮盒與說明書。",
-    img: "/images/accessories/黑夜騎士/文宣/10_無紙袋版本.jpg",
+    title: "雙環刀頭 精密結構",
+    desc: "外開放式圓刀頭搭配浮動貼面設計，貼合臉部輪廓，精準捕捉鬍鬚，刮剃更乾淨、更有效率。",
+    img: `${IMG_BASE}/4.jpg`,
   },
   {
     year: "05",
-    title: "MINI SHAVER 電動刮鬍刀",
-    desc: "傳奇灰機身點綴波光粼粼的日內瓦紋。小巧便攜且具備極高顏值，讓你自由來去不設限，隨時保持俐落清爽。",
-    img: "/images/accessories/黑夜騎士/文宣/4.jpg",
+    title: "硬核設計 質感滿分",
+    desc: "簡約線條與細緻做工，展現俐落工業美學。放在檯面上，就是一件值得細品的理容單品。",
+    img: `${IMG_BASE}/5.jpg`,
   },
   {
     year: "06",
-    title: "雙環外開放式圓刀頭",
-    desc: "精緻工藝打造，浮動貼面能精準捕捉鬍鬚，升級版圓刀頭讓刮鬍效率比傳統提升 50%，達成極致高效剃鬚。",
-    img: "/images/accessories/黑夜騎士/文宣/5.jpg",
+    title: "合金鍛造 沉穩觸感",
+    desc: "金屬機身帶來扎實握感與耐用表現，細緻表面處理讓每一次握持都舒適順手。",
+    img: `${IMG_BASE}/6.jpg`,
   },
   {
     year: "07",
-    title: "抗菌刀頭與強勁動力",
-    desc: "刀頭表面經抗菌處理，安全無憂；強勁動力與穩定高轉速，順暢不拉扯，無懼粗硬鬍鬚，且擁有持久續航力。",
-    img: "/images/accessories/黑夜騎士/文宣/6.jpg",
+    title: "IPX7 全機防水",
+    desc: "可直接清水沖洗，清潔刀頭更省心。浴室潮濕環境也能安心使用，衛生又好打理。",
+    img: `${IMG_BASE}/7.jpg`,
   },
   {
     year: "08",
-    title: "潮流鼻毛修剪器",
-    desc: "獨特個性酒壺造型，是修剪器也是潮流配飾。採手動按壓設計，圓刀頭安全不傷膚，並支援全身水洗徹底清潔。",
-    img: "/images/accessories/黑夜騎士/文宣/7.jpg",
+    title: "持久續航 從容應對",
+    desc: "快充搭配長效續航，日常刮鬍、臨時出門都能從容應付，不必為電量反覆操心。",
+    img: `${IMG_BASE}/8.jpg`,
   },
   {
     year: "09",
-    title: "專屬訂製收納皮套",
-    desc: "專為黑夜騎士打造的方型盒收納皮套，方便隨身攜帶，沉穩考究的質感看得見，完美保護您的頂級理容工具。",
-    img: "/images/accessories/黑夜騎士/文宣/8.jpg",
+    title: "浮動旋轉 貼合輪廓",
+    desc: "刀頭可隨臉部線條微幅調整，下巴、嘴角等難剃區域也能順暢處理，減少拉扯感。",
+    img: `${IMG_BASE}/9.jpg`,
   },
   {
     year: "10",
-    title: "八大核心 強悍性能",
-    desc: "集結性能強勁、浮動刀網、掌心尺寸、IPX7防水、推動式操作、高能鋰電池、合金壓鑄及高顏值，並榮獲多項國際設計大獎。",
-    img: "/images/accessories/黑夜騎士/文宣/2.jpg",
+    title: "自在刮鬍 順暢體驗",
+    desc: "貼面刀網配合穩定動力，刮剃過程順滑不卡頓，早晚整理都能快速完成。",
+    img: `${IMG_BASE}/10.jpg`,
+  },
+  {
+    year: "11",
+    title: "放鬆理容 日常儀式",
+    desc: "在家也能享受輕鬆的整理時光，簡單幾分鐘，讓精神狀態與外在形象同步升級。",
+    img: `${IMG_BASE}/11.jpg`,
+  },
+  {
+    year: "12",
+    title: "精美禮盒 送禮首選",
+    desc: "開箱即可看見完整配件配置，刮鬍刀與周邊一應俱全，送男友、送父親、送同事都體面周到。",
+    img: `${IMG_BASE}/12.jpg`,
+  },
+  {
+    year: "13",
+    title: "三色可選 風格百搭",
+    desc: "提供多款配色選擇，依個人喜好與使用場景挑選，低調質感或經典色系都能輕鬆駕馭。",
+    img: `${IMG_BASE}/13.jpg`,
+  },
+  {
+    year: "14",
+    title: "產品規格 一目了然",
+    desc: "尺寸、續航、防水等關鍵參數清楚標示，選購前即可快速掌握，買得明白、用得安心。",
+    img: `${IMG_BASE}/14.jpg`,
+  },
+  {
+    year: "15",
+    title: "好評不斷 口碑見證",
+    desc: "真實使用者回饋與推薦分享，從刮剃體驗到禮盒質感，多面向肯定昔馬青春版的實力表現。",
+    img: `${IMG_BASE}/好評不斷L.jpg`,
+  },
+  {
+    year: "16",
+    title: "推薦理由 五大亮點",
+    desc: "從便攜、刀頭、防水、續航到禮盒完整性，條列式整理核心賣點，幫你快速做出選擇。",
+    img: `${IMG_BASE}/刮鬍刀推薦理由L.jpg`,
+  },
+  {
+    year: "17",
+    title: "選購指南 聰明比較",
+    desc: "對照功能與使用情境的選購建議，無論自用或送禮，都能找到最適合的刮鬍刀方案。",
+    img: `${IMG_BASE}/刮鬍刀選購指南L.jpg`,
   },
 ];
 
@@ -90,7 +132,8 @@ export default function TimelineSlider() {
         <Copy>
           {" "}
           <h2 className="text-3xl md:text-4xl font-light text-black tracking-wide">
-            昔馬電動刮鬍刀-黑夜騎士<span className="font-bold">產品特色</span>
+            昔馬青春版電動刮鬍刀禮盒
+            <span className="font-bold">產品特色</span>
           </h2>
         </Copy>
       </div>

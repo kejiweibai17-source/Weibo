@@ -59,7 +59,7 @@ const ParallaxPage = () => {
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
-            <h1>Design & Strategy for the Vision-Driven</h1>
+            <h2 className="text-[4.8vmin]">小。很強大。</h2>
           </Copy>
 
           <motion.div
@@ -68,9 +68,8 @@ const ParallaxPage = () => {
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            <p className="text-sm font-mono leading-relaxed">
-              WE HAVE METICULOUSLY HONED THE CRITICAL FACETS OF DESIGN AND
-              FUNCTIONALITY. EXACTING PRECISION IN OUR LINES, SHAPES, CURVES...
+            <p className="text-[16px] font-mono leading-relaxed">
+              昔馬捍衛者，把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
             </p>
           </motion.div>
         </div>

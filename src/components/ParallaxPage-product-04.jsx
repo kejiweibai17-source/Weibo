@@ -59,9 +59,9 @@ const ParallaxPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className=" text-[33px] xl:text-[4rem] text-center font-bold text-white tracking-tighter z-10 leading-none drop-shadow-lg"
+          className=" text-[33px] xl:text-[4vmin] text-center font-bold text-white tracking-tighter z-10 leading-none drop-shadow-lg"
         >
-          捍衛者電動刮鬍刀
+          星座系列電動刮鬍刀禮盒
         </motion.h1>
         <Copy>
           <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm drop-shadow-md">
@@ -73,7 +73,7 @@ const ParallaxPage = () => {
         <div
           className="absolute inset-0 opacity-50 bg-cover bg-center z-[-1]"
           style={{
-            backgroundImage: `url('/images/7fc93c4e-0cb1-4831-85b2-394460f767f2.png')`,
+            backgroundImage: `url('/images/a547d145-6bc1-4dd4-9653-81ee1945b2b8.png')`,
           }}
         />
       </div>
@@ -82,11 +82,13 @@ const ParallaxPage = () => {
           Section 2: 橘色文字區塊 (Ethos Section) 
           使用 relative z-10，在滾動時會自然蓋過上面 sticky 的黑色區塊
           ========================================================= */}
-      <div className="relative z-10 bg-[#ea580c] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32 shadow-[0_-10px_50px_rgba(0,0,0,0.5)]">
+      <div className="relative z-10 bg-[#171717] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32 shadow-[0_-10px_50px_rgba(0,0,0,0.5)]">
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
-            <h1>Design & Strategy for the </h1>
+            <h1 className="text-white">
+              Design & Strategy for the Vision-Driven
+            </h1>
           </Copy>
 
           <motion.div
@@ -95,7 +97,7 @@ const ParallaxPage = () => {
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            <p className="text-sm font-mono leading-relaxed">
+            <p className="text-sm text-gray-100 font-mono leading-relaxed">
               WE HAVE METICULOUSLY HONED THE CRITICAL FACETS OF DESIGN AND
               FUNCTIONALITY. EXACTING PRECISION IN OUR LINES, SHAPES, CURVES...
             </p>
@@ -130,7 +132,7 @@ const ParallaxPage = () => {
           >
             <div className="relative w-full">
               <img
-                src="/images/accessories/捍衛者/6.png"
+                src="/images/accessories/黑夜騎士/黑夜騎士-01.png"
                 alt="Calibre AMB+"
                 className="relative z-10 block w-full h-auto object-contain  "
               />
@@ -145,7 +147,7 @@ const ParallaxPage = () => {
                 }
                 transition={{ type: "spring", stiffness: 280, damping: 16 }}
                 onClick={() => markerReady && setVideoOpen(true)}
-                className={`absolute top-[30%] left-[35%] w-8 h-8 bg-[#ea580c] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-20 border-0 p-0 ${
+                className={`absolute top-[30%] left-[35%] w-8 h-8 bg-[#101010] rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg z-20 border-0 p-0 ${
                   markerReady
                     ? "cursor-pointer hover:scale-110 transition-transform"
                     : "pointer-events-none"

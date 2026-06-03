@@ -94,7 +94,7 @@ export default function TextScrollSequence() {
         if (currentSplit) currentSplit.revert();
 
         // 注入新標題並套用置中排版的 Class
-        titleRef.current.innerHTML = `<h1 class="text-3xl font-normal tracking-[-0.05em] leading-[1.3] text-center">${slides[index].title}</h1>`;
+        titleRef.current.innerHTML = `<h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal tracking-[-0.03em] sm:tracking-[-0.05em] leading-[1.45] sm:leading-[1.35] text-center">${slides[index].title}</h1>`;
 
         // 將 <h1> 拆分為多行
         currentSplit = new SplitText(titleRef.current.querySelector("h1"), {
@@ -168,7 +168,7 @@ export default function TextScrollSequence() {
       {/* 🌟 文字正中間佈局 */}
       <div
         ref={titleRef}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-4xl flex items-center justify-center z-10"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-4xl px-2 sm:w-[85%] sm:px-0 flex items-center justify-center z-10"
       >
         {/* JS 會動態將 <h1 ...> 插入此處 */}
       </div>
