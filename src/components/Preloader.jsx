@@ -4,6 +4,7 @@
 import React, { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { markPreloaderPlayedThisSession } from "@/lib/preloaderSession";
 
 export default function Preloader({ onComplete }) {
   const overlayRef = useRef(null);
@@ -16,6 +17,7 @@ export default function Preloader({ onComplete }) {
     const tl = gsap.timeline({
       // 當黑幕完全消失時，呼叫父層傳入的 onComplete 函數
       onComplete: () => {
+        markPreloaderPlayedThisSession();
         if (onComplete) onComplete();
       },
     });

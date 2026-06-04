@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://weibo-alpha.vercel.app
-
-# Sitemaps
-Sitemap: https://weibo-alpha.vercel.app/sitemap.xml

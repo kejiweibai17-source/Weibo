@@ -36,20 +36,18 @@ export default function AccessoryDetailClient({ productId }) {
       setSlideDirection(1);
       setActiveAccordion(null);
 
-      if (!targetProduct.carouselFromFolders) {
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/accessories/${id}/carousel`);
-        if (!res.ok || cancelled) return;
-        const data = await res.json();
-        if (cancelled || !data.images?.length) return;
-        setProduct((prev) => (prev ? { ...prev, images: data.images } : prev));
-        setMainImgIdx(0);
-        setSlideDirection(1);
-      } catch {
-        /* 保留 imageFiles 預設圖 */
+      if (targetProduct.carouselFromFolders) {
+        try {
+          const res = await fetch(`/api/accessories/${id}/carousel`);
+          if (!res.ok || cancelled) return;
+          const data = await res.json();
+          if (cancelled || !data.images?.length) return;
+          setProduct((prev) => (prev ? { ...prev, images: data.images } : prev));
+          setMainImgIdx(0);
+          setSlideDirection(1);
+        } catch {
+          /* 保留預設圖 */
+        }
       }
 
       try {
@@ -62,9 +60,6 @@ export default function AccessoryDetailClient({ productId }) {
             ? {
                 ...prev,
                 shortDesc: info.shortDesc ?? prev.shortDesc,
-                features: info.features?.length ? info.features : prev.features,
-                details: info.details ?? prev.details,
-                shipping: info.shipping ?? prev.shipping,
               }
             : prev,
         );
@@ -99,8 +94,8 @@ export default function AccessoryDetailClient({ productId }) {
 
   if (!product) return <div className="min-h-screen bg-white"></div>;
 
-  const toggleAccordion = (title) => {
-    setActiveAccordion(activeAccordion === title ? null : title);
+  const toggleAccordion = (key) => {
+    setActiveAccordion(activeAccordion === key ? null : key);
   };
 
   const renderStars = (rating) => {
@@ -127,6 +122,9 @@ export default function AccessoryDetailClient({ productId }) {
     setSlideDirection(1);
     setMainImgIdx((prev) => (prev + 1) % imageCount);
   };
+
+  const formatPrice = (value) =>
+    `NT$${Math.round(Number(value) || 0).toLocaleString("zh-TW")}`;
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans pt-[60px] lg:pt-[72px]">
@@ -255,7 +253,7 @@ export default function AccessoryDetailClient({ productId }) {
               {product.title}
             </h1>
 
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <div className="flex tracking-widest">
                 {renderStars(product.rating)}
               </div>
@@ -264,17 +262,24 @@ export default function AccessoryDetailClient({ productId }) {
               </span>
             </div>
 
+            {product.price > 0 && (
+              <p className="text-2xl md:text-[1.75rem] font-bold text-gray-900 mb-6 tracking-tight">
+                {formatPrice(product.price)}
+              </p>
+            )}
+
             <p className="text-[15px] text-gray-600 leading-relaxed font-medium mb-10">
               {product.shortDesc}
             </p>
 
             <div className="w-full border-t border-gray-200">
-              {product.features.map((feature, idx) => {
-                const isOpen = activeAccordion === feature.title;
+              {(product.features ?? []).map((feature, idx) => {
+                const accordionKey = `accordion-${idx}`;
+                const isOpen = activeAccordion === accordionKey;
                 return (
-                  <div key={idx} className="border-b border-gray-200">
+                  <div key={accordionKey} className="border-b border-gray-200">
                     <button
-                      onClick={() => toggleAccordion(feature.title)}
+                      onClick={() => toggleAccordion(accordionKey)}
                       className="w-full py-5 lg:py-6 flex items-center justify-between text-left group"
                     >
                       <span
@@ -294,7 +299,7 @@ export default function AccessoryDetailClient({ productId }) {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6">
+                          <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6 whitespace-pre-line">
                             {feature.content}
                           </p>
                         </motion.div>
@@ -303,85 +308,25 @@ export default function AccessoryDetailClient({ productId }) {
                   </div>
                 );
               })}
-
-              <div className="border-b border-gray-200">
-                <button
-                  onClick={() => toggleAccordion("details")}
-                  className="w-full py-5 lg:py-6 flex items-center justify-between text-left group"
-                >
-                  <span
-                    className={`text-[15px] lg:text-[16px] font-bold tracking-wide transition-colors ${activeAccordion === "details" ? "text-black" : "text-gray-800 group-hover:text-black"}`}
-                  >
-                    產品規格與細節
-                  </span>
-                  <span className="text-gray-400 group-hover:text-black transition-colors">
-                    {activeAccordion === "details" ? (
-                      <Minus size={20} />
-                    ) : (
-                      <Plus size={20} />
-                    )}
-                  </span>
-                </button>
-                <AnimatePresence>
-                  {activeAccordion === "details" && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6 whitespace-pre-line">
-                        {product.details}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <div className="border-b border-gray-200">
-                <button
-                  onClick={() => toggleAccordion("shipping")}
-                  className="w-full py-5 lg:py-6 flex items-center justify-between text-left group"
-                >
-                  <span
-                    className={`text-[15px] lg:text-[16px] font-bold tracking-wide transition-colors ${activeAccordion === "shipping" ? "text-black" : "text-gray-800 group-hover:text-black"}`}
-                  >
-                    配送與售後服務
-                  </span>
-                  <span className="text-gray-400 group-hover:text-black transition-colors">
-                    {activeAccordion === "shipping" ? (
-                      <Minus size={20} />
-                    ) : (
-                      <Plus size={20} />
-                    )}
-                  </span>
-                </button>
-                <AnimatePresence>
-                  {activeAccordion === "shipping" && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6">
-                        {product.shipping}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
 
-            <div className="mt-10 pt-8 border-t border-gray-200">
-              <button className="bg-[#00B4D8] hover:bg-[#0096B4] text-white px-8 md:px-12 py-3 rounded-full font-bold text-[15px] transition-colors shadow-lg shadow-cyan-500/30 w-full sm:w-auto">
-                前往購買
-              </button>
-            </div>
+            {product.purchaseUrl && (
+              <div className="mt-10 pt-8 border-t border-gray-200">
+                <a
+                  href={product.purchaseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center bg-[#00B4D8] hover:bg-[#0096B4] text-white px-8 md:px-12 py-3 rounded-full font-bold text-[15px] transition-colors shadow-lg shadow-cyan-500/30 w-full sm:w-auto"
+                >
+                  前往購買
+                </a>
+              </div>
+            )}
 
             <AccessoryRightPanel panel={product.rightPanel} />
 
-            {product.scenarioImages?.length > 0 && (
+            {(product.scenarioImages?.length > 0 ||
+              (product.manualGuide?.imageUrl && product.manualGuide?.pdfUrl)) && (
               <section className="mt-14 lg:mt-20 border-t border-gray-100 pt-14 lg:pt-20">
                 <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2 tracking-tight">
                   使用情境
@@ -407,14 +352,20 @@ export default function AccessoryDetailClient({ productId }) {
                         />
                       </a>
                     )}
-                  {product.scenarioImages.map((src, idx) => (
-                    <div key={src} className="relative w-full overflow-hidden ">
+                  {(product.scenarioImages ?? []).map((src, idx) => (
+                    <div
+                      key={`${src}-${idx}`}
+                      className="relative w-full overflow-hidden"
+                    >
                       <Image
                         src={src}
                         alt={`${product.title} 情境圖 ${idx + 1}`}
-                        width={800}
-                        height={500}
-                        className="w-full h-auto object-cover"
+                        width={2400}
+                        height={3600}
+                        quality={100}
+                        unoptimized
+                        sizes="(max-width: 1024px) 100vw, 700px"
+                        className="w-full h-auto object-contain"
                       />
                     </div>
                   ))}

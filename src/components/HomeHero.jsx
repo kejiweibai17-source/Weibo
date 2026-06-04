@@ -6,6 +6,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useLenis } from "lenis/react";
 import Preloader from "./Preloader";
+import { hasPreloaderPlayedThisSession } from "@/lib/preloaderSession";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,10 +15,32 @@ gsap.registerPlugin(ScrollTrigger);
  * 負責：Preloader 狀態、Lenis 滾動鎖定、Hero 影片區、GSAP 文字動畫、頁面內容淡入
  * @param {{ pageContentRef: React.RefObject }} props
  */
+function revealHomeWithoutPreloader(pageContentRef) {
+  gsap.set(".hero-title", { opacity: 1, scale: 1 });
+  gsap.set(".hero-sub", { opacity: 1, y: 0 });
+  gsap.set(".scroll-ind", { opacity: 1 });
+  if (pageContentRef?.current) {
+    gsap.set(pageContentRef.current, { opacity: 1 });
+  }
+  ScrollTrigger.refresh();
+}
+
 export default function HomeHero({ pageContentRef }) {
   const [introFinished, setIntroFinished] = useState(false);
-  const [preloaderMounted, setPreloaderMounted] = useState(true);
+  const [preloaderMounted, setPreloaderMounted] = useState(false);
+  const [skipIntroAnimations, setSkipIntroAnimations] = useState(false);
   const lenis = useLenis();
+
+  // 站內再回首頁：同分頁 session 內略過 Preloader；關閉瀏覽器／無痕新開會重播
+  useEffect(() => {
+    if (hasPreloaderPlayedThisSession()) {
+      setSkipIntroAnimations(true);
+      setIntroFinished(true);
+      requestAnimationFrame(() => revealHomeWithoutPreloader(pageContentRef));
+      return;
+    }
+    setPreloaderMounted(true);
+  }, [pageContentRef]);
 
   // 🌟 Lenis 滾動鎖定 / 解鎖 (已修復：移除 overflow: hidden)
   useEffect(() => {
@@ -33,6 +56,8 @@ export default function HomeHero({ pageContentRef }) {
   // Hero 文字浮現 + 頁面內容淡入
   useGSAP(() => {
     if (!introFinished) return;
+    if (skipIntroAnimations) return;
+
     const tl = gsap.timeline();
     tl.fromTo(
       ".hero-title",
@@ -58,7 +83,7 @@ export default function HomeHero({ pageContentRef }) {
         },
         "-=1",
       );
-  }, [introFinished]);
+  }, [introFinished, skipIntroAnimations]);
 
   // 監聽 DOM 高度與圖片載入，確保 ScrollTrigger 計算正確
   useEffect(() => {
@@ -96,11 +121,12 @@ export default function HomeHero({ pageContentRef }) {
           playsInline
         />
 
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center pointer-events-none px-4">
-          <h1 className="hero-title text-white text-5xl md:text-7xl lg:text-[6rem] font-light tracking-[0.2em] opacity-0 uppercase drop-shadow-xl">
+        <div className="absolute inset-0 z-10 flex flex-col pl-[13%] items-start justify-center text-center pointer-events-none px-4">
+          <h1 className="hero-title text-white text-5xl md:text-7xl lg:text-[˙vmin] font-light tracking-[0.2em] opacity-0 uppercase drop-shadow-xl">
             SMASMALL
           </h1>
-          <p className="hero-sub mt-6 text-xl md:text-3xl text-gray-200 font-light opacity-0 drop-shadow-md">
+
+          <p className="hero-sub mt-6 text-xl md:text-3xl text-gray-200 font-extralight opacity-0 drop-shadow-md">
             昔馬電動刮鬍刀系列
             <br className="md:hidden" />
             威柏科技代理

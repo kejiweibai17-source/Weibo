@@ -5,38 +5,22 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import { HERO_SLIDER_FALLBACK_SLIDES } from "@/data/hero-slider-fallback";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-// 🌟 昔馬 SMASMALL 專屬文案
-const slides = [
-  {
-    title: "獨創全合金壓鑄機身",
-    description:
-      "拋棄傳統塑膠材質，汲取重機與航空機身靈感，打造扎實且耐用的全合金機身。握感沉穩、冰冷俐落，完美展現復古未來主義的獨特品味。",
-    image: "/images/index/banner-01.png",
-  },
-  {
-    title: "業界首創磁吸快拆刀頭",
-    description:
-      "搭載高精密磁吸結構，一秒即可無縫貼合與拆卸。不僅大幅縮短日常清理時間，更徹底解決傳統機械卡榫易斷裂、易磨損的問題。",
-    image: "/images/index/banner-02.png",
-  },
-  {
-    title: "荷蘭進口精鋼刀片",
-    description:
-      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀網與自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的剃鬚體驗。",
-    image: "/images/index/banner-03.png",
-  },
-  {
-    title: "IPX7 頂級全機防水",
-    description:
-      "支援全機身水洗與乾濕兩用。無論是搭配刮鬍泡的深層淨容，或是淋浴時的快速剃鬚，都能輕鬆應對，用水一沖即淨，衛生無死角。",
-    image: "/images/index/banner-04.png",
-  },
-];
+function escapeHtml(text = "") {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
-export default function Slider() {
+export default function Slider({ slides: slidesProp }) {
+  const slides =
+    slidesProp?.length > 0 ? slidesProp : [...HERO_SLIDER_FALLBACK_SLIDES];
+
   const sliderRef = useRef(null);
   const sliderImagesRef = useRef(null);
   const sliderTitleRef = useRef(null);
@@ -45,6 +29,8 @@ export default function Slider() {
 
   useGSAP(
     () => {
+      if (!slides.length) return undefined;
+
       let activeSlide = 0;
       let currentSplits = [];
 
@@ -85,7 +71,7 @@ export default function Slider() {
 
         const newSliderImage = document.createElement("img");
         newSliderImage.src = slides[index].image;
-        newSliderImage.alt = `Slide ${index + 1}`;
+        newSliderImage.alt = slides[index].title || `Slide ${index + 1}`;
 
         gsap.set(newSliderImage, {
           opacity: 0,
@@ -163,23 +149,25 @@ export default function Slider() {
           currentSplits = [];
         }
 
-        // 🌟 修復 2：加上 Tailwind class，確保第二張以後的排版跟第一張一模一樣
+        const slide = slides[index];
         sliderTitleRef.current.innerHTML = `
-          <h1 class="text-4xl md:text-5xl font-bold tracking-wider mb-5">${slides[index].title}</h1>
-          <p class="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">${slides[index].description}</p>
+          <h1 class="text-4xl md:text-5xl font-bold tracking-wider mb-5">${escapeHtml(slide.title)}</h1>
+          <p class="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">${escapeHtml(slide.description)}</p>
         `;
 
-        // 拆分 <h1>
-        const titleSplit = new SplitText(
-          sliderTitleRef.current.querySelector("h1"),
-          { type: "lines", linesClass: "line" },
-        );
+        const titleEl = sliderTitleRef.current.querySelector("h1");
+        const descEl = sliderTitleRef.current.querySelector("p.description");
+        if (!titleEl || !descEl) return;
 
-        // 拆分 <p>
-        const descSplit = new SplitText(
-          sliderTitleRef.current.querySelector("p.description"),
-          { type: "lines", linesClass: "line" },
-        );
+        const titleSplit = new SplitText(titleEl, {
+          type: "lines",
+          linesClass: "line",
+        });
+
+        const descSplit = new SplitText(descEl, {
+          type: "lines",
+          linesClass: "line",
+        });
 
         currentSplits.push(titleSplit, descSplit);
 
@@ -206,7 +194,7 @@ export default function Slider() {
 
       createIndices();
 
-      ScrollTrigger.create({
+      const st = ScrollTrigger.create({
         trigger: sliderRef.current,
         start: "top top",
         end: `+=${pinDistance}px`,
@@ -220,9 +208,12 @@ export default function Slider() {
             });
           }
 
-          const currentSlide = Math.floor(self.progress * slides.length);
+          const currentSlide = Math.min(
+            slides.length - 1,
+            Math.floor(self.progress * slides.length),
+          );
 
-          if (activeSlide !== currentSlide && currentSlide < slides.length) {
+          if (activeSlide !== currentSlide) {
             activeSlide = currentSlide;
             animateNewSlide(activeSlide);
           }
@@ -233,17 +224,19 @@ export default function Slider() {
         if (currentSplits.length > 0) {
           currentSplits.forEach((split) => split.revert());
         }
-        ScrollTrigger.getAll().forEach((st) => st.kill());
+        st.kill();
       };
     },
-    { scope: sliderRef },
+    { scope: sliderRef, dependencies: [slides] },
   );
+
+  const first = slides[0];
 
   return (
     <>
       <section className="slider section-slider" ref={sliderRef}>
         <div className="slider-images" ref={sliderImagesRef}>
-          <img src={slides[0].image} alt="Slide 1" />
+          <img src={first.image} alt={first.title} />
         </div>
 
         <div
@@ -251,10 +244,10 @@ export default function Slider() {
           ref={sliderTitleRef}
         >
           <h1 className="text-4xl md:text-5xl font-bold tracking-wider mb-5">
-            {slides[0].title}
+            {first.title}
           </h1>
           <p className="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">
-            {slides[0].description}
+            {first.description}
           </p>
         </div>
 
@@ -266,7 +259,6 @@ export default function Slider() {
         </div>
       </section>
 
-      {/* 🌟 核心修復：封裝在此元件專用的 CSS，不依賴全域樣式 */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -278,7 +270,6 @@ export default function Slider() {
           background-color: #050507;
         }
 
-        /* 圖片容器 */
         .slider-images {
           position: absolute;
           top: 0;
@@ -288,7 +279,6 @@ export default function Slider() {
           z-index: 0;
         }
 
-        /* 讓 JS 動態加入的所有圖片都能滿版並維持比例 */
         .slider-images img {
           position: absolute;
           top: 0;
@@ -299,7 +289,6 @@ export default function Slider() {
           will-change: transform, opacity;
         }
 
-        /* 暗色漸層遮罩，讓文字永遠清晰可見 */
         .slider-images::after {
           content: "";
           position: absolute;
@@ -309,7 +298,6 @@ export default function Slider() {
           pointer-events: none;
         }
 
-        /* 標題定位 */
         .slider-title {
           position: absolute;
           top: 50%;
@@ -318,7 +306,6 @@ export default function Slider() {
           color: white;
         }
 
-        /* 右側指示器定位 */
         .slider-indicator {
           position: absolute;
           top: 50%;

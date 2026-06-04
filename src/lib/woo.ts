@@ -1,6 +1,13 @@
 import "server-only";
 
 export type WooImage = { id: number; src: string; alt?: string };
+export type WooCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  parent: number;
+  count?: number;
+};
 export type WooProduct = {
   id: number;
   name: string;
@@ -89,6 +96,26 @@ export async function fetchProducts({
 // 這裡預設抓取 100 筆，直接複用 fetchProducts 的邏輯
 export async function fetchAllProducts() {
   return fetchProducts({ page: 1, perPage: 100 });
+}
+
+export async function fetchAllProductCategories() {
+  const { base } = getEnv();
+  const url = withAuth(
+    `${base}/wp-json/wc/v3/products/categories?per_page=100&hide_empty=false`,
+  );
+  const res = await fetch(url, { next: { revalidate: 300 } });
+  if (!res.ok) return [] as WooCategory[];
+  const data = (await res.json()) as any[];
+  return (data || []).map(
+    (c) =>
+      ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        parent: Number(c.parent || 0),
+        count: Number(c.count || 0),
+      }) as WooCategory,
+  );
 }
 
 // 3. 單一產品抓取 (透過 Slug)

@@ -12,16 +12,19 @@ import TextScrollSequence from "../components/TextScrollSequence";
 import ContactSection from "../components/ContactSection";
 import S3 from "../components/S3GroomingPrecision";
 
-const HomeSima3D = dynamic(() => import("@/components/home/HomeSima3D"), {
-  ssr: false,
-  loading: () => (
-    <section className="flex h-[min(60vh,640px)] w-full items-center justify-center bg-[#0a0a0a] text-sm text-white/50">
-      載入 3D 展示…
-    </section>
-  ),
-});
+const HomeScrollSequence01 = dynamic(
+  () => import("@/components/home/HomeScrollSequence01"),
+  {
+    ssr: false,
+    loading: () => (
+      <section className="flex h-screen w-full items-center justify-center text-sm text-neutral-500" style={{ backgroundColor: "#EBEBEB" }}>
+        載入 3D 滾動動畫…
+      </section>
+    ),
+  },
+);
 
-export default function Home({ carouselSlides = [] }) {
+export default function Home({ carouselSlides = [], heroSlides = [] }) {
   const containerRef = useRef(null);
   const pageContentRef = useRef(null);
 
@@ -33,7 +36,7 @@ export default function Home({ carouselSlides = [] }) {
       <div ref={pageContentRef} className="page-content z-10 relative">
         <TextScrollSequence />
         <Parallax />
-        <Slider />
+        <Slider slides={heroSlides} />
         <S3 />
         <TextParallaxContentExample02 />
         <section>
@@ -49,6 +52,7 @@ export default function Home({ carouselSlides = [] }) {
         </section>
         <EmblaCarousel slides={carouselSlides} options={OPTIONS} />
         <ContactSection />
+        <HomeScrollSequence01 />
       </div>
     </main>
   );

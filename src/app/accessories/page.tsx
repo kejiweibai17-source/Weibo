@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
 import { buildAccessoryProducts } from "@/data/accessories.server";
-import { fetchAccessoriesFromWoo } from "@/lib/accessoriesWoo.server";
+import {
+  COMPATIBILITY_OPTIONS,
+  CATEGORY_OPTIONS,
+} from "@/data/accessories";
+import { fetchAccessoriesPageData } from "@/lib/accessoriesWoo.server";
 import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildAccessoriesCollectionSchemas } from "@/lib/seo/schemas";
 import AccessoriesPageClient from "./AccessoriesPageClient";
@@ -58,9 +62,16 @@ export const metadata: Metadata = {
 
 export default async function AccessoriesPage() {
   let products = [];
+  let productFilters = COMPATIBILITY_OPTIONS;
+  let accessoryFilters = CATEGORY_OPTIONS;
+  let filtersFromWoo = false;
 
   try {
-    products = await fetchAccessoriesFromWoo();
+    const data = await fetchAccessoriesPageData();
+    products = data.products;
+    productFilters = data.productFilters;
+    accessoryFilters = data.accessoryFilters;
+    filtersFromWoo = true;
   } catch {
     // 若 WooCommerce 暫時不可用，回退到原本本地資料，避免頁面中斷
     products = buildAccessoryProducts();
@@ -71,7 +82,12 @@ export default async function AccessoriesPage() {
   return (
     <>
       <JsonLd data={schemas} />
-      <AccessoriesPageClient products={products} />
+      <AccessoriesPageClient
+        products={products}
+        productFilters={productFilters}
+        accessoryFilters={accessoryFilters}
+        filtersFromWoo={filtersFromWoo}
+      />
     </>
   );
 }

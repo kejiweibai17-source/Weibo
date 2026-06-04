@@ -37,7 +37,7 @@ export default function HomeClient({ posts }) {
         rawUrl = imgMatch[1];
       }
     }
-    return rawUrl ? rawUrl.split("?")[0] : "/images/logo/uflow.png";
+    return rawUrl ? rawUrl.split("?")[0] : "/images/003-01.png";
   };
 
   return (

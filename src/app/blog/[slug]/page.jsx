@@ -7,8 +7,9 @@ import { notFound } from "next/navigation";
 // 引入結構化資料元件
 import ArticleJsonLd from "./ArticleJsonLd";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://weibo-alpha.vercel.app";
+import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+
+const SITE_URL = getSiteUrl();
 
 // ===================== 🌟 共用圖片萃取工具 =====================
 function getPostImage(post) {
@@ -23,7 +24,7 @@ function getPostImage(post) {
     const imgMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
     if (imgMatch && imgMatch[1]) rawUrl = imgMatch[1];
   }
-  return rawUrl ? rawUrl.split("?")[0] : "/images/logo/uflow.png";
+  return rawUrl ? rawUrl.split("?")[0] : SEO_CONFIG.defaultOgImage;
 }
 
 // ===================== 🌟 API 抓取單篇文章 =====================
@@ -108,10 +109,10 @@ export async function generateMetadata({ params }) {
   const imageUrl = getPostImage(post);
   const cleanDescription =
     post.excerpt?.rendered.replace(/<[^>]+>/g, "").substring(0, 160) ||
-    "UFLOW 保健知識專欄";
+    "SMASMALL 昔馬電動刮鬍刀理容知識與男士修容專欄";
 
   return {
-    title: `${post.title.rendered} | UFLOW 健康生活`,
+    title: `${post.title.rendered}｜SMASMALL 昔馬理容知識`,
     description: cleanDescription,
     alternates: {
       canonical: `${SITE_URL}/blog/${post.slug}`,

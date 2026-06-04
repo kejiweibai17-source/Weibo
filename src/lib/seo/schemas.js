@@ -172,9 +172,22 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
         availability: `${SCHEMA_CONTEXT}/InStock`,
         itemCondition: `${SCHEMA_CONTEXT}/NewCondition`,
         priceCurrency: "TWD",
+        ...(product.price ? { price: String(product.price) } : {}),
+        priceValidUntil: new Date(
+          Date.now() + 90 * 24 * 60 * 60 * 1000,
+        ).toISOString().slice(0, 10),
         seller: { "@id": ids.organization },
         availableAtOrFrom: { "@id": ids.localBusiness },
         areaServed: SEO_CONFIG.areaServed,
+        hasMerchantReturnPolicy: {
+          "@type": "MerchantReturnPolicy",
+          applicableCountry: "TW",
+          returnPolicyCategory:
+            "https://schema.org/MerchantReturnFiniteReturnWindow",
+          merchantReturnDays: "7",
+          returnMethod: "https://schema.org/ReturnByMail",
+          returnFees: "https://schema.org/FreeReturn",
+        },
       },
     };
   });
@@ -295,8 +308,21 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
       availability: `${SCHEMA_CONTEXT}/InStock`,
       itemCondition: `${SCHEMA_CONTEXT}/NewCondition`,
       priceCurrency: "TWD",
+      ...(item.detail?.price ? { price: String(item.detail.price) } : {}),
+      priceValidUntil: new Date(
+        Date.now() + 90 * 24 * 60 * 60 * 1000,
+      ).toISOString().slice(0, 10),
       seller: { "@id": ids.organization },
       availableAtOrFrom: { "@id": ids.localBusiness },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "TW",
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: "7",
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
       shippingDetails: {
         "@type": "OfferShippingDetails",
         shippingDestination: {

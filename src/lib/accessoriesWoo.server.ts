@@ -1,12 +1,34 @@
 import "server-only";
 import {
+  fetchAllProductCategories,
   fetchAllProducts,
   fetchProductBySlug,
+  type WooCategory,
   type WooProduct,
 } from "@/lib/woo";
 
 const DEFAULT_SHIPPING =
   "全館消費滿 NT$1,500 即享免運優惠。台灣本島地區約 1-3 個工作天送達。";
+
+const PRODUCT_ROOT_NAMES = ["產品", "产品"];
+const PRODUCT_ROOT_SLUGS = ["product"];
+const ACCESSORY_ROOT_NAMES = ["配件"];
+const ACCESSORY_ROOT_SLUGS = ["accessories"];
+
+export type AccessoryFilterOption = { label: string; value: string };
+
+export type AccessoryListItem = {
+  id: string;
+  title: string;
+  price: number;
+  compatibility: string[];
+  category: string;
+  series: string;
+  images: string[];
+  productGroup: string;
+  accessoryGroup: string;
+  wooCategorySlugs: string[];
+};
 
 function stripHtml(input = "") {
   return input
@@ -25,6 +47,16 @@ function parseMaybeJson(value: any) {
   } catch {
     return null;
   }
+}
+
+/** 修復 u7522u54c1… 這類被 strip 反斜線的 Unicode 亂碼 */
+function repairUnicodeText(input = "") {
+  const text = String(input ?? "");
+  if (!text || !/(?:\\u|u)[0-9a-fA-F]{4}/.test(text)) return text;
+  return text.replace(/\\u([0-9a-fA-F]{4})|u([0-9a-fA-F]{4})/g, (_, hex1, hex2) => {
+    const code = parseInt(hex1 || hex2, 16);
+    return Number.isFinite(code) ? String.fromCharCode(code) : _;
+  });
 }
 
 function pickMetaValue(product: WooProduct | null, keys: string[]) {
@@ -95,6 +127,31 @@ function normalizeSocialUrl(url: string) {
 }
 
 function normalizeFeatures(product: WooProduct) {
+  const accordionRaw = pickMetaValue(product, [
+    "smasmall_accordion_items",
+    "_smasmall_accordion_items",
+  ]);
+  const accordionParsed = parseMaybeJson(accordionRaw);
+
+  if (Array.isArray(accordionParsed) && accordionParsed.length) {
+    return accordionParsed
+      .map((item, idx) => {
+        if (typeof item === "string") {
+          return {
+            title: `項目 ${idx + 1}`,
+            content: repairUnicodeText(item),
+          };
+        }
+        return {
+          title:
+            repairUnicodeText(String(item?.title ?? "").trim()) ||
+            `項目 ${idx + 1}`,
+          content: repairUnicodeText(String(item?.content ?? "").trim()),
+        };
+      })
+      .filter((item) => item.title && item.content);
+  }
+
   const custom = pickMetaValue(product, [
     "smasmall_features",
     "scenario_features",
@@ -172,17 +229,169 @@ function normalizeSocialEmbeds(product: WooProduct) {
     : null;
 }
 
-export function mapWooToAccessoryListItem(product: WooProduct) {
+function findRootCategory(
+  categories: WooCategory[],
+  names: string[],
+  slugs: string[] = [],
+): WooCategory | undefined {
+  return categories.find(
+    (cat) =>
+      names.some(
+        (name) =>
+          cat.name === name ||
+          cat.slug === name ||
+          decodeURIComponent(cat.slug) === name,
+      ) || slugs.includes(cat.slug),
+  );
+}
+
+function isUnderRoot(
+  categoryId: number,
+  rootId: number | undefined,
+  categories: WooCategory[],
+): boolean {
+  if (!rootId || !categoryId) return false;
+  if (categoryId === rootId) return true;
+
+  let current = categories.find((c) => c.id === categoryId);
+  const seen = new Set<number>();
+
+  while (current && !seen.has(current.id)) {
+    seen.add(current.id);
+    if (current.id === rootId) return true;
+    if (!current.parent) break;
+    current = categories.find((c) => c.id === current!.parent);
+  }
+
+  return false;
+}
+
+function resolveCategoryGroups(
+  product: WooProduct,
+  productRoot?: WooCategory,
+  accessoryRoot?: WooCategory,
+  categories: WooCategory[] = [],
+) {
+  const wooCategorySlugs = (product.categories || []).map((c) => c.slug);
+  let productGroup = "";
+  let accessoryGroup = "";
+
+  for (const cat of product.categories || []) {
+    if (productRoot && isUnderRoot(cat.id, productRoot.id, categories)) {
+      productGroup =
+        cat.id === productRoot.id ? product.slug : cat.slug;
+    }
+    if (accessoryRoot && isUnderRoot(cat.id, accessoryRoot.id, categories)) {
+      accessoryGroup =
+        cat.id === accessoryRoot.id ? product.slug : cat.slug;
+    }
+  }
+
+  return { productGroup, accessoryGroup, wooCategorySlugs };
+}
+
+function buildCategoryFilterOptions(
+  root: WooCategory | undefined,
+  categories: WooCategory[],
+  products: WooProduct[],
+  type: "product" | "accessory",
+): AccessoryFilterOption[] {
+  const options: AccessoryFilterOption[] = [{ label: "All", value: "All" }];
+  if (!root) return options;
+
+  const children = categories
+    .filter((cat) => cat.parent === root.id)
+    .sort((a, b) => a.name.localeCompare(b.name, "zh-Hant"));
+
+  if (children.length > 0) {
+    for (const child of children) {
+      options.push({ label: child.name, value: child.slug });
+    }
+    return options;
+  }
+
+  const matchedProducts = products
+    .filter((product) =>
+      (product.categories || []).some((cat) =>
+        isUnderRoot(cat.id, root.id, categories),
+      ),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name, "zh-Hant"));
+
+  for (const product of matchedProducts) {
+    options.push({
+      label: product.name,
+      value: type === "product" ? product.slug : product.slug,
+    });
+  }
+
+  return options;
+}
+
+export async function fetchAccessoriesPageData(): Promise<{
+  products: AccessoryListItem[];
+  productFilters: AccessoryFilterOption[];
+  accessoryFilters: AccessoryFilterOption[];
+}> {
+  const [products, categories] = await Promise.all([
+    fetchAllProducts(),
+    fetchAllProductCategories(),
+  ]);
+
+  const productRoot = findRootCategory(
+    categories,
+    PRODUCT_ROOT_NAMES,
+    PRODUCT_ROOT_SLUGS,
+  );
+  const accessoryRoot = findRootCategory(
+    categories,
+    ACCESSORY_ROOT_NAMES,
+    ACCESSORY_ROOT_SLUGS,
+  );
+
+  const productFilters = buildCategoryFilterOptions(
+    productRoot,
+    categories,
+    products,
+    "product",
+  );
+  const accessoryFilters = buildCategoryFilterOptions(
+    accessoryRoot,
+    categories,
+    products,
+    "accessory",
+  );
+
+  const items = products
+    .map((product) =>
+      mapWooToAccessoryListItem(product, categories, productRoot, accessoryRoot),
+    )
+    .filter((p) => p.images.length > 0);
+
+  return { products: items, productFilters, accessoryFilters };
+}
+
+function mapWooToAccessoryListItem(
+  product: WooProduct,
+  categories: WooCategory[] = [],
+  productRoot?: WooCategory,
+  accessoryRoot?: WooCategory,
+): AccessoryListItem {
   const series = toSeriesKey(product?.name, product?.categories || []);
+  const { productGroup, accessoryGroup, wooCategorySlugs } =
+    resolveCategoryGroups(product, productRoot, accessoryRoot, categories);
+
   return {
     id: product.slug,
     title: product.name,
     price: Number(product.price || 0),
-    compatibility: [series],
-    category: toCategoryKey(product?.name, product?.categories || []),
+    compatibility: productGroup ? [productGroup] : [series],
+    category: accessoryGroup || toCategoryKey(product?.name, product?.categories || []),
     series,
-    images:
-      product.images?.map((im) => im.src).filter(Boolean) ?? [],
+    images: product.images?.map((im) => im.src).filter(Boolean) ?? [],
+    productGroup,
+    accessoryGroup,
+    wooCategorySlugs,
   };
 }
 
@@ -214,8 +423,18 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
       "product_specs",
     ]) || stripHtml(product?.description);
 
-  const allImages = product.images?.map((im) => im.src).filter(Boolean) ?? [];
+  // 左側輪播：WooCommerce 商品圖片 + 商品圖庫（REST images 陣列）
+  const galleryImages = product.images?.map((im) => im.src).filter(Boolean) ?? [];
   const rightPanel = normalizeSocialEmbeds(product);
+  const purchaseUrlRaw = pickMetaValue(product, [
+    "smasmall_purchase_url",
+    "_smasmall_purchase_url",
+    "purchase_url",
+  ]);
+  const purchaseUrl =
+    typeof purchaseUrlRaw === "string" && purchaseUrlRaw.trim()
+      ? purchaseUrlRaw.trim()
+      : null;
 
   return {
     id: product.slug,
@@ -232,7 +451,7 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
     shipping:
       pickMetaValue(product, ["smasmall_shipping_note", "_smasmall_shipping_note"]) ||
       DEFAULT_SHIPPING,
-    images: allImages,
+    images: galleryImages,
     boxContentsImages: [],
     scenarioImages,
     manualGuide:
@@ -246,12 +465,13 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
     carouselFromFolders: false,
     mediaFolder: null,
     rightPanel,
+    purchaseUrl,
   };
 }
 
 export async function fetchAccessoriesFromWoo() {
-  const products = await fetchAllProducts();
-  return products.map(mapWooToAccessoryListItem).filter((p) => p.images.length > 0);
+  const { products } = await fetchAccessoriesPageData();
+  return products;
 }
 
 export async function fetchAccessoryDetailBySlug(slug: string) {

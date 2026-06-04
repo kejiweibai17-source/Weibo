@@ -30,20 +30,19 @@ export const metadata: Metadata = {
     "威柏科技",
   ],
   alternates: {
-    canonical: "/product01",
+    canonical: "/product04",
   },
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: "https://weibo-alpha.vercel.app/product01", // 直接寫死絕對路徑
+    url: "/product04",
     siteName: "SMASMALL 昔馬 by 威柏科技",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description:
       "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
     images: [
       {
-        // 🌟 核心修復：直接貼上你找到的、已經過 URL 編碼的正確圖片網址
-        url: "https://weibo-alpha.vercel.app/images/%E6%8D%8D%E8%A1%9B%E8%80%85-001.png",
+        url: "/images/003-01.png",
         width: 1200,
         height: 630,
         alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
@@ -54,10 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    // 🌟 這裡也同步更新為編碼後的網址
-    images: [
-      "https://weibo-alpha.vercel.app/images/%E6%8D%8D%E8%A1%9B%E8%80%85-001.png",
-    ],
+    images: ["/images/003-01.png"],
   },
 };
 
@@ -68,7 +64,7 @@ export default function Product01Page() {
   const schemaProduct = {
     "@context": "https://schema.org/",
     "@type": "Product",
-    "@id": `${SITE_URL}/product01/#product`,
+    "@id": `${SITE_URL}/product04/#product`,
     name: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     image: [
       `${SITE_URL}/images/捍衛者/捍衛者-01.png`,
@@ -82,7 +78,7 @@ export default function Product01Page() {
     mpn: "SM-DEF-001",
     offers: {
       "@type": "Offer",
-      url: `${SITE_URL}/product01`,
+      url: `${SITE_URL}/product04`,
       priceCurrency: "TWD",
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
@@ -134,14 +130,14 @@ export default function Product01Page() {
   const schemaWebPage = {
     "@context": "https://schema.org",
     "@type": "ItemPage",
-    "@id": `${SITE_URL}/product01/#webpage`,
-    url: `${SITE_URL}/product01`,
+    "@id": `${SITE_URL}/product04/#webpage`,
+    url: `${SITE_URL}/product04`,
     name: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀｜戰損塗裝、磁吸快拆",
     description:
-      "探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，展現男士極致理容美學。",
+      "探索昔馬 SMASMALL 捍衛者+ 全合金戰損塗裝，展現男士極致理容美學。",
     isPartOf: { "@id": ids.website },
-    about: { "@id": `${SITE_URL}/product01/#product` },
-    mainEntity: { "@id": `${SITE_URL}/product01/#product` },
+    about: { "@id": `${SITE_URL}/product04/#product` },
+    mainEntity: { "@id": `${SITE_URL}/product04/#product` },
     publisher: { "@id": ids.organization },
   };
 
@@ -152,7 +148,7 @@ export default function Product01Page() {
     schemaWebPage,
     buildBreadcrumbList(SITE_URL, [
       { name: "首頁", path: "/" },
-      { name: "捍衛者+", path: "/product01" },
+      { name: "捍衛者+", path: "/product04" },
     ]),
   ];
 

@@ -4,6 +4,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
+import { getHeroSliderSlides } from "@/lib/heroSlider.server";
 
 const SITE_URL = getSiteUrl();
 
@@ -74,7 +75,10 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function Page() {
-  const carouselSlides = await getHomeCarouselSlides();
+  const [carouselSlides, heroSlides] = await Promise.all([
+    getHomeCarouselSlides(),
+    getHeroSliderSlides(),
+  ]);
   const schemas = buildHomePageSchemas({
     siteUrl: SITE_URL,
     faqs: homeFAQs,
@@ -103,7 +107,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={schemas} />
-      <Client faqs={homeFAQs} carouselSlides={carouselSlides} />
+      <Client faqs={homeFAQs} carouselSlides={carouselSlides} heroSlides={heroSlides} />
     </>
   );
 }

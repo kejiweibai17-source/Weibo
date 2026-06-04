@@ -106,6 +106,7 @@ export default async function AccessoryDetailPage({ params }: PageProps) {
       details: detail.details ?? "",
       rating: detail.rating,
       reviews: detail.reviews,
+      price: detail.price,
     },
   };
   const schemas = buildAccessoryDetailSchemas(schemaSeed, SITE_URL);

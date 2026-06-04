@@ -6,7 +6,11 @@ import { ChevronDown } from "lucide-react";
 import Copy from "@/components/Copy";
 export default function ContactSection() {
   return (
-    <section className="w-full min-h-screen bg-white text-black flex flex-col lg:flex-row font-sans">
+    <section
+      id="contact-section"
+      data-contact-section
+      className="w-full min-h-screen bg-white text-black flex flex-col lg:flex-row font-sans"
+    >
       {/* =========================================================
           左側：滿版產品情境圖
           ========================================================= */}

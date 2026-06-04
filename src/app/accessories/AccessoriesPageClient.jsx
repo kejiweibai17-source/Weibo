@@ -5,11 +5,40 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Link } from "next-view-transitions";
 import Copy from "@/components/Copy";
-import { COMPATIBILITY_OPTIONS, CATEGORY_OPTIONS } from "@/data/accessories";
 
-export default function AccessoriesPageClient({ products }) {
+function matchesProductFilter(product, activeComp) {
+  if (activeComp === "All") return true;
+  return (
+    product.productGroup === activeComp ||
+    product.id === activeComp ||
+    product.compatibility?.includes(activeComp) ||
+    product.wooCategorySlugs?.includes(activeComp)
+  );
+}
+
+function matchesAccessoryFilter(product, activeCats) {
+  if (activeCats.includes("All")) return true;
+  return activeCats.some(
+    (cat) =>
+      product.accessoryGroup === cat ||
+      product.category === cat ||
+      product.wooCategorySlugs?.includes(cat),
+  );
+}
+
+export default function AccessoriesPageClient({
+  products,
+  productFilters,
+  accessoryFilters,
+  filtersFromWoo = false,
+}) {
   const [activeComp, setActiveComp] = useState("All");
   const [activeCats, setActiveCats] = useState(["All"]);
+
+  const showProductFilters =
+    !filtersFromWoo || productFilters.some((opt) => opt.value !== "All");
+  const showAccessoryFilters =
+    !filtersFromWoo || accessoryFilters.some((opt) => opt.value !== "All");
 
   const handleCategoryToggle = (value) => {
     if (value === "All") {
@@ -31,10 +60,8 @@ export default function AccessoriesPageClient({ products }) {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const matchComp =
-        activeComp === "All" || product.compatibility.includes(activeComp);
-      const matchCat =
-        activeCats.includes("All") || activeCats.includes(product.category);
+      const matchComp = matchesProductFilter(product, activeComp);
+      const matchCat = matchesAccessoryFilter(product, activeCats);
       return matchComp && matchCat;
     });
   }, [products, activeComp, activeCats]);
@@ -59,77 +86,77 @@ export default function AccessoriesPageClient({ products }) {
 
         <div className="flex flex-col md:flex-row gap-12 items-start">
           <aside className="w-full md:w-[250px] flex-shrink-0 sticky top-32 hidden md:block">
-            <div className="mb-10">
-              <h3 className="font-bold text-[15px] mb-5 text-gray-900">
-                Product compatibility
-              </h3>
-              <ul className="space-y-3">
-                {COMPATIBILITY_OPTIONS.map((opt) => {
-                  const isActive = activeComp === opt.value;
-                  return (
-                    <li
-                      key={opt.value}
-                      className="relative flex items-center cursor-pointer group"
-                      onClick={() => setActiveComp(opt.value)}
-                    >
-                      <span
-                        className={`absolute -left-4 w-1.5 h-1.5 rounded-full bg-[#007aff] transition-opacity duration-300 ${
-                          isActive ? "opacity-100" : "opacity-0"
-                        }`}
-                      />
-                      <span
-                        className={`text-[14px] transition-colors ${
-                          isActive
-                            ? "text-gray-900 font-medium"
-                            : "text-gray-500 group-hover:text-gray-800"
-                        }`}
+            {showProductFilters && (
+              <div className="mb-10">
+                <h3 className="font-bold text-[15px] mb-5 text-gray-900">產品</h3>
+                <ul className="space-y-3">
+                  {productFilters.map((opt) => {
+                    const isActive = activeComp === opt.value;
+                    return (
+                      <li
+                        key={opt.value}
+                        className="relative flex items-center cursor-pointer group"
+                        onClick={() => setActiveComp(opt.value)}
                       >
-                        {opt.label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                        <span
+                          className={`absolute -left-4 w-1.5 h-1.5 rounded-full bg-[#007aff] transition-opacity duration-300 ${
+                            isActive ? "opacity-100" : "opacity-0"
+                          }`}
+                        />
+                        <span
+                          className={`text-[14px] transition-colors ${
+                            isActive
+                              ? "text-gray-900 font-medium"
+                              : "text-gray-500 group-hover:text-gray-800"
+                          }`}
+                        >
+                          {opt.label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
 
-            <div>
-              <h3 className="font-bold text-[15px] mb-5 text-gray-900">
-                Categories
-              </h3>
-              <ul className="space-y-3">
-                {CATEGORY_OPTIONS.map((opt) => {
-                  const isChecked = activeCats.includes(opt.value);
-                  return (
-                    <li
-                      key={opt.value}
-                      className="flex items-center gap-3 cursor-pointer group"
-                      onClick={() => handleCategoryToggle(opt.value)}
-                    >
-                      <div
-                        className={`w-[14px] h-[14px] rounded-[3px] border flex items-center justify-center transition-colors ${
-                          isChecked
-                            ? "bg-[#007aff] border-[#007aff]"
-                            : "border-gray-300 group-hover:border-gray-500"
-                        }`}
+            {showAccessoryFilters && (
+              <div>
+                <h3 className="font-bold text-[15px] mb-5 text-gray-900">配件</h3>
+                <ul className="space-y-3">
+                  {accessoryFilters.map((opt) => {
+                    const isChecked = activeCats.includes(opt.value);
+                    return (
+                      <li
+                        key={opt.value}
+                        className="flex items-center gap-3 cursor-pointer group"
+                        onClick={() => handleCategoryToggle(opt.value)}
                       >
-                        {isChecked && (
-                          <div className="w-1.5 h-1.5 bg-white rounded-sm" />
-                        )}
-                      </div>
-                      <span
-                        className={`text-[14px] transition-colors ${
-                          isChecked
-                            ? "text-gray-900 font-medium"
-                            : "text-gray-500 group-hover:text-gray-800"
-                        }`}
-                      >
-                        {opt.label}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                        <div
+                          className={`w-[14px] h-[14px] rounded-[3px] border flex items-center justify-center transition-colors ${
+                            isChecked
+                              ? "bg-[#007aff] border-[#007aff]"
+                              : "border-gray-300 group-hover:border-gray-500"
+                          }`}
+                        >
+                          {isChecked && (
+                            <div className="w-1.5 h-1.5 bg-white rounded-sm" />
+                          )}
+                        </div>
+                        <span
+                          className={`text-[14px] transition-colors ${
+                            isChecked
+                              ? "text-gray-900 font-medium"
+                              : "text-gray-500 group-hover:text-gray-800"
+                          }`}
+                        >
+                          {opt.label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </aside>
 
           <div className="w-full flex-1">
