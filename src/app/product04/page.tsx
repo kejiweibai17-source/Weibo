@@ -6,26 +6,28 @@ import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
 } from "@/lib/seo/schemas";
+import { PRODUCT04_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
 const ids = entityIds(SITE_URL);
+const OG_IMAGE = `${SITE_URL}${PRODUCT04_SLIDES.ogImage}`;
 
 // ============================================================================
-// 1. 強大的 SEO Metadata 設定
+// 1. SEO Metadata（OG 預覽圖取自 Slider04 第一張產品圖）
 // ============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀｜戰損塗裝、磁吸快拆",
+  title: "昔馬 SMASMALL 星座系列 CQ 電動刮鬍刀｜三色限量禮盒",
   description:
-    "探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與荷蘭進口自銳刀片。1小時快充，60天極致續航，展現男士極致理容美學。",
+    "昔馬 SMASMALL 星座系列 CQ 電動刮鬍刀，三色限量禮盒設計。精緻星座圖騰外觀，搭載高性能馬達，是最佳生日與節慶禮品選擇。",
   keywords: [
     "昔馬",
     "SMASMALL",
-    "捍衛者",
+    "CQ系列",
+    "星座系列",
     "電動刮鬍刀",
-    "全合金刮鬍刀",
-    "戰損塗裝",
-    "磁吸快拆刀頭",
+    "禮盒",
+    "限量版",
     "男士理容",
     "威柏科技",
   ],
@@ -35,25 +37,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: "/product04",
+    url: `${SITE_URL}/product04`,
     siteName: "SMASMALL 昔馬 by 威柏科技",
-    title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
+    title: "昔馬 SMASMALL 星座系列 CQ 電動刮鬍刀 三色限量禮盒",
     description:
-      "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
+      "精緻星座圖騰外觀，三色限量禮盒，搭載高性能馬達，是最佳生日與節慶禮品選擇。",
     images: [
       {
-        url: "/images/003-01.png",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
+        alt: "昔馬 SMASMALL 星座系列 CQ 電動刮鬍刀 三色限量禮盒",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
-    description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    images: ["/images/003-01.png"],
+    title: "昔馬 SMASMALL 星座系列 CQ 電動刮鬍刀 三色限量禮盒",
+    description: "精緻星座圖騰外觀，三色限量禮盒，搭載高性能馬達。",
+    images: [OG_IMAGE],
   },
 };
 

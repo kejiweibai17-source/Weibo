@@ -6,12 +6,14 @@ import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
 } from "@/lib/seo/schemas";
+import { PRODUCT01_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
 const ids = entityIds(SITE_URL);
+const OG_IMAGE = `${SITE_URL}${PRODUCT01_SLIDES.ogImage}`;
 
 // ============================================================================
-// 1. 強大的 SEO Metadata 設定
+// 1. SEO Metadata（OG 預覽圖取自 Slider01 第一張產品圖）
 // ============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -42,7 +44,7 @@ export const metadata: Metadata = {
       "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
     images: [
       {
-        url: `${SITE_URL}/images/003-01.png`,
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
         alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
@@ -53,7 +55,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    images: [`${SITE_URL}/images/003-01.png`],
+    images: [OG_IMAGE],
   },
 };
 

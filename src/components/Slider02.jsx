@@ -4,14 +4,8 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import Copy from "./Copy";
-const slides = [
-  {
-    image: "/images/index/banner-03.png",
-  },
-  {
-    image: "/images/index/banner-05.png",
-  },
-];
+import { PRODUCT02_SLIDES } from "@/data/productSlides";
+const { slides } = PRODUCT02_SLIDES;
 
 export default function Slider() {
   const containerRef = useRef(null);

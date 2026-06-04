@@ -6,26 +6,27 @@ import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
 } from "@/lib/seo/schemas";
+import { PRODUCT02_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
 const ids = entityIds(SITE_URL);
+const OG_IMAGE = `${SITE_URL}${PRODUCT02_SLIDES.ogImage}`;
 
 // ============================================================================
-// 1. 強大的 SEO Metadata 設定
+// 1. SEO Metadata（OG 預覽圖取自 Slider02 第一張產品圖）
 // ============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀｜戰損塗裝、磁吸快拆",
+  title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝｜限量黑色版本",
   description:
-    "探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與荷蘭進口自銳刀片。1小時快充，60天極致續航，展現男士極致理容美學。",
+    "昔馬 SMASMALL 黑夜騎士電動刮鬍刀套裝。限量黑色配色，全合金機身，搭載荷蘭進口自銳刀片，IPX7 防水設計，展現型男極致風格。",
   keywords: [
     "昔馬",
     "SMASMALL",
-    "捍衛者",
+    "黑夜騎士",
     "電動刮鬍刀",
+    "限量版刮鬍刀",
     "全合金刮鬍刀",
-    "戰損塗裝",
-    "磁吸快拆刀頭",
     "男士理容",
     "威柏科技",
   ],
@@ -35,25 +36,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_TW",
-    url: "/product02",
+    url: `${SITE_URL}/product02`,
     siteName: "SMASMALL 昔馬 by 威柏科技",
-    title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
+    title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝",
     description:
-      "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
+      "限量黑色配色，全合金機身，搭載荷蘭進口刀片與一秒磁吸快拆技術，展現型男極致風格。",
     images: [
       {
-        url: "/images/003-01.png",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀",
+        alt: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
-    description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
-    images: ["/images/003-01.png"],
+    title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝",
+    description: "限量黑色配色，全合金機身，搭載荷蘭進口刀片與一秒磁吸快拆技術。",
+    images: [OG_IMAGE],
   },
 };
 

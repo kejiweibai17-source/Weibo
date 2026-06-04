@@ -316,7 +316,7 @@ export default function Home() {
                     <br />
                     日間補充提振精神 +夜間補充助眠
                   </p>
-                  <Link href="http://localhost:3000/products/gaba%e9%8e%82%e9%8e%82%e9%a6%99%e8%9c%82%e8%8d%89">
+                  <Link href={`${process.env.NEXT_PUBLIC_SITE_URL || ""}/products/gaba%e9%8e%82%e9%8e%82%e9%a6%99%e8%9c%82%e8%8d%89`}>
                     <button className="mt-6 border-2 border-[#f7f7f7] text-[#f5f5f5] px-6 py-2 rounded-full font-bold hover:bg-[#efefef] hover:text-[#4492E3] transition duration-300 shadow-md">
                       MORE
                     </button>
