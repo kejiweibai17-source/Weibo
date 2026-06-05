@@ -59,18 +59,33 @@ function repairUnicodeText(input = "") {
   });
 }
 
+/** WooCommerce 常會同時存 smasmall_xxx 與 _smasmall_xxx（後者常為空 []） */
+function isEmptyMetaValue(value: unknown): boolean {
+  if (value === undefined || value === null || value === false || value === "") {
+    return true;
+  }
+  if (value === "[]" || value === "{}") return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  return false;
+}
+
 function pickMetaValue(product: WooProduct | null, keys: string[]) {
   if (!product) return undefined;
 
+  // 依 keys 優先順序查找，避免 meta_data.find 先命中空的 _smasmall_xxx
   for (const key of keys) {
-    if (product[key] !== undefined && product[key] !== null) {
-      return product[key];
+    const topLevel = product[key];
+    if (!isEmptyMetaValue(topLevel)) {
+      return topLevel;
+    }
+
+    const fromMeta = product.meta_data?.find((m) => m.key === key)?.value;
+    if (!isEmptyMetaValue(fromMeta)) {
+      return fromMeta;
     }
   }
 
-  const fromMeta =
-    product.meta_data?.find((m) => keys.includes(m.key))?.value ?? undefined;
-  return fromMeta;
+  return undefined;
 }
 
 function toSeriesKey(
@@ -123,7 +138,37 @@ function normalizeSocialUrl(url: string) {
   return url
     .replace(/&amp;/g, "&")
     .replace(/^['"]|['"]$/g, "")
-    .trim();
+    .trim()
+    .replace(/^https:\/\/youtube\.com/i, "https://www.youtube.com");
+}
+
+function normalizeUrlList(value: any): string[] {
+  const parsed = parseMaybeJson(value);
+  if (Array.isArray(parsed)) {
+    return parsed
+      .map((item) => {
+        if (typeof item === "string") return normalizeSocialUrl(item);
+        if (item?.url) return normalizeSocialUrl(String(item.url));
+        return null;
+      })
+      .filter((url): url is string => {
+        if (!url) return false;
+        return !/^https:\/\/\[\]/.test(url);
+      });
+  }
+  if (typeof value === "string" && value.trim()) {
+    const asJson = parseMaybeJson(value.trim());
+    if (Array.isArray(asJson)) {
+      return normalizeUrlList(asJson);
+    }
+    const single = normalizeSocialUrl(value);
+    return single && !/^https:\/\/\[\]/.test(single) ? [single] : [];
+  }
+  return [];
+}
+
+function isYoutubeShortsUrl(url: string) {
+  return /youtube\.com\/shorts\//i.test(url);
 }
 
 function normalizeFeatures(product: WooProduct) {
@@ -199,22 +244,23 @@ function normalizeSocialEmbeds(product: WooProduct) {
     "facebook_urls",
   ]);
 
-  const youtubeUrls = normalizeImageList(youtubeRaw);
-  const facebookUrls = normalizeImageList(facebookRaw);
+  const youtubeUrls = normalizeUrlList(youtubeRaw);
+  const facebookUrls = normalizeUrlList(facebookRaw);
 
   const socialEmbeds = [
     ...youtubeUrls.map((url, idx) => ({
       id: `yt-${idx + 1}`,
       platform: "youtube",
-      label: `YouTube ${idx + 1}`,
-      url: normalizeSocialUrl(url),
-      height: 400,
+      label: isYoutubeShortsUrl(url) ? `YouTube Shorts ${idx + 1}` : `YouTube ${idx + 1}`,
+      url,
+      height: isYoutubeShortsUrl(url) ? undefined : 400,
+      isShorts: isYoutubeShortsUrl(url),
     })),
     ...facebookUrls.map((url, idx) => ({
       id: `fb-${idx + 1}`,
       platform: "facebook",
       label: `Facebook ${idx + 1}`,
-      url: normalizeSocialUrl(url),
+      url,
       height: 720,
     })),
   ];

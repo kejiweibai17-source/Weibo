@@ -24,6 +24,9 @@ export function resolveSocialEmbedSrc(platform, url, options = {}) {
   let trimmed = extractIframeSrc(url.trim());
   const { embedWidth } = options;
 
+  // youtube.com → www.youtube.com（與後台 sanitize 一致）
+  trimmed = trimmed.replace(/^https:\/\/youtube\.com/i, "https://www.youtube.com");
+
   if (
     trimmed.startsWith("https://") &&
     (trimmed.includes("/plugins/") || trimmed.includes("/embed"))
@@ -63,4 +66,21 @@ export function resolveSocialEmbedSrc(platform, url, options = {}) {
   }
 
   return trimmed;
+}
+
+/** 從 YouTube 網址取出 11 碼 video ID */
+export function extractYoutubeVideoId(url = "") {
+  const trimmed = String(url)
+    .trim()
+    .replace(/^https:\/\/youtube\.com/i, "https://www.youtube.com");
+  const match = trimmed.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+  );
+  return match?.[1] ?? null;
+}
+
+/** YouTube 縮圖（Shorts / 一般影片通用） */
+export function youtubeThumbnailUrl(videoId, quality = "hqdefault") {
+  if (!videoId) return null;
+  return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
 }

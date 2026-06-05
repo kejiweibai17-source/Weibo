@@ -19,7 +19,9 @@
  *   下方「使用情境」：detail.scenarioImageFiles → 情境圖/ 資料夾
  *
  *   右欄 embed：rightPanel.socialEmbeds[]（可放 2–3 則）
- *     YouTube 例：https://www.youtube.com/watch?v=影片ID
+ *     YouTube 橫式：{ platform:"youtube", url:"https://www.youtube.com/watch?v=影片ID" }
+ *     YouTube Shorts 直式：{ platform:"youtube", url:"https://www.youtube.com/shorts/影片ID" }
+ *       → URL 含 /shorts/ 時自動偵測為直式；或手動加 isShorts:true 強制直式
  *     Facebook 例：plugins/post.php 的 src，或貼文網址
  * ─────────────────────────────────────────────────────────
  */

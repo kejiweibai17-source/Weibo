@@ -194,6 +194,14 @@ const Section2 = () => {
               </li>
               <li>
                 <Link
+                  href="/support/policies"
+                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                >
+                  使用條款與政策
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/contact"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -274,25 +282,25 @@ const Section2 = () => {
               顧客評價
             </Link>
             <Link
-              href="/shipping"
+              href="/support/policies#shipping"
               className="text-[12px] text-gray-400 hover:text-black transition-colors"
             >
               運送與退換貨
             </Link>
             <Link
-              href="/privacy"
+              href="/support/policies#privacy"
               className="text-[12px] text-gray-400 hover:text-black transition-colors"
             >
               隱私權政策
             </Link>
             <Link
-              href="/terms"
+              href="/support/policies#terms"
               className="text-[12px] text-gray-400 hover:text-black transition-colors"
             >
               服務條款
             </Link>
             <Link
-              href="/credits"
+              href="/support/policies#fraud"
               className="text-[12px] text-gray-400 hover:text-black transition-colors"
             >
               防詐騙宣導

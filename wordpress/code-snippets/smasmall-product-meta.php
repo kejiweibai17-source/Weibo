@@ -20,6 +20,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/** 防止 Code Snippets 重複載入造成 meta box 出現兩次 */
+if (defined('SMASMALL_PRODUCT_META_LOADED')) {
+    return;
+}
+define('SMASMALL_PRODUCT_META_LOADED', true);
+
 const SMASMALL_META_YOUTUBE   = 'smasmall_youtube_urls';
 const SMASMALL_META_FACEBOOK  = 'smasmall_facebook_urls';
 const SMASMALL_META_SCENARIO  = 'smasmall_scenario_images';
@@ -144,7 +150,9 @@ add_action('init', function () {
                 'single'            => true,
                 'show_in_rest'      => true,
                 'description'       => $label,
-                'sanitize_callback' => 'smasmall_sanitize_json_string_meta',
+                'sanitize_callback' => in_array($key, [SMASMALL_META_YOUTUBE, SMASMALL_META_FACEBOOK], true)
+                    ? 'smasmall_sanitize_url_list_meta'
+                    : 'smasmall_sanitize_json_string_meta',
                 'auth_callback'     => function () {
                     return current_user_can('edit_products');
                 },
@@ -174,6 +182,34 @@ function smasmall_json_encode($data): string
 }
 
 /**
+ * 安全將 meta 值轉成陣列（避免 json_decode 收到 array 在 PHP 8 報錯）
+ *
+ * @param mixed $raw
+ * @return array
+ */
+function smasmall_json_decode_array($raw): array
+{
+    if (is_array($raw)) {
+        return $raw;
+    }
+    if ($raw instanceof \stdClass) {
+        return (array) $raw;
+    }
+    if (!is_string($raw)) {
+        return [];
+    }
+    $trim = trim($raw);
+    if ($trim === '') {
+        return [];
+    }
+    $decoded = json_decode($trim, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+        return [];
+    }
+    return $decoded;
+}
+
+/**
  * 修復 JSON 儲存時反斜線被 strip 造成的 u7522u54c1… 亂碼。
  */
 function smasmall_repair_unicode_text(string $text): string
@@ -200,6 +236,74 @@ function smasmall_sanitize_json_string_meta($value): string
     if (is_array($value)) {
         return smasmall_json_encode($value);
     }
+    if ($value instanceof \stdClass) {
+        return smasmall_json_encode((array) $value);
+    }
+    if (!is_string($value)) {
+        return '[]';
+    }
+    return smasmall_json_encode(smasmall_json_decode_array($value));
+}
+
+/**
+ * 正規化並驗證社群影片／貼文 URL（支援 YouTube Shorts、youtu.be 等）
+ */
+function smasmall_sanitize_social_url(string $url): string
+{
+    $url = trim($url);
+    if ($url === '') {
+        return '';
+    }
+
+    // 補上缺少的 scheme
+    if (!preg_match('#^https?://#i', $url)) {
+        $url = 'https://' . ltrim($url, '/');
+    }
+
+    // youtube.com → www.youtube.com（esc_url_raw 對無 www 有時會過濾）
+    $url = preg_replace('#^https://youtube\.com#i', 'https://www.youtube.com', $url);
+    $url = preg_replace('#^http://youtube\.com#i', 'https://www.youtube.com', $url);
+
+    $clean = esc_url_raw($url);
+    if ($clean !== '') {
+        return $clean;
+    }
+
+    // esc_url_raw 失敗時，對已知 YouTube / Facebook 格式做 fallback
+    if (preg_match('#^https://(?:www\.)?youtube\.com/(?:watch\?v=|embed/|shorts/|live/)[^\s"\']+#i', $url)) {
+        return $url;
+    }
+    if (preg_match('#^https://youtu\.be/[A-Za-z0-9_-]{11}[^\s"\']*#i', $url)) {
+        return $url;
+    }
+    if (preg_match('#^https://(?:www\.)?facebook\.com/[^\s"\']+#i', $url)) {
+        return $url;
+    }
+
+    return '';
+}
+
+function smasmall_sanitize_url_array(array $list): array
+{
+    $out = [];
+    foreach ($list as $item) {
+        $url = smasmall_sanitize_social_url(is_string($item) ? $item : '');
+        if ($url !== '') {
+            $out[] = $url;
+        }
+    }
+    return array_values(array_unique($out));
+}
+
+/** REST / WC API 儲存 YouTube、Facebook URL 列表用 */
+function smasmall_sanitize_url_list_meta($value): string
+{
+    if (is_array($value)) {
+        return smasmall_json_encode(smasmall_sanitize_url_array($value));
+    }
+    if ($value instanceof \stdClass) {
+        return smasmall_json_encode(smasmall_sanitize_url_array((array) $value));
+    }
     if (!is_string($value)) {
         return '[]';
     }
@@ -207,11 +311,20 @@ function smasmall_sanitize_json_string_meta($value): string
     if ($trim === '') {
         return '[]';
     }
-    $decoded = json_decode($trim, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
-        return '[]';
+
+    $decoded = smasmall_json_decode_array($trim);
+    if ($decoded !== []) {
+        return smasmall_json_encode(smasmall_sanitize_url_array($decoded));
     }
-    return smasmall_json_encode($decoded);
+
+    // 單一 URL 字串（舊格式相容）
+    $one = smasmall_sanitize_social_url($trim);
+    return $one !== '' ? smasmall_json_encode([$one]) : '[]';
+}
+
+function smasmall_is_youtube_shorts_url(string $url): bool
+{
+    return (bool) preg_match('#youtube\.com/shorts/#i', $url);
 }
 
 function smasmall_decode_url_list($raw): array
@@ -219,19 +332,25 @@ function smasmall_decode_url_list($raw): array
     if (is_array($raw)) {
         $list = $raw;
     } elseif (is_string($raw) && $raw !== '') {
-        $decoded = json_decode($raw, true);
-        $list = is_array($decoded) ? $decoded : preg_split('/\r\n|\r|\n/', $raw);
+        $decoded = smasmall_json_decode_array($raw);
+        $list = $decoded !== [] ? $decoded : preg_split('/\r\n|\r|\n/', $raw);
     } else {
         $list = [];
     }
 
     $out = [];
     foreach ($list as $item) {
+        if (is_array($item) && isset($item['url'])) {
+            $item = $item['url'];
+        }
         $url = is_string($item) ? trim($item) : '';
         if ($url === '') {
             continue;
         }
-        $out[] = esc_url_raw($url);
+        $clean = smasmall_sanitize_social_url($url);
+        if ($clean !== '') {
+            $out[] = $clean;
+        }
     }
 
     return array_values(array_unique($out));
@@ -239,14 +358,7 @@ function smasmall_decode_url_list($raw): array
 
 function smasmall_decode_scenario_images($raw): array
 {
-    if (is_array($raw)) {
-        $list = $raw;
-    } elseif (is_string($raw) && $raw !== '') {
-        $decoded = json_decode($raw, true);
-        $list = is_array($decoded) ? $decoded : [];
-    } else {
-        $list = [];
-    }
+    $list = smasmall_json_decode_array($raw);
 
     $out = [];
     foreach ($list as $item) {
@@ -295,14 +407,7 @@ function smasmall_encode_scenario_images(array $images): string
 
 function smasmall_decode_accordion_items($raw): array
 {
-    if (is_array($raw)) {
-        $list = $raw;
-    } elseif (is_string($raw) && $raw !== '') {
-        $decoded = json_decode($raw, true);
-        $list = is_array($decoded) ? $decoded : [];
-    } else {
-        $list = [];
-    }
+    $list = smasmall_json_decode_array($raw);
 
     $out = [];
     foreach ($list as $item) {
@@ -327,7 +432,7 @@ function smasmall_decode_accordion_items($raw): array
     return $out;
 }
 
-function smasmall_encode_accordion_items(array $items): string
+function smasmall_encode_accordion_items($items): string
 {
     return smasmall_json_encode(smasmall_decode_accordion_items($items));
 }
@@ -357,17 +462,17 @@ function smasmall_render_accordion_row(array $item, int $index): void
     <?php
 }
 
-/** ---------- Meta box ---------- */
+/** ---------- Meta box（僅註冊一次） ---------- */
 add_action('add_meta_boxes', function () {
     add_meta_box(
-        'smasmall-product-meta',
-        'SMASMALL 社群連結',
+        'smasmall-product-meta-v2',
+        'SMASMALL 商品擴充',
         'smasmall_render_product_meta_box',
         'product',
         'normal',
         'high'
     );
-});
+}, 10);
 
 function smasmall_render_product_meta_box(\WP_Post $post): void
 {
@@ -380,6 +485,7 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
     $accordion    = smasmall_decode_accordion_items(get_post_meta($post->ID, SMASMALL_META_ACCORDION, true));
     ?>
     <div class="smasmall-product-meta">
+        <input type="hidden" name="smasmall_social_sync" value="1" />
         <p class="description" style="margin-top:0;">
             左側商品輪播請使用右側欄 WooCommerce「商品圖片 / 商品圖庫」。下方「情境圖」會顯示在官網商品頁右側。
         </p>
@@ -388,7 +494,7 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
             <h4 class="smasmall-meta-heading">YouTube</h4>
             <p class="description">貼上 YouTube 影片或 Shorts 連結，可新增多筆。</p>
             <div class="smasmall-url-add-row">
-                <input type="url" class="widefat smasmall-url-input" data-platform="youtube" placeholder="https://www.youtube.com/watch?v=..." />
+                <input type="url" class="widefat smasmall-url-input" data-platform="youtube" placeholder="https://www.youtube.com/watch?v=... 或 https://youtube.com/shorts/..." />
                 <button type="button" class="button smasmall-add-url" data-platform="youtube">新增連結</button>
             </div>
             <ul class="smasmall-url-list" id="smasmall-youtube-list" data-platform="youtube">
@@ -487,30 +593,30 @@ add_action('save_post_product', function ($post_id) {
     }
 
     $youtube = [];
-    if (!empty($_POST['smasmall_youtube_urls']) && is_array($_POST['smasmall_youtube_urls'])) {
+    if (isset($_POST['smasmall_youtube_urls']) && is_array($_POST['smasmall_youtube_urls'])) {
         foreach (wp_unslash($_POST['smasmall_youtube_urls']) as $url) {
-            $url = esc_url_raw(trim((string) $url));
-            if ($url !== '') {
-                $youtube[] = $url;
+            $clean = smasmall_sanitize_social_url((string) $url);
+            if ($clean !== '') {
+                $youtube[] = $clean;
             }
         }
     }
 
     $facebook = [];
-    if (!empty($_POST['smasmall_facebook_urls']) && is_array($_POST['smasmall_facebook_urls'])) {
+    if (isset($_POST['smasmall_facebook_urls']) && is_array($_POST['smasmall_facebook_urls'])) {
         foreach (wp_unslash($_POST['smasmall_facebook_urls']) as $url) {
-            $url = esc_url_raw(trim((string) $url));
-            if ($url !== '') {
-                $facebook[] = $url;
+            $clean = smasmall_sanitize_social_url((string) $url);
+            if ($clean !== '') {
+                $facebook[] = $clean;
             }
         }
     }
 
     $scenario_raw = isset($_POST['smasmall_scenario_images']) ? wp_unslash($_POST['smasmall_scenario_images']) : '[]';
-    $scenario = smasmall_decode_scenario_images(is_string($scenario_raw) ? $scenario_raw : '[]');
+    $scenario = smasmall_decode_scenario_images($scenario_raw);
 
     $accordion_raw = isset($_POST['smasmall_accordion_items']) ? wp_unslash($_POST['smasmall_accordion_items']) : '[]';
-    $accordion = smasmall_decode_accordion_items(is_string($accordion_raw) ? $accordion_raw : '[]');
+    $accordion = smasmall_decode_accordion_items($accordion_raw);
 
     update_post_meta($post_id, SMASMALL_META_YOUTUBE, smasmall_json_encode(array_values(array_unique($youtube))));
     update_post_meta($post_id, SMASMALL_META_FACEBOOK, smasmall_json_encode(array_values(array_unique($facebook))));
@@ -676,13 +782,31 @@ add_action('admin_footer', function () {
         }
 
         function appendUrl(platform, url) {
+            url = (url || '').trim();
+            if (!url) return;
             var $list = platform === 'youtube' ? $('#smasmall-youtube-list') : $('#smasmall-facebook-list');
             var name = platform === 'youtube' ? 'smasmall_youtube_urls[]' : 'smasmall_facebook_urls[]';
+            var duplicate = false;
+            $list.find('input[type=hidden]').each(function () {
+                if ($(this).val() === url) duplicate = true;
+            });
+            if (duplicate) return;
             var $li = $('<li class="smasmall-url-item"></li>');
             $li.append($('<input>', { type: 'hidden', name: name, value: url }));
             $li.append($('<a>', { href: url, target: '_blank', rel: 'noopener noreferrer', text: url }));
             $li.append($('<button>', { type: 'button', class: 'button-link-delete smasmall-remove-url', text: '移除' }));
             $list.append($li);
+        }
+
+        /** 儲存前把輸入框中尚未按「新增連結」的 URL 一併寫入 hidden input */
+        function flushPendingUrls() {
+            $('.smasmall-url-input').each(function () {
+                var platform = $(this).data('platform');
+                var url = ($(this).val() || '').trim();
+                if (!url) return;
+                appendUrl(platform, url);
+                $(this).val('');
+            });
         }
 
         $('.smasmall-add-url').on('click', function () {
@@ -721,6 +845,7 @@ add_action('admin_footer', function () {
         syncAccordionJson();
 
         $('#post').on('submit', function () {
+            flushPendingUrls();
             syncAccordionJson();
             syncScenarioJson();
         });

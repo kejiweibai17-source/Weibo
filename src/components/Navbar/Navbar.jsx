@@ -2,10 +2,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "next-view-transitions";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { usePathname } from "next/navigation";
-import { Globe, User, ShoppingBag } from "lucide-react";
+import { User, ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/lib/cartStore";
 import Image from "next/image";
+import { SUPPORT_NAV } from "@/data/supportContent";
 // 🌟 引入 GSAP
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -86,7 +86,8 @@ function MenuToggleButton({ open, onClick, className = "", buttonRef }) {
 function CartButton({ count = 0, onClick }) {
   return (
     <Link
-      href="/cart"
+      href="https://www.weiz.com.tw/"
+      target="_blank"
       onClick={onClick}
       className="relative flex items-center justify-center text-white hover:text-gray-300 transition-colors"
     >
@@ -108,41 +109,29 @@ function CartButton({ count = 0, onClick }) {
   );
 }
 
-function UserMenu({ isLoggedIn, user, onLogin, onLogout }) {
+const WEIBO_MEMBER_URL = "https://www.weiboltd.com/landing";
+
+function UserMenu() {
   return (
     <div className="relative flex items-center h-full group cursor-pointer">
       <button
         type="button"
         className="flex items-center text-white group-hover:text-gray-300 transition-colors py-6"
+        aria-label="會員專區"
       >
         <User size={20} strokeWidth={1.5} />
       </button>
       <div className="absolute top-[80%] left-0 w-full h-8 bg-transparent z-[1499]"></div>
-      <div className="absolute right-0 top-[100%] pt-2 opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[1500]">
+      <div className="absolute right-0 top-[100%] pt-0 opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[1500]">
         <div className="w-40 rounded-b-xl bg-white shadow-2xl py-3 relative text-black border border-gray-100 flex flex-col">
-          {!isLoggedIn ? (
-            <button
-              onClick={onLogin}
-              className="block w-full text-left px-5 py-2.5 text-[13px] text-gray-500 hover:text-black hover:bg-slate-50 font-medium transition-all duration-300"
-            >
-              登入 / 註冊
-            </button>
-          ) : (
-            <>
-              <Link
-                href="/account"
-                className="block px-5 py-2.5 text-[13px] text-gray-500 hover:text-black hover:bg-slate-50 font-medium transition-all duration-300"
-              >
-                我的帳戶
-              </Link>
-              <button
-                onClick={onLogout}
-                className="block w-full text-left px-5 py-2.5 text-[13px] text-red-500 hover:text-red-700 hover:bg-slate-50 font-medium transition-all duration-300"
-              >
-                登出
-              </button>
-            </>
-          )}
+          <a
+            href={WEIBO_MEMBER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block px-5 py-2.5 text-[13px] text-gray-500 hover:text-black hover:bg-slate-50 font-medium transition-all duration-300"
+          >
+            登入 / 註冊
+          </a>
         </div>
       </div>
     </div>
@@ -159,9 +148,6 @@ export default function Navbar() {
   const overlayRef = useRef(null);
   const tl = useRef(null);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState({ name: "", email: "" });
-
   const cartItems = useCartStore((state) => state.items) || [];
   const cartCount = cartItems.reduce(
     (total, item) => total + (item.qty || 0),
@@ -169,8 +155,6 @@ export default function Navbar() {
   );
 
   const [navState, setNavState] = useState("global");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const pathname = usePathname();
 
   const { scrollYProgress } = useScroll();
 
@@ -232,37 +216,11 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  const refreshAuth = useCallback(async () => {
-    try {
-      const r = await fetch("/api/account/profile", {
-        cache: "no-store",
-        credentials: "include",
-      });
-      const js = await r.json();
-      if (js.loggedIn && js.customer) {
-        setIsLoggedIn(true);
-        setUser({
-          name: js.customer.first_name || "會員",
-          email: js.customer.email,
-        });
-      } else {
-        setIsLoggedIn(false);
-      }
-    } catch {
-      setIsLoggedIn(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    refreshAuth();
-  }, [pathname, refreshAuth]);
-
   useEffect(() => {
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 20);
 
       if (currentScrollY <= 50) {
         setNavState("global");
@@ -292,8 +250,8 @@ export default function Navbar() {
     { label: "關於我們", href: "/about" },
     { label: "昔馬產品", href: "/accessories" },
     { label: "昔馬SMSMALL", href: "/brand" },
+    SUPPORT_NAV,
     { label: "聯絡我們", href: "/contact" },
-    { label: "Gallery", href: "/gallery" },
   ];
 
   const headerVariants = {
@@ -338,9 +296,27 @@ export default function Navbar() {
                 >
                   <Link
                     href={link.href}
-                    className="text-[13px] font-medium text-white group-hover:text-gray-300 transition-colors tracking-wide h-full flex items-center px-2"
+                    className="text-[13px] font-medium text-white group-hover:text-gray-300 transition-colors tracking-wide h-full flex items-center px-2 gap-1"
                   >
                     {link.label}
+                    {link.dropdown && (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 10 10"
+                        fill="none"
+                        className="opacity-60 group-hover:opacity-100 transition-opacity"
+                        aria-hidden
+                      >
+                        <path
+                          d="M2 3.5L5 6.5L8 3.5"
+                          stroke="currentColor"
+                          strokeWidth="1.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
                   </Link>
 
                   {link.dropdown && (
@@ -369,18 +345,18 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-4 md:gap-6 w-[70%] md:w-[20%] justify-end h-full">
-            <div className="hidden md:flex items-center gap-2 text-white hover:text-gray-300 transition-colors cursor-pointer text-[13px] font-medium">
-              <Globe size={16} strokeWidth={1.5} /> En
-            </div>
-            <div className="w-[1px] h-4 bg-white/30 hidden md:block"></div>
             <div className="hidden md:block h-full">
-              <UserMenu
-                isLoggedIn={isLoggedIn}
-                user={user}
-                onLogin={() => {}}
-                onLogout={() => {}}
-              />
+              <UserMenu />
             </div>
+            <a
+              href={WEIBO_MEMBER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex md:hidden items-center text-white hover:text-gray-300 transition-colors"
+              aria-label="登入 / 註冊"
+            >
+              <User size={20} strokeWidth={1.5} />
+            </a>
             <CartButton count={cartCount} />
             <div className="lg:hidden">
               <MenuToggleButton
@@ -482,33 +458,59 @@ export default function Navbar() {
             {/* 主要導覽連結 */}
             <div className="flex flex-col gap-4 sm:gap-5">
               {globalLinks.map((link, idx) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={closeMenu}
-                  className="block overflow-hidden group"
-                >
-                  <div className="line flex items-center gap-4 transform translate-y-[100%] transition-transform duration-300 group-hover:translate-x-2">
-                    {/* 數字 */}
-                    <span className="text-[#00B4D8] text-[0.7rem] sm:text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
-                      0{idx + 1}
-                    </span>
-                    {/* 🌟 修改：字體響應式縮小 text-[1.25rem] */}
-                    <span className="text-[1.25rem] sm:text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
-                      {link.label}
-                    </span>
-                  </div>
-                </Link>
+                <div key={link.label} className="block overflow-hidden">
+                  <Link
+                    href={link.href}
+                    onClick={closeMenu}
+                    className="block group"
+                  >
+                    <div className="line flex items-center gap-4 transform translate-y-[100%] transition-transform duration-300 group-hover:translate-x-2">
+                      <span className="text-[#00B4D8] text-[0.7rem] sm:text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
+                        0{idx + 1}
+                      </span>
+                      <span className="text-[1.25rem] sm:text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
+                        {link.label}
+                      </span>
+                    </div>
+                  </Link>
+                  {link.dropdown && (
+                    <div className="mt-2 ml-8 sm:ml-10 flex flex-col gap-2 border-l border-[#00B4D8]/20 pl-4">
+                      {link.dropdown.map((sub) => (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={closeMenu}
+                          className="text-[0.85rem] sm:text-[0.9rem] text-gray-400 font-light tracking-wide hover:text-[#00B4D8] transition-colors py-0.5"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
 
-            {/* 次要連結區 (會員 / 語言) */}
+            {/* 次要連結區 */}
             <div className="mt-6 pt-6 border-t border-white/10 flex flex-col gap-4 relative">
               <div className="absolute top-0 left-0 w-2 h-[1px] bg-[#00B4D8]"></div>
+
+              <a
+                href={WEIBO_MEMBER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+                className="block overflow-hidden group cursor-pointer"
+              >
+                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                  <span>登入 / 註冊</span>
+                </div>
+              </a>
 
               <Link
                 href="https://www.weiz.com.tw/"
                 target="_blank"
+                onClick={closeMenu}
                 className="block overflow-hidden group cursor-pointer"
               >
                 <div className="line text-[0.8rem]  sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">

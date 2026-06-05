@@ -453,3 +453,69 @@ export function buildHomePageSchemas({
 
   return schemas;
 }
+
+/** 支援頁 WebPage / FAQPage 結構化資料 */
+export function buildSupportWebPageSchema({
+  siteUrl = getSiteUrl(),
+  path,
+  name,
+  description,
+  pageType = "WebPage",
+}) {
+  const ids = entityIds(siteUrl);
+  const url = absoluteUrl(siteUrl, path);
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": pageType,
+    "@id": `${url}#webpage`,
+    url,
+    name,
+    description,
+    inLanguage: SEO_CONFIG.inLanguage,
+    isPartOf: { "@id": ids.website },
+    about: { "@id": ids.brand },
+    publisher: { "@id": ids.organization },
+  };
+}
+
+/** FAQ 頁 mainEntity 結構化資料 */
+export function buildFaqPageSchema(faqs, pageUrl, pageId) {
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "FAQPage",
+    "@id": pageId ?? `${pageUrl}#faq`,
+    url: pageUrl,
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+/** 保固政策結構化資料 */
+export function buildWarrantyPolicySchema(siteUrl = getSiteUrl()) {
+  const ids = entityIds(siteUrl);
+  const warrantyUrl = `${siteUrl}/support/warranty`;
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "WarrantyPromise",
+    "@id": `${warrantyUrl}#warranty`,
+    url: warrantyUrl,
+    name: "SMASMALL 昔馬 12 個月原廠保固",
+    description:
+      "凡透過台灣授權通路購買的 SMASMALL 昔馬主機，享有 12 個月原廠保固，由威柏科技台灣總代理提供售後服務。",
+    durationOfWarranty: {
+      "@type": "QuantitativeValue",
+      value: 12,
+      unitCode: "MON",
+    },
+    warrantyScope: "https://schema.org/RepairOrReplace",
+    seller: { "@id": ids.organization },
+  };
+}

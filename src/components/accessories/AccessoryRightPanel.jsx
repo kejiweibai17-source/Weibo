@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { resolveSocialEmbedSrc } from "@/lib/socialEmbed";
 import FacebookEmbed from "@/components/accessories/FacebookEmbed";
+import YoutubeEmbedCarousel from "@/components/accessories/YoutubeEmbedCarousel";
 
 const ICON_MAP = {
   truck: Truck,
@@ -36,6 +37,13 @@ function defaultEmbedHeight(platform) {
   if (platform === "facebook") return 720;
   if (platform === "instagram") return 520;
   return 420;
+}
+
+/** 判斷是否為 YouTube 短影音（Shorts）—— URL 含 /shorts/ 或資料標記 isShorts */
+function detectIsShorts(embed) {
+  if (embed.isShorts === true) return true;
+  const url = embed.url ?? "";
+  return url.includes("/shorts/") || url.includes("youtube.com/shorts");
 }
 
 function FeatureVisual({ icon }) {
@@ -85,12 +93,47 @@ function SocialEmbedCard({ embed }) {
     );
   }
 
+  const isShorts = embed.platform === "youtube" && detectIsShorts(embed);
   const height = embed.height ?? defaultEmbedHeight(embed.platform);
   const iframeAllow =
     embed.platform === "youtube"
       ? "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       : "encrypted-media; clipboard-write";
 
+  /* ── 直式短影音（9:16）────────────────────────────── */
+  if (isShorts) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden w-full max-w-[360px]">
+          {embed.label && (
+            <div className="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2">
+              <PlatformIcon size={15} className="text-[#FF0000]" />
+              <span className="text-[12px] font-semibold text-gray-700 line-clamp-1">
+                {embed.label}
+              </span>
+              <span className="ml-auto text-[10px] font-bold bg-[#FF0000] text-white px-1.5 py-0.5 rounded-full">
+                Shorts
+              </span>
+            </div>
+          )}
+          {/* 直式容器：固定 9:16 比例 */}
+          <div className="relative w-full aspect-[9/16]">
+            <iframe
+              src={src}
+              title={embed.label || "YouTube Shorts"}
+              className="absolute inset-0 w-full h-full border-0 bg-black"
+              loading="lazy"
+              allowFullScreen
+              allow={iframeAllow}
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── 橫式一般影片（16:9 或自訂高度）────────────────── */
   return (
     <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden">
       {embed.label && (
@@ -218,6 +261,8 @@ export default function AccessoryRightPanel({ panel }) {
             if (items.length === 0) return null;
 
             const isFacebook = platform === "facebook";
+            const isYoutube = platform === "youtube";
+            const useYoutubeCarousel = isYoutube && items.length > 1;
 
             return (
               <div
@@ -227,17 +272,21 @@ export default function AccessoryRightPanel({ panel }) {
                 <h4 className="text-[15px] font-semibold text-gray-500 uppercase tracking-wider">
                   {sectionTitles[titleKey]}
                 </h4>
-                <div
-                  className={`grid items-start ${
-                    isFacebook
-                      ? "grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-2"
-                      : "grid-cols-1 gap-4 lg:gap-6"
-                  }`}
-                >
-                  {items.map((embed) => (
-                    <SocialEmbedCard key={embed.id} embed={embed} />
-                  ))}
-                </div>
+                {useYoutubeCarousel ? (
+                  <YoutubeEmbedCarousel items={items} />
+                ) : (
+                  <div
+                    className={`grid items-start ${
+                      isFacebook
+                        ? "grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-2"
+                        : "grid-cols-1 gap-4 lg:gap-6"
+                    }`}
+                  >
+                    {items.map((embed) => (
+                      <SocialEmbedCard key={embed.id} embed={embed} />
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

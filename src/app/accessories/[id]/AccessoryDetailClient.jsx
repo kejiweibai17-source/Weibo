@@ -42,7 +42,9 @@ export default function AccessoryDetailClient({ productId }) {
           if (!res.ok || cancelled) return;
           const data = await res.json();
           if (cancelled || !data.images?.length) return;
-          setProduct((prev) => (prev ? { ...prev, images: data.images } : prev));
+          setProduct((prev) =>
+            prev ? { ...prev, images: data.images } : prev,
+          );
           setMainImgIdx(0);
           setSlideDirection(1);
         } catch {
@@ -148,7 +150,7 @@ export default function AccessoryDetailClient({ productId }) {
         </div>
       </div>
 
-      {/* 主區：左 50% 全高輪播 + 右 50% 商品資訊（參考 Vaonis 版型） */}
+      {/* 主區：左 50% 全高輪播 + 右 50% 商品資訊 */}
       <div className="w-full flex flex-col lg:flex-row">
         <div
           className="group relative w-full h-[100vh] lg:w-1/2 lg:sticky lg:top-[72px] shrink-0 overflow-hidden bg-[#d1d5db]"
@@ -249,7 +251,7 @@ export default function AccessoryDetailClient({ productId }) {
 
         <div className="w-full lg:w-1/2 bg-white">
           <div className="px-5 py-8 lg:px-12 lg:py-16 pb-16 lg:pb-24">
-            <h1 className="text-2xl md:text-[2.5rem] font-bold text-gray-900 leading-tight mb-3 tracking-tight">
+            <h1 className="text-2xl md:text-[2.5rem] font-bold max-w-[750px] text-gray-900 leading-tight mb-3 tracking-tight">
               {product.title}
             </h1>
 
@@ -268,7 +270,7 @@ export default function AccessoryDetailClient({ productId }) {
               </p>
             )}
 
-            <p className="text-[15px] text-gray-600 leading-relaxed font-medium mb-10">
+            <p className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10">
               {product.shortDesc}
             </p>
 
@@ -326,7 +328,8 @@ export default function AccessoryDetailClient({ productId }) {
             <AccessoryRightPanel panel={product.rightPanel} />
 
             {(product.scenarioImages?.length > 0 ||
-              (product.manualGuide?.imageUrl && product.manualGuide?.pdfUrl)) && (
+              (product.manualGuide?.imageUrl &&
+                product.manualGuide?.pdfUrl)) && (
               <section className="mt-14 lg:mt-20 border-t border-gray-100 pt-14 lg:pt-20">
                 <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2 tracking-tight">
                   使用情境

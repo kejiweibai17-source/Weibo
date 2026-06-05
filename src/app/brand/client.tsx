@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import WaabiScrollIntro from "@/components/WaabiScrollIntro";
 
 // ============================================================================
 // 昔馬 SMASMALL 真實產品系列資料設定 (全繁體中文在地化)
@@ -57,44 +58,10 @@ const PRODUCT_CATEGORIES = [
 export default function SmasmallCollections() {
   return (
     <div className="w-full bg-[#f8f9fb] text-slate-900 font-sans selection:bg-blue-200 antialiased">
-      {/* ====================================================================
-          SECTION 1: Hero Section (科技感發光光束背景)
-          ==================================================================== */}
-      <section className="relative w-full h-[70vh] min-h-[500px] bg-[#020617] overflow-hidden flex items-center">
-        {/* 純 CSS 繪製的頂級發光梯形光束 */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-full pointer-events-none flex justify-center">
-          <div
-            className="w-full h-full bg-gradient-to-b from-[#3b82f6] via-[#1d4ed8] to-transparent opacity-40 blur-3xl"
-            style={{ clipPath: "polygon(40% 0, 60% 0, 100% 100%, 0% 100%)" }}
-          />
-          <div className="absolute top-[-20px] w-[300px] h-[100px] bg-white opacity-80 blur-[40px]" />
-        </div>
-
-        {/* 內容區塊 */}
-        <div className="relative z-10 max-w-[1400px] w-full mx-auto px-6 lg:px-16 text-white text-center md:text-left">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
-          >
-            探索昔馬系列
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base md:text-lg font-bormal tracking-wide text-blue-100/70 max-w-lg leading-relaxed mx-auto md:mx-0"
-          >
-            為追求極致的品味男士，打造專屬的理容藝術品。
-            <br className="hidden md:block" />
-            台灣總代理威柏科技，原廠授權品質承諾。
-          </motion.p>
-        </div>
-      </section>
+      <WaabiScrollIntro />
 
       {/* ====================================================================
-          SECTION 2 & 3: 產品類別與交替排版區塊
+          產品類別與交替排版區塊
           ==================================================================== */}
       <section className="w-full py-24 px-6 lg:px-16 max-w-[1400px] mx-auto">
         {PRODUCT_CATEGORIES.map((category, catIdx) => (
