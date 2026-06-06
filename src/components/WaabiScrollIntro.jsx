@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -9,6 +9,8 @@ import SplitType from "split-type";
 import { useLenis } from "lenis/react";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const MOBILE_MAX_WIDTH = 767;
 
 const COLS = [
   [
@@ -102,13 +104,65 @@ function setupColParallax(aboutEl, ref, startY, endY, startX) {
   });
 }
 
-export default function WaabiScrollIntro({
-  heroImage = "/images/953b6625-1fbc-4927-8b1c-bc709d4299e4.png",
-  heroTitle = "探索昔馬系列，為品味男士打造的理容藝術品",
-  heroCopy = "復古未來主義，全合金工藝的極致體驗",
-  aboutText = "每個昔馬產品，都是值得被細心對待",
-  outroText = "Ignite Possibilities Through Ultimate Innovation.",
-  imageAlt = "SMASMALL 昔馬電動刮鬍刀",
+function useIsMobileLayout() {
+  const [isMobile, setIsMobile] = useState(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return isMobile;
+}
+
+function MobileHeroBanner({
+  heroImage,
+  heroTitle,
+  heroCopy,
+  imageAlt,
+}) {
+  return (
+    <div className="waabi-root font-sans">
+      <section className="relative w-full overflow-hidden pt-[60px]">
+        <div className="relative w-full aspect-[4/5] max-h-[85svh] min-h-[420px]">
+          <Image
+            src={heroImage}
+            alt={imageAlt}
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
+            <h1 className="text-[1.75rem] font-light leading-snug tracking-[-0.04em] mb-4">
+              {heroTitle}
+            </h1>
+            <p className="text-[1.1rem] font-light leading-[1.15] tracking-[-0.03em] opacity-90">
+              {heroCopy}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <style jsx global>{`
+        .waabi-root h1 {
+          font-weight: 300;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function DesktopScrollIntro({
+  heroImage,
+  heroTitle,
+  heroCopy,
+  aboutText,
+  imageAlt,
 }) {
   const containerRef = useRef(null);
   const heroImgRef = useRef(null);
@@ -138,25 +192,6 @@ export default function WaabiScrollIntro({
       gsap.set(".st-word", { opacity: 0.08 });
 
       const mm = gsap.matchMedia();
-
-      mm.add("(max-width: 767px)", () => {
-        const heroST = setupHeroPin(heroEl, refs, 2, 100);
-
-        const cols = [
-          { ref: col1Ref, startY: 180, endY: -180, startX: 0 },
-          { ref: col2Ref, startY: 120, endY: -120, startX: 0 },
-          { ref: col3Ref, startY: 120, endY: -120, startX: 0 },
-          { ref: col4Ref, startY: 180, endY: -180, startX: 0 },
-        ];
-        const colTweens = cols.map((c) =>
-          setupColParallax(aboutEl, c.ref, c.startY, c.endY, c.startX),
-        );
-
-        return () => {
-          heroST.kill();
-          colTweens.forEach((t) => t.scrollTrigger?.kill());
-        };
-      });
 
       mm.add("(min-width: 768px)", () => {
         const heroST = setupHeroPin(heroEl, refs, 3.5, 160);
@@ -188,7 +223,7 @@ export default function WaabiScrollIntro({
   return (
     <div ref={containerRef} className="waabi-root font-sans overflow-x-hidden">
       <section
-        className="waabi-hero relative w-full overflow-hidden pt-[60px] lg:pt-[72px]"
+        className="waabi-hero relative w-full overflow-hidden pt-[72px]"
         style={{ height: "100svh" }}
       >
         <div
@@ -226,34 +261,30 @@ export default function WaabiScrollIntro({
         </div>
       </section>
 
-      {/* 手機縮短至 160svh，桌面維持 350vh */}
-      <div className="h-[160svh] md:h-[350vh]" aria-hidden="true" />
+      <div className="h-[350vh]" aria-hidden="true" />
 
       <section
         ref={aboutRef}
-        className="relative w-full flex items-center justify-center text-center overflow-hidden h-[80svh] md:h-[100svh] -mt-[35svh] md:-mt-[75vh]"
+        className="relative w-full flex items-center justify-center text-center overflow-hidden h-[100svh] -mt-[75vh]"
       >
-        <div className="absolute inset-0 flex justify-between items-center px-3 sm:px-6 md:px-16 overflow-hidden">
+        <div className="absolute inset-0 flex justify-between items-center px-6 md:px-16 overflow-hidden">
           {[col1Ref, col2Ref, col3Ref, col4Ref].map((ref, colIdx) => (
             <div
               key={colIdx}
               ref={ref}
-              className={[
-                "relative will-change-transform flex flex-col justify-around gap-1.5 md:gap-3",
-                colIdx === 1 || colIdx === 2 ? "hidden md:flex" : "flex",
-              ].join(" ")}
+              className="relative will-change-transform flex flex-col justify-around gap-3"
               style={{ height: "125%", flex: "0 0 auto", width: "22%" }}
             >
               {COLS[colIdx].map((src, imgIdx) => (
                 <div
                   key={imgIdx}
-                  className="relative overflow-hidden rounded-lg md:rounded-xl mx-auto w-full max-w-[64px] sm:max-w-[80px] md:max-w-[180px] aspect-square opacity-70 md:opacity-100"
+                  className="relative overflow-hidden rounded-xl mx-auto w-full max-w-[180px] aspect-square opacity-100"
                 >
                   <Image
                     src={src}
                     alt={`SMASMALL 產品圖 ${colIdx * 4 + imgIdx + 1}`}
                     fill
-                    sizes="(max-width:767px) 64px, 180px"
+                    sizes="180px"
                     className="object-contain"
                   />
                 </div>
@@ -263,7 +294,7 @@ export default function WaabiScrollIntro({
         </div>
 
         <div className="relative z-10 px-5 md:px-6 max-w-2xl">
-          <h3 className="text-[1.25rem] sm:text-[1.6rem] md:text-[2.2rem] lg:text-[2.75rem] text-gray-900 leading-[1.3] md:leading-[1.2] tracking-[-0.03em]">
+          <h3 className="text-[1.6rem] md:text-[2.2rem] lg:text-[2.75rem] text-gray-900 leading-[1.2] tracking-[-0.03em]">
             {aboutText}
           </h3>
         </div>
@@ -279,5 +310,37 @@ export default function WaabiScrollIntro({
         }
       `}</style>
     </div>
+  );
+}
+
+export default function WaabiScrollIntro({
+  heroImage = "/images/953b6625-1fbc-4927-8b1c-bc709d4299e4.png",
+  heroTitle = "探索昔馬系列，為品味男士打造的理容藝術品",
+  heroCopy = "復古未來主義，全合金工藝的極致體驗",
+  aboutText = "每個昔馬產品，都是值得被細心對待",
+  outroText = "Ignite Possibilities Through Ultimate Innovation.",
+  imageAlt = "SMASMALL 昔馬電動刮鬍刀",
+}) {
+  const isMobile = useIsMobileLayout();
+
+  if (isMobile !== false) {
+    return (
+      <MobileHeroBanner
+        heroImage={heroImage}
+        heroTitle={heroTitle}
+        heroCopy={heroCopy}
+        imageAlt={imageAlt}
+      />
+    );
+  }
+
+  return (
+    <DesktopScrollIntro
+      heroImage={heroImage}
+      heroTitle={heroTitle}
+      heroCopy={heroCopy}
+      aboutText={aboutText}
+      imageAlt={imageAlt}
+    />
   );
 }

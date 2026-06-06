@@ -82,26 +82,6 @@ export default async function Page() {
   const schemas = buildHomePageSchemas({
     siteUrl: SITE_URL,
     faqs: homeFAQs,
-    itemListElements: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        url: `${SITE_URL}/accessories`,
-        name: "昔馬 SMASMALL 配件與禮盒專區",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        url: `${SITE_URL}/brand`,
-        name: "探索昔馬 SMASMALL 系列",
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        url: `${SITE_URL}/product01`,
-        name: "捍衛者+ 全合金電動刮鬍刀",
-      },
-    ],
   });
 
   return (

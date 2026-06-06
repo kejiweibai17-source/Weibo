@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "next-view-transitions";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { User, ShoppingBag } from "lucide-react";
+import { User, ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "@/lib/cartStore";
 import Image from "next/image";
 import { SUPPORT_NAV } from "@/data/supportContent";
@@ -14,7 +14,6 @@ import { useGSAP } from "@gsap/react";
 // 子組件區塊 (漢堡選單、購物車、會員)
 // ============================================================================
 function MenuToggleButton({ open, onClick, className = "", buttonRef }) {
-  const spring = { type: "spring", stiffness: 260, damping: 20 };
   return (
     <motion.button
       ref={buttonRef}
@@ -23,62 +22,13 @@ function MenuToggleButton({ open, onClick, className = "", buttonRef }) {
       aria-label={open ? "關閉選單" : "開啟選單"}
       aria-expanded={open}
       whileTap={{ scale: 0.95 }}
-      // 🌟 確保按鈕有足夠高的 z-index，且大小固定
-      className={`inline-flex items-center justify-center focus:outline-none transition-colors z-[2100] relative w-10 h-10 ${className}`}
+      className={`inline-flex items-center justify-center focus:outline-none transition-colors z-[2100] relative w-10 h-10 text-white hover:text-gray-300 ${className}`}
     >
-      <motion.svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        initial={false}
-        animate={open ? "open" : "closed"}
-        className="text-white"
-      >
-        <motion.line
-          x1="3"
-          y1="6"
-          x2="21"
-          y2="6"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="square"
-          variants={{
-            closed: { translateY: 0, rotate: 0, x1: 3, x2: 21 },
-            open: { translateY: 6, rotate: 45, x1: 5, x2: 19 },
-          }}
-          transition={spring}
-          style={{ originX: "50%", originY: "50%" }}
-        />
-        <motion.line
-          x1="3"
-          y1="12"
-          x2="21"
-          y2="12"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="square"
-          variants={{
-            closed: { opacity: 1, x1: 3, x2: 21 },
-            open: { opacity: 0, x1: 12, x2: 12 },
-          }}
-          transition={{ duration: 0.18 }}
-        />
-        <motion.line
-          x1="3"
-          y1="18"
-          x2="21"
-          y2="18"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="square"
-          variants={{
-            closed: { translateY: 0, rotate: 0, x1: 3, x2: 21 },
-            open: { translateY: -6, rotate: -45, x1: 5, x2: 19 },
-          }}
-          transition={spring}
-          style={{ originX: "50%", originY: "50%" }}
-        />
-      </motion.svg>
+      {open ? (
+        <X size={22} strokeWidth={1.5} aria-hidden />
+      ) : (
+        <Menu size={22} strokeWidth={1.5} aria-hidden />
+      )}
     </motion.button>
   );
 }
@@ -163,37 +113,34 @@ export default function Navbar() {
 
   useGSAP(
     () => {
-      gsap.set(".line", { y: "100%" });
+      gsap.set(".nav-line", { y: "100%" });
 
       tl.current = gsap
         .timeline({ paused: true })
-        // 1. 科技感背景層次展開
         .to(".nav-bg", {
           scaleY: 1,
-          duration: 0.75,
-          stagger: 0.1,
+          duration: 0.42,
+          stagger: 0.05,
           ease: "power3.inOut",
         })
-        // 2. 主選單區塊遮罩滑入
         .to(
           ".nav-items",
           {
             clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-            duration: 0.75,
+            duration: 0.38,
             ease: "power3.inOut",
           },
-          "-=0.6",
+          "-=0.3",
         )
-        // 3. 連結文字滑入
         .to(
-          ".line",
+          ".nav-line",
           {
             y: "0%",
-            duration: 0.75,
-            stagger: 0.05,
+            duration: 0.42,
+            stagger: 0.028,
             ease: "power3.out",
           },
-          0.85,
+          "-=0.12",
         );
     },
     { scope: overlayRef },
@@ -443,47 +390,52 @@ export default function Navbar() {
           {/* HUD 風格背景裝飾線 */}
           <div className="absolute left-6 top-[15%] bottom-[15%] w-[1px] bg-gradient-to-b from-transparent via-[#00B4D8]/30 to-transparent pointer-events-none hidden sm:block" />
 
-          {/* 🌟 頂部 Header：Logo 與關閉按鈕 */}
-          <div className="w-full h-[72px] flex justify-between items-center mt-2 shrink-0">
-            <span className="text-[18px] md:text-[20px] font-light tracking-[0.2em] text-white uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+          {/* 頂部 Header：Logo 與關閉按鈕 */}
+          <div className="relative z-20 w-full h-[72px] flex justify-between items-center mt-2 shrink-0">
+            <span className="text-[18px] md:text-[20px] font-light tracking-[0.2em] text-white uppercase">
               SMASMALL
             </span>
-            <div className="pointer-events-auto">
-              <MenuToggleButton open={true} onClick={closeMenu} />
-            </div>
+            <button
+              type="button"
+              onClick={closeMenu}
+              aria-label="關閉選單"
+              className="inline-flex items-center justify-center w-10 h-10 text-white hover:text-gray-300 transition-colors"
+            >
+              <X size={22} strokeWidth={1.5} aria-hidden />
+            </button>
           </div>
 
           {/* 主要內容區，使用 flex-1 自動推擠，並確保在小螢幕不被截斷 */}
           <div className="flex-1 flex flex-col justify-center gap-6 sm:gap-8 pl-0 sm:pl-4 mt-8 pb-8">
             {/* 主要導覽連結 */}
-            <div className="flex flex-col gap-4 sm:gap-5">
-              {globalLinks.map((link, idx) => (
-                <div key={link.label} className="block overflow-hidden">
-                  <Link
-                    href={link.href}
-                    onClick={closeMenu}
-                    className="block group"
-                  >
-                    <div className="line flex items-center gap-4 transform translate-y-[100%] transition-transform duration-300 group-hover:translate-x-2">
-                      <span className="text-[#00B4D8] text-[0.7rem] sm:text-[0.75rem] font-mono tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
-                        0{idx + 1}
-                      </span>
-                      <span className="text-[1.25rem] sm:text-[1.5rem] leading-tight text-gray-200 font-light tracking-[0.15em] group-hover:text-[#00B4D8] transition-colors drop-shadow-md">
+            <div className="flex flex-col gap-3 sm:gap-3.5">
+              {globalLinks.map((link) => (
+                <div key={link.label} className="block">
+                  <div className="overflow-hidden">
+                    <Link
+                      href={link.href}
+                      onClick={closeMenu}
+                      className="block group"
+                    >
+                      <span className="nav-line block text-[0.85rem] sm:text-[0.9rem] text-gray-400 font-light tracking-wide group-hover:text-[#00B4D8] transition-colors py-0.5 will-change-transform">
                         {link.label}
                       </span>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                   {link.dropdown && (
-                    <div className="mt-2 ml-8 sm:ml-10 flex flex-col gap-2 border-l border-[#00B4D8]/20 pl-4">
+                    <div className="mt-2 ml-8 sm:ml-10 flex flex-col gap-1.5 border-l border-[#00B4D8]/20 pl-4">
                       {link.dropdown.map((sub) => (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          onClick={closeMenu}
-                          className="text-[0.85rem] sm:text-[0.9rem] text-gray-400 font-light tracking-wide hover:text-[#00B4D8] transition-colors py-0.5"
-                        >
-                          {sub.label}
-                        </Link>
+                        <div key={sub.href} className="overflow-hidden">
+                          <Link
+                            href={sub.href}
+                            onClick={closeMenu}
+                            className="block group"
+                          >
+                            <span className="nav-line block text-[0.85rem] sm:text-[0.9rem] text-gray-400 font-light tracking-wide group-hover:text-[#00B4D8] transition-colors py-0.5 will-change-transform">
+                              {sub.label}
+                            </span>
+                          </Link>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -502,7 +454,7 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className="block overflow-hidden group cursor-pointer"
               >
-                <div className="line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
+                <div className="nav-line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] group-hover:text-white transition-colors flex items-center gap-3 will-change-transform">
                   <span>登入 / 註冊</span>
                 </div>
               </a>
@@ -513,8 +465,8 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className="block overflow-hidden group cursor-pointer"
               >
-                <div className="line text-[0.8rem]  sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] transform translate-y-[100%] group-hover:text-white transition-all flex items-center gap-3">
-                  <span> 前往威柏科技選購 </span>
+                <div className="nav-line text-[0.8rem] sm:text-[0.875rem] text-gray-400 font-normal tracking-[0.1em] group-hover:text-white transition-colors flex items-center gap-3 will-change-transform">
+                  <span>前往威柏科技選購</span>
                 </div>
               </Link>
             </div>

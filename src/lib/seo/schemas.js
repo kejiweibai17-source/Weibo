@@ -1,6 +1,7 @@
 import { ACCESSORY_SERIES, resolveSeriesImages } from "@/data/accessories";
 import {
   SEO_CONFIG,
+  SITE_PRIMARY_NAV,
   absoluteUrl,
   entityIds,
   getSiteUrl,
@@ -124,6 +125,37 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
   return {
     "@context": SCHEMA_CONTEXT,
     "@graph": [websiteNode, organizationNode, localBusinessNode, brandNode],
+  };
+}
+
+/** 首頁主要導覽（SiteNavigationElement + ItemList，協助搜尋引擎理解站內重要頁面） */
+export function buildSiteNavigationSchema(siteUrl = getSiteUrl()) {
+  const ids = entityIds(siteUrl);
+
+  const navigationElements = SITE_PRIMARY_NAV.map((item, index) => ({
+    "@type": "SiteNavigationElement",
+    "@id": `${siteUrl}/#nav-${index + 1}`,
+    name: item.name,
+    url: absoluteUrl(siteUrl, item.path),
+  }));
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@graph": [
+      {
+        "@type": "ItemList",
+        "@id": ids.siteNavigation,
+        name: "SMASMALL 昔馬 主要導覽",
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
+        numberOfItems: navigationElements.length,
+        itemListElement: navigationElements.map((element, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: element,
+        })),
+      },
+      ...navigationElements,
+    ],
   };
 }
 
@@ -403,14 +435,23 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   return [core, itemPage, productNode, breadcrumb];
 }
 
-/** 首頁擴充：在核心實體外加上 WebPage / FAQ / ItemList */
+/** 首頁擴充：在核心實體外加上 WebPage / FAQ / 主要導覽 */
 export function buildHomePageSchemas({
   siteUrl = getSiteUrl(),
   faqs = [],
-  itemListElements = [],
 } = {}) {
   const ids = entityIds(siteUrl);
   const core = buildCoreEntityGraph(siteUrl);
+
+  const websiteIdx = core["@graph"].findIndex(
+    (node) => node["@type"] === "WebSite",
+  );
+  if (websiteIdx >= 0) {
+    core["@graph"][websiteIdx] = {
+      ...core["@graph"][websiteIdx],
+      hasPart: { "@id": ids.siteNavigation },
+    };
+  }
 
   const webPage = {
     "@context": SCHEMA_CONTEXT,
@@ -426,7 +467,7 @@ export function buildHomePageSchemas({
     publisher: { "@id": ids.organization },
   };
 
-  const schemas = [core, webPage];
+  const schemas = [core, webPage, buildSiteNavigationSchema(siteUrl)];
 
   if (faqs.length) {
     schemas.push({
@@ -438,16 +479,6 @@ export function buildHomePageSchemas({
         name: faq.question,
         acceptedAnswer: { "@type": "Answer", text: faq.answer },
       })),
-    });
-  }
-
-  if (itemListElements.length) {
-    schemas.push({
-      "@context": SCHEMA_CONTEXT,
-      "@type": "ItemList",
-      "@id": `${siteUrl}/#collection`,
-      name: "SMASMALL 昔馬 熱銷系列",
-      itemListElement: itemListElements,
     });
   }
 
