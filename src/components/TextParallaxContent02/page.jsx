@@ -16,7 +16,7 @@ const INTRO_DATA = {
   title: "獨創全合金壓鑄機身",
   description:
     "拋棄傳統塑膠材質，汲取重機與航空機身靈感，打造扎實且耐用的全合金機身。握感沉穩、冰冷俐落，完美展現復古未來主義的獨特品味。",
-  image: "/images/index/banner-01.png",
+  image: "/images/003-01.png",
 };
 
 const ACCORDION_DATA = [

@@ -11,20 +11,34 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, SplitText);
 }
 
-// 移除了圖片，只保留文字段落
+// 移除了圖片，只保留文字段落（lines 陣列 = 手動斷行，供 SplitText 逐行動畫）
 const slides = [
   {
-    title:
-      "小巧。強悍。剛剛好。以合金機身、雙環刀頭與 IPX7 防水設計，讓每一次刮鬍都更俐落、更順手。",
+    lines: [
+      "小巧。強悍。剛剛好。",
+      "以合金機身、雙環刀頭與 IPX7 防水設計，",
+      "讓每一次刮鬍都更俐落、更順手。",
+    ],
   },
   {
-    title: "浮動刀網貼近臉部線條，順著輪廓移動，輕鬆修整每一處細節。",
+    lines: [
+      "浮動刀網貼近臉部線條，",
+      "順著輪廓移動，",
+      "輕鬆修整每一處細節。",
+    ],
   },
   {
-    title: "刮鬍、鼻毛修剪、手動細修與收納，一次整合，日常更簡單。",
+    lines: [
+      "刮鬍、鼻毛修剪、手動細修與收納，",
+      "一次整合，日常更簡單。",
+    ],
   },
   {
-    title: "1 小時快速充電，約 60 分鐘續航；臨時出門，3 分鐘快充也能從容應對。",
+    lines: [
+      "1 小時快速充電，約 60 分鐘續航；",
+      "臨時出門，3 分鐘快充",
+      "也能從容應對。",
+    ],
   },
 ];
 
@@ -94,7 +108,7 @@ export default function TextScrollSequence() {
         if (currentSplit) currentSplit.revert();
 
         // 注入新標題並套用置中排版的 Class
-        titleRef.current.innerHTML = `<h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal tracking-[-0.03em] sm:tracking-[-0.05em] leading-[1.45] sm:leading-[1.35] text-center">${slides[index].title}</h1>`;
+        titleRef.current.innerHTML = `<h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal tracking-[-0.03em] sm:tracking-[-0.05em] leading-[1.45] sm:leading-[1.35] text-center">${slides[index].lines.join("<br />")}</h1>`;
 
         // 將 <h1> 拆分為多行
         currentSplit = new SplitText(titleRef.current.querySelector("h1"), {

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from "react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import HomeHero from "../components/HomeHero";
 import Parallax from "../components/ParallaxPage";
@@ -11,18 +10,6 @@ import Slider from "../components/Slider/Slider";
 import TextScrollSequence from "../components/TextScrollSequence";
 import ContactSection from "../components/ContactSection";
 import S3 from "../components/S3GroomingPrecision";
-
-const HomeScrollSequence01 = dynamic(
-  () => import("@/components/home/HomeScrollSequence01"),
-  {
-    ssr: false,
-    loading: () => (
-      <section className="flex h-screen w-full items-center justify-center text-sm text-neutral-500" style={{ backgroundColor: "#EBEBEB" }}>
-        載入 3D 滾動動畫…
-      </section>
-    ),
-  },
-);
 
 export default function Home({ carouselSlides = [], heroSlides = [] }) {
   const containerRef = useRef(null);
@@ -52,7 +39,6 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
         </section>
         <EmblaCarousel slides={carouselSlides} options={OPTIONS} />
         <ContactSection />
-        <HomeScrollSequence01 />
       </div>
     </main>
   );

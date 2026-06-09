@@ -1,7 +1,20 @@
 "use client";
 import React, { useRef } from "react";
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Copy from "@/components/Copy";
+
+const HomeScrollSequence01 = dynamic(
+  () => import("@/components/home/HomeScrollSequence01"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[340px] w-full items-center justify-center text-sm text-neutral-500 md:h-[min(72vh,680px)]">
+        載入 3D 展示…
+      </div>
+    ),
+  },
+);
 
 const ParallaxPage = () => {
   // 針對第三區塊（灰色機芯區）建立滾動參考點
@@ -52,12 +65,9 @@ const ParallaxPage = () => {
         />
       </div>
 
-      {/* Section 2: 橘色文字區塊 (Ethos Section) 
-        使用 relative z-10，在滾動時會自然蓋過上面 sticky 的黑色區塊
-      */}
-      <div className="relative z-10 bg-[#f5f5f5] min-h-screen w-full flex flex-col items-center justify-center text-black px-8 py-32">
-        <div className="max-w-3xl text-center space-y-16">
-          {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
+      {/* Section 2: 昔馬捍衛者文案 + 3D 互動展示 */}
+      <div className="relative z-10 w-full bg-[#f5f5f5] text-black">
+        <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-8 text-center md:px-8 md:pt-28 md:pb-10">
           <Copy>
             <h2 className="text-[4.8vmin]">小。很強大。</h2>
           </Copy>
@@ -67,12 +77,15 @@ const ParallaxPage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            className="mt-10 md:mt-12"
           >
             <p className="text-[16px] font-mono leading-relaxed">
               昔馬捍衛者，把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
             </p>
           </motion.div>
         </div>
+
+        <HomeScrollSequence01 embedded />
       </div>
 
       {/* Section 3: 淺灰色機芯展示區 (Calibre Section) 
