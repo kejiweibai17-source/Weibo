@@ -15,7 +15,7 @@ export const HERO_SLIDER_FALLBACK_SLIDES = [
   {
     title: "荷蘭進口精鋼刀片",
     description:
-      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀網與自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的剃鬚體驗。",
+      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的剃鬚體驗。",
     image: "/images/index/banner-03.png",
   },
   {
