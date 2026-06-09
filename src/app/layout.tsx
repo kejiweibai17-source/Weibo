@@ -1,8 +1,11 @@
 // app/layout.tsx
 import type { Metadata } from "next";
+import { GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css"; // CSS 在這裡引入
 import ClientLayout from "./ClientLayout"; // 引入剛剛拆分出去的組件
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 const SITE_URL = getSiteUrl();
 
@@ -61,7 +64,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // 直接回傳 ClientLayout，因為 ViewTransitions 需要包住 html 標籤
-    <ClientLayout>{children}</ClientLayout>
+    <html lang="zh-Hant">
+      <body className="min-h-screen bg-white text-slate-900">
+        {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
+        <ClientLayout>{children}</ClientLayout>
+      </body>
+    </html>
   );
 }

@@ -97,26 +97,22 @@ export default function ClientLayout({
         }
       `}</style>
 
-      <html lang="zh-Hant">
-        <ReactLenis root>
-          <body className="min-h-screen bg-white text-slate-900">
-            <ScrollToTopOnNav />
+      <ReactLenis root>
+        <ScrollToTopOnNav />
 
-            {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
-            <div
-              className="fixed left-0 top-0 z-[999999999999999] w-screen"
-              style={{ viewTransitionName: "none" }}
-            >
-              <Navbar />
-            </div>
+        {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
+        <div
+          className="fixed left-0 top-0 z-[999999999999999] w-screen"
+          style={{ viewTransitionName: "none" }}
+        >
+          <Navbar />
+        </div>
 
-            <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen">{children}</main>
 
-            <CartDrawer />
-            <Footer />
-          </body>
-        </ReactLenis>
-      </html>
+        <CartDrawer />
+        <Footer />
+      </ReactLenis>
     </ViewTransitions>
   );
 }
