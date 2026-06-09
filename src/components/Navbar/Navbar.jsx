@@ -337,7 +337,7 @@ export default function Navbar() {
                 height={150}
                 className="w-[100px] md:w-[120px]"
                 priority
-                alt="Logo"
+                alt="昔馬 SMASMALL 電動刮鬍刀 威柏科技-昔馬電動刮鬍刀總代理"
               />
             </a>
           </div>

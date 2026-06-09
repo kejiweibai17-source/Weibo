@@ -43,7 +43,7 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
           <Image
             src="/images/b91b5cc9-729c-4f89-a75e-fe43576c1762-2.png"
             className="w-full  max-w-[900px] mx-auto"
-            alt=""
+            alt="昔馬電動刮鬍刀橘色限定款 手持展示 威柏科技-昔馬電動刮鬍刀總代理"
             placeholder="empty"
             loading="lazy"
             width={1920}

@@ -231,7 +231,7 @@ export default function ProductShowcase() {
         <div className="p-3">
           <Image
             src="/images/accessories/黑夜騎士/說明書/昔馬_黑夜騎士禮盒說明書.png"
-            alt=""
+            alt="昔馬黑夜騎士電動刮鬍刀禮盒說明書 威柏科技-昔馬電動刮鬍刀總代理"
             width={1000}
             height={1000}
             placeholder="empty"

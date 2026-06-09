@@ -277,7 +277,7 @@ export default function ProductShowcase() {
         <div className="p-3">
           <Image
             src="/images/accessories/青春版電動刮鬍刀禮盒-三色/說明書/昔馬_青春版禮盒說明書.png"
-            alt=""
+            alt="昔馬青春版電動刮鬍刀三色禮盒說明書 威柏科技-昔馬電動刮鬍刀總代理"
             width={1000}
             height={1000}
             placeholder="empty"

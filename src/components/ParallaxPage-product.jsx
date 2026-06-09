@@ -131,7 +131,7 @@ const ParallaxPage = () => {
             <div className="relative w-full">
               <img
                 src="/images/accessories/捍衛者/6.png"
-                alt="Calibre AMB+"
+                alt="昔馬捍衛者電動刮鬍刀 全合金機身正面 威柏科技-昔馬電動刮鬍刀總代理"
                 className="relative z-10 block w-full h-auto object-contain  "
               />
 
@@ -163,7 +163,7 @@ const ParallaxPage = () => {
               >
                 <img
                   src="/images/charging.png"
-                  alt="Type-C 充電線"
+                  alt="昔馬電動刮鬍刀 Type-C 充電線 威柏科技-昔馬電動刮鬍刀總代理"
                   className="block w-full ml-0 xl:ml-2 h-auto object-contain drop-shadow-lg"
                 />
               </motion.div>

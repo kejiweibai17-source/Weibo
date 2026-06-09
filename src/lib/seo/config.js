@@ -3,14 +3,14 @@
  * @see https://schema.org/LocalBusiness
  */
 
+/** 正式網域（canonical、JSON-LD、sitemap、OG 預設） */
+export const SITE_URL = "https://www.smasmall.com.tw";
+
 export function getSiteUrl() {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
   }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return "https://weibo-alpha.vercel.app";
+  return SITE_URL;
 }
 
 export const SEO_CONFIG = {
@@ -110,3 +110,11 @@ export const SITE_PRIMARY_NAV = [
   { name: "使用條款與政策", path: "/support/policies" },
   { name: "聯絡我們", path: "/contact" },
 ];
+
+/** 圖片 alt 統一品牌後綴（SEO） */
+export const IMAGE_ALT_SUFFIX = "威柏科技-昔馬電動刮鬍刀總代理";
+
+/** 組合圖片 alt：描述 + 統一後綴 */
+export function imageAlt(description) {
+  return `${description} ${IMAGE_ALT_SUFFIX}`;
+}

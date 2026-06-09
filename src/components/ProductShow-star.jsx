@@ -354,7 +354,7 @@ export default function ProductShowcase() {
         <div className="p-3">
           <Image
             src="/images/accessories/星座系列電動刮鬍刀禮盒/說明書/星座系列電動刮鬍刀＿繁體版說明書.png"
-            alt=""
+            alt="昔馬星座系列電動刮鬍刀禮盒說明書 威柏科技-昔馬電動刮鬍刀總代理"
             width={1000}
             height={1000}
             placeholder="empty"

@@ -12,6 +12,7 @@ const EXPLORER_DATA = [
   {
     id: 1,
     image: "/images/focus/carousel-01.png",
+    imageAlt: "智慧散熱系統透視圖 昔馬電動刮鬍刀內部結構 威柏科技-昔馬電動刮鬍刀總代理",
     bgScale: 2.2,
     hotspot: { top: "35%", left: "50%" },
     info: {
@@ -32,6 +33,7 @@ const EXPLORER_DATA = [
     id: 2,
     // 🌟 已經幫你替換成第二張圖的正確路徑
     image: "/images/index/banner-04.png",
+    imageAlt: "手持昔馬電動刮鬍刀 黑色質感機身展示 威柏科技-昔馬電動刮鬍刀總代理",
     bgScale: 1.4,
     hotspot: { top: "52%", left: "50%" },
     info: {
@@ -94,7 +96,7 @@ export default function InteractiveExplorer() {
             {/* 🌟 確保使用 object-cover，這樣圖片才會完美撐滿整個畫面 */}
             <Image
               src={currentData.image}
-              alt="Smasmall Product"
+              alt={currentData.imageAlt}
               fill
               className="object-cover"
               priority

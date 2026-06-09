@@ -286,7 +286,7 @@ export default function ProductShowcase() {
         <div className="p-3">
           <Image
             src="/images/捍衛者/捍衛者-產品規格-01_威柏科技.png"
-            alt=""
+            alt="昔馬捍衛者電動刮鬍刀 產品規格一覽 威柏科技-昔馬電動刮鬍刀總代理"
             width={1000}
             height={1000}
             placeholder="empty"
@@ -297,7 +297,7 @@ export default function ProductShowcase() {
         <div className="p-3">
           <Image
             src="/images/捍衛者/捍衛者-產品規格-02_威柏科技.png"
-            alt=""
+            alt="昔馬捍衛者電動刮鬍刀 磁吸刀頭與全合金機身規格 威柏科技-昔馬電動刮鬍刀總代理"
             width={1000}
             height={1000}
             placeholder="empty"

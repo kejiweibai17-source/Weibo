@@ -48,7 +48,7 @@ const PRODUCT_CATEGORIES = [
         slogan: "送禮首選，極致尊榮。",
         description:
           "專為高階商務人士與節日送禮打造的頂級套裝。內含昔馬合金電動刮鬍刀、專屬訂製皮革防撞收納包，以及高質感清潔配件。威柏科技總代理品質承諾，提供最完善的一年原廠保固。",
-        imgUrl: "/images/002.png", // 替換為禮盒組產品圖
+        imgUrl: "/images/002.png",
         reverse: false,
       },
     ],

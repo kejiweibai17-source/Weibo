@@ -1,7 +1,7 @@
 /** @type {import('next-sitemap').IConfig} */
 
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://smasmall.weiboltd.com',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smasmall.com.tw',
 
   // App Router 已有 src/app/robots.ts，不需 next-sitemap 再生成
   generateRobotsTxt: false,

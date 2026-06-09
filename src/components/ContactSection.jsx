@@ -18,7 +18,7 @@ export default function ContactSection() {
         {/* 記得將 src 替換為你實際要放的左側產品圖路徑 */}
         <Image
           src="/images/contact.png"
-          alt="Contact Product"
+          alt="商務旅行攜帶昔馬電動刮鬍刀 輕便隨身理容 威柏科技-昔馬電動刮鬍刀總代理"
           fill
           className="object-cover object-center"
         />
