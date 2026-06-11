@@ -8,48 +8,48 @@ import Copy from "@/components/Copy";
 // 昔馬 SMASMALL 品牌故事資料設定
 // ============================================================================
 const CORE_STATS = [
-  { value: "100%", label: "全合金壓鑄鑄造工藝" },
-  { value: "1-Sec", label: "首創磁吸刀頭快拆技術" },
-  { value: "IPX7", label: "全機頂級防水乾濕兩用" },
-  { value: "0.05mm", label: "荷蘭進口超薄自銳精鋼刀網" },
-  { value: "Top 1", label: "復古未來主義理容潮流指標" },
+  { value: "100%", label: "全合金壓鑄機身" },
+  { value: "1 秒", label: "磁吸刀頭快拆" },
+  { value: "IPX7", label: "全機防水乾濕兩用" },
+  { value: "0.05mm", label: "荷蘭進口精鋼刀網" },
+  { value: "12 個月", label: "台灣總代理原廠保固" },
 ];
 
 const VALUE_PANELS = [
   {
     id: "value-1",
     title: "第一原則",
-    subtitle: "First Principle",
-    bgImage: "/images/about/489c8a38-7570-4ca8-a821-38cae1fdbe49.png", // 👈 新增背景圖片欄位
-    bgGradient: "from-amber-900/80 to-slate-900/95", // 稍微調高透明度讓背景圖透出來
+    subtitle: "工藝根本",
+    bgImage: "/images/about/489c8a38-7570-4ca8-a821-38cae1fdbe49.png",
+    bgGradient: "from-amber-900/80 to-slate-900/95",
     bullets: [
-      "打破傳統塑膠理容工具的廉價感",
-      "堅持高溫壓鑄工藝的硬派美學",
-      "追求極致扎實、沉穩的冰冷握感",
+      "打破傳統塑膠刮鬍刀的廉價感",
+      "堅持高溫壓鑄全合金機身",
+      "追求沉穩、扎實的握持質感",
     ],
   },
   {
     id: "value-2",
     title: "追求極致",
-    subtitle: "Seek Ultimate",
-    bgImage: "/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png", // 👈 新增背景圖片欄位
+    subtitle: "刮鬍體驗",
+    bgImage: "/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png",
     bgGradient: "from-blue-950/80 to-slate-900/95",
     bullets: [
-      "毫秒級的高速抗震低噪馬達",
-      "精確貼合面部輪廓的彈性浮動",
-      "挑戰刀片越用越鋒利的自研磨技術",
+      "高速低噪馬達，刮鬍順暢不拉扯",
+      "浮動刀網貼合臉部輪廓",
+      "自研磨刀網，越用越鋒利",
     ],
   },
   {
     id: "value-3",
-    title: "共創卓越",
-    subtitle: "Grow Together",
-    bgImage: "/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png", // 👈 新增背景圖片欄位
+    title: "在地服務",
+    subtitle: "總代理承諾",
+    bgImage: "/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png",
     bgGradient: "from-stone-800/80 to-slate-900/95",
     bullets: [
-      "威柏科技全權總代理品質承諾",
-      "深耕台灣高端男士精緻理容市場",
-      "建立最完善的一年原廠安心保固",
+      "威柏科技台灣唯一官方授權總代理",
+      "原廠正品與完整售後保固",
+      "專屬客服協助選購與維修諮詢",
     ],
   },
 ];
@@ -71,10 +71,10 @@ export default function SmasmallStory() {
 
         {/* 右上方語言選擇鈕 */}
         <div className="absolute top-6 right-6 md:right-12 z-20">
-          <button className="flex items-center gap-2 px-4 py-1.5 border border-white/40 rounded-full text-white text-xs font-medium hover:bg-white/10 transition-colors">
+          <span className="flex items-center gap-2 px-4 py-1.5 border border-white/40 rounded-full text-white text-xs font-medium">
             <Globe size={14} />
-            <span>English</span>
-          </button>
+            <span>繁體中文</span>
+          </span>
         </div>
 
         {/* 左側標題文案 */}
@@ -85,7 +85,7 @@ export default function SmasmallStory() {
             transition={{ duration: 0.8 }}
             className="text-5xl md:text-7xl font-bold tracking-tight mb-4"
           >
-            Our Story
+            品牌故事
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -93,8 +93,7 @@ export default function SmasmallStory() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl font-light tracking-wide text-gray-300 max-w-xl leading-relaxed"
           >
-            Ignite Possibilities Through Ultimate Innovation. <br />
-            以極致硬派工藝，重新定義品味男士的日常剃鬚革命。
+            以全合金工藝與磁吸刀頭，重新定義男士日常理容體驗。
           </motion.p>
         </div>
       </section>
@@ -107,15 +106,16 @@ export default function SmasmallStory() {
         <div className="max-w-4xl mb-16">
           <Copy>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight tracking-tight mb-6">
-              A Global Premium Shaver Brand <br />
-              Driven by Ultimate Craftsmanship{" "}
+              專注全合金電動刮鬍刀的
+              <br />
+              精品理容品牌
             </h2>
           </Copy>
           <Copy>
             <p className="text-gray-500 text-sm md:text-base leading-relaxed tracking-wide">
-              To build a playground where makers inspire makers,
+              昔馬 SMASMALL 以全合金機身、磁吸刀頭與 IPX7 防水，
               <br />
-              To create brands that the world desires.
+              為注重質感與效率的男士，打造值得日常使用的理容器材。
             </p>
           </Copy>
         </div>
@@ -132,8 +132,8 @@ export default function SmasmallStory() {
             <Copy>
               {" "}
               <p className="text-gray-600 text-[14px] md:text-[15px] leading-relaxed mb-12">
-                SMASMALL
-                昔馬由台灣總代理「威柏科技」原廠授權引進。我們堅信理容工具不只是消耗品，更是彰顯個人品味的桌面藝術。拋棄廉價的塑膠，將重機與航空線條融入壓鑄合金，為亞洲男士帶來極致有感的科技理容美學。
+                昔馬 SMASMALL
+                由台灣總代理威柏科技原廠授權引進。我們相信電動刮鬍刀不只是消耗品，更是展現個人品味的日常配件——拋棄廉價塑膠機身，以重機與航空工業啟發的壓鑄合金，帶來更沉穩、更耐用的刮鬍體驗。
               </p>
             </Copy>
 
@@ -164,34 +164,34 @@ export default function SmasmallStory() {
             <Copy>
               {" "}
               <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-                SMASMALL 昔馬
+                昔馬 SMASMALL
               </h3>
             </Copy>
             <Copy>
               {" "}
-              <p className="text-gray-600 text-sm max-w-4xl leading-relaxed mb-8">
-                專注於全合金工藝與高端磁吸機構的研發，結合頂級自銳技術刀片，讓每一次剃鬚都成為一種享受。威柏科技與昔馬品牌深度戰略合作，於台灣設{" "}
-                立專屬售後體系，引領潮流男士的生活新風尚。
+              <p className="text-stone-900 text-[16px] max-w-4xl leading-relaxed mb-8">
+                專注於全合金機身與磁吸快拆刀頭，結合荷蘭進口精鋼刀網與 Type-C
+                快充，讓居家、差旅與商務場合都能輕鬆完成刮鬍。威柏科技於台灣提供原廠授權銷售與售後服務，讓每位用戶買得安心、用得長久。
               </p>
             </Copy>
 
             <a
-              href="#"
+              href="/brand"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900 hover:underline"
             >
-              <span>Click here to learn more.</span>
+              <span>探索昔馬全系列產品</span>
               <ArrowRight size={14} />
             </a>
-            {/* 完美還原：對稱分裂冷藍色光芒品牌巨幅卡片 */}
+            {/* 品牌巨幅卡片 */}
             <div className="w-full h-[220px] md:h-[320px] bg-gradient-to-r from-blue-900 via-sky-800 to-blue-900 rounded-lg mt-8 flex items-center justify-center relative overflow-hidden shadow-inner">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)]" />
               <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.6)]" />
               <div className="text-center z-10 text-white">
-                <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.3em] uppercase">
-                  SMASMALL
+                <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.3em]">
+                  昔馬 SMASMALL
                 </h2>
-                <p className="text-[11px] tracking-[0.4em] opacity-60 mt-3 uppercase">
-                  Weibo Technology
+                <p className="text-[11px] tracking-[0.4em] opacity-60 mt-3">
+                  威柏科技台灣總代理
                 </p>
               </div>
             </div>
@@ -208,15 +208,15 @@ export default function SmasmallStory() {
               </Copy>
               <Copy>
                 {" "}
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  台灣唯一官方授權總代理——威柏科技有限公司（Weibo
-                  Technology），運營核心與現代化倉儲配送基地布署於台灣核心樞紐，配備超過多個專業售後服務據點與線上即時客服團隊，全面保障每位昔馬用戶的頂級售後尊榮權益。
+                <p className="text-stone-900 text-[16px] leading-relaxed">
+                  威柏科技有限公司為昔馬 SMASMALL
+                  台灣唯一官方授權總代理，負責原廠正品引進、通路管理與售後保固。透過線上商城與授權通路，提供產品諮詢、保固登錄與維修協助，讓用戶享有完整的購買與使用支援。
                 </p>
               </Copy>
             </div>
             {/* 右側：宏偉的代理商現代化總部/工藝基地大樓 */}
             <div className="lg:col-span-7 h-[300px] md:h-[420px] relative rounded-lg overflow-hidden shadow-sm bg-gray-100">
-              <div className="absolute inset-0 bg-[url('/images/002.png')] bg-cover bg-center" />
+              <div className="absolute inset-0 bg-[url('/images/2863f91d-4ff8-45c9-9c4c-f9a80a210e2d.png')] bg-cover bg-center" />
             </div>
           </div>
         </div>
@@ -229,7 +229,7 @@ export default function SmasmallStory() {
         <Copy>
           {" "}
           <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
-            Our Mission and Vision
+            使命與願景
           </h2>
         </Copy>
 
@@ -240,10 +240,9 @@ export default function SmasmallStory() {
             <div className="absolute inset-0 bg-[url('/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png')] bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             <div className="relative z-10 text-white">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">Mission</h3>{" "}
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">使命</h3>
               <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
-                Ignite possibilities through ultimate innovation. <br />
-                以復古未來主義理容科技，重塑現代男士的精緻生活品味。
+                以全合金工藝與精密刀頭技術，讓每位男士都能享有順暢、舒適且值得信賴的刮鬍體驗。
               </p>
             </div>
           </div>
@@ -253,11 +252,9 @@ export default function SmasmallStory() {
             <div className="absolute inset-0 bg-[url('/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png')] bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             <div className="relative z-10 text-white">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">Vision</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-3">願景</h3>
               <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
-                To build a playground where makers inspire makers, to create
-                brands that the world desires. <br />
-                成為全球最具藝術收藏價值與極致剃鬚體驗的奢華理容精品品牌。
+                成為亞洲男士首選的全合金電動刮鬍刀品牌，讓高質感理容走進日常，也走進每一次出門前的自信時刻。
               </p>
             </div>
           </div>
@@ -272,7 +269,7 @@ export default function SmasmallStory() {
           <Copy>
             {" "}
             <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
-              Our Values
+              核心價值
             </h2>
           </Copy>
 
@@ -321,7 +318,7 @@ export default function SmasmallStory() {
                     <h3 className="text-2xl md:text-3xl font-bold tracking-wide mb-1">
                       {panel.title}
                     </h3>
-                    <p className="text-xs text-white/40 tracking-widest font-mono uppercase mb-8 border-b border-white/10 pb-4">
+                    <p className="text-xs text-white/50 tracking-widest mb-8 border-b border-white/10 pb-4">
                       {panel.subtitle}
                     </p>
 
@@ -341,27 +338,24 @@ export default function SmasmallStory() {
 
           {/* 底部：技術創新介紹與標籤列 */}
           <div className="max-w-4xl border-t border-gray-100 pt-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Our Innovations
-            </h3>
-            <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-8">
-              我們的設計研發團隊始終站在精密製造與美學前沿。結合重機具的機械美學與高效率的電子結構，我們專注於打造超越常規、讓全球消費者感到驚艷的精緻硬件工具。
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">技術創新</h3>
+            <p className="text-stone-900 text-[16px] md:text-base leading-relaxed mb-8">
+              昔馬電動刮鬍刀結合全合金壓鑄機身、磁吸快拆刀頭、浮動刀網與 IPX7
+              防水，並支援 Type-C
+              快充。從刀頭材質到機身結構，每項設計都為更順手的刮鬍、清潔與攜帶而優化。
             </p>
 
-            {/* 精緻科技標籤 (Tags) */}
             <div className="flex flex-wrap gap-3">
-              {[
-                "Retro-Futurism Design",
-                "Magnetic Mechanics",
-                "Groundbreaking Efficiency",
-              ].map((tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="bg-[#f5f5f7] border border-gray-200 text-gray-700 text-xs font-bold px-4 py-2 rounded-full font-mono shadow-sm"
-                >
-                  {tag}
-                </span>
-              ))}
+              {["全合金機身", "磁吸刀頭", "IPX7 防水", "Type-C 快充"].map(
+                (tag, tIdx) => (
+                  <span
+                    key={tIdx}
+                    className="bg-[#f5f5f7] border border-gray-200 text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-sm"
+                  >
+                    {tag}
+                  </span>
+                ),
+              )}
             </div>
           </div>
         </div>

@@ -65,7 +65,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-Hant">
-      <body className="min-h-screen bg-white text-slate-900">
+      <body className="min-h-screen bg-white font-sans text-slate-900 antialiased">
         {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
         <ClientLayout>{children}</ClientLayout>
       </body>

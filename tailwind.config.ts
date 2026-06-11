@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import { heroui } from "@heroui/react";
+import { appleMonoFontStack, appleSansFontStack } from "./src/lib/fonts";
 // @ts-expect-error: Tailwind CSS 內部工具沒有型別定義，忽略此錯誤
 import flattenColorPalette from "tailwindcss/lib/util/flattenColorPalette";
 import tailwindcssAnimate from "tailwindcss-animate";
@@ -14,6 +15,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [...appleSansFontStack],
+        mono: [...appleMonoFontStack],
+      },
       transitionDuration: {
         2000: "2000ms",
         3000: "3000ms",

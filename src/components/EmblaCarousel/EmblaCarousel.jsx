@@ -94,9 +94,6 @@ const EmblaCarousel = (props) => {
         {/* 左側：標籤與大標題 */}
         <div className="w-full lg:w-1/2">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-6 h-6 rounded-full bg-white text-black text-xs flex items-center justify-center font-bold">
-              4
-            </div>
             <Copy>
               <span className="text-sm font-semibold tracking-wider text-stone-700 uppercase">
                 品味展現
@@ -104,7 +101,7 @@ const EmblaCarousel = (props) => {
             </Copy>
           </div>
           <Copy>
-            <h2 className="text-4xl md:text-5xl text-stone-800 lg:text-[2.5rem] font-light !leading-[1.2] tracking-wide">
+            <h2 className="text-4xl md:text-5xl text-stone-800 lg:text-[4vmin] font-normal !leading-[1.2] tracking-wide">
               讓您的專屬空間，
               <br className="hidden md:block" />
               化為展現品味的私人藝廊。
@@ -113,7 +110,7 @@ const EmblaCarousel = (props) => {
         </div>
 
         {/* 右側：兩段式描述內文 */}
-        <div className="w-full lg:w-[45%] flex flex-col gap-6 text-stone-600 text-[15px] md:text-[16px] leading-relaxed lg:pt-14 font-light">
+        <div className="w-full lg:w-[45%] flex flex-col gap-6 text-stone-800 text-[15px] md:text-[16px] leading-relaxed lg:pt-14 font-light">
           <Copy>
             {" "}
             <p>
@@ -124,7 +121,7 @@ const EmblaCarousel = (props) => {
           <Copy>
             {" "}
             <p>
-              從獨具匠心的全合金壓鑄，到極致貼合的剃鬚體驗，這不僅僅是一把刮鬍刀，更是展現個人風格的質感配件。每一次的俐落刮除，都在詮釋著成熟男士對細節的極致追求。
+              從獨具匠心的全合金壓鑄，到極致貼合的刮鬍體驗，這不僅僅是一把刮鬍刀，更是展現個人風格的質感配件。每一次的俐落刮除，都在詮釋著成熟男士對細節的極致追求。
             </p>
           </Copy>
         </div>

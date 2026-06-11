@@ -1,5 +1,6 @@
 // app/blog/page.jsx
-import HomeClient from "./ProjectListClient";
+import BlogListPageView from "@/components/blog/list/BlogListPageView";
+import { mapWordPressPostsToBlogPage } from "@/lib/wordpress/mapBlogPosts";
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
@@ -55,9 +56,9 @@ export const metadata = {
 async function getPosts() {
   const rawBase =
     process.env.WORDPRESS_API_URL ||
-    "https://inf.fjg.mybluehost.me/website_4ad5d5f2";
+    "https://inf.fjg.mybluehost.me/website_b45d1e40";
   const cleanBase = rawBase.split("/wp-json")[0].replace(/\/$/, "");
-  const fetchUrl = `${cleanBase}/wp-json/wp/v2/posts?_embed&per_page=10`;
+  const fetchUrl = `${cleanBase}/wp-json/wp/v2/posts?_embed&per_page=12`;
 
   try {
     const res = await fetch(fetchUrl, {
@@ -83,6 +84,7 @@ async function getPosts() {
 
 export default async function BlogPage() {
   const posts = await getPosts();
+  const blogData = mapWordPressPostsToBlogPage(posts);
   const core = buildCoreEntityGraph(SITE_URL);
   const breadcrumb = buildBreadcrumbList(SITE_URL, [
     { name: "首頁", path: "/" },
@@ -138,7 +140,7 @@ export default async function BlogPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
-      <HomeClient posts={posts} />
+      <BlogListPageView data={blogData} />
     </main>
   );
 }

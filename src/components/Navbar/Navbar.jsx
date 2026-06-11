@@ -196,7 +196,8 @@ export default function Navbar() {
     },
     { label: "關於我們", href: "/about" },
     { label: "昔馬產品", href: "/accessories" },
-    { label: "昔馬SMSMALL", href: "/brand" },
+    { label: "昔馬SMASMALL", href: "/brand" },
+    { label: "精選文章", href: "/blog" },
     SUPPORT_NAV,
     { label: "聯絡我們", href: "/contact" },
   ];

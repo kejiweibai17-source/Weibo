@@ -12,7 +12,7 @@ export default function SpecialOffers() {
 
   useEffect(() => {
     fetch(
-      "https://inf.fjg.mybluehost.me/website_61ba641a/wp-json/wp/v2/posts?per_page=100&_embed"
+      "https://inf.fjg.mybluehost.me/website_b45d1e40/wp-json/wp/v2/posts?per_page=100&_embed"
     )
       .then((res) => res.json())
       .then((data) => {

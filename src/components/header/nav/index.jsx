@@ -31,13 +31,13 @@ const links = [
   {
     title: "新聞中心",
     href: "/news",
-    src: "contact.png",
+    src: "簡單攜帶.png",
   },
 
   {
     title: "聯絡我們",
     href: "/contact",
-    src: "contact.png",
+    src: "簡單攜帶.png",
   },
 ];
 

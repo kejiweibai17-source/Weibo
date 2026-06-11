@@ -1,7 +1,9 @@
 // lib/wordpress.js
 
 // 你的 WordPress API 端點
-const WP_API_URL = "https://inf.fjg.mybluehost.me/website_4ad5d5f2/wp-json/wp/v2";
+const WP_API_URL =
+  process.env.WORDPRESS_API_URL ||
+  "https://inf.fjg.mybluehost.me/website_b45d1e40/wp-json/wp/v2";
 
 // 取得文章列表 (包含圖片與分類)
 export async function getAllPosts() {

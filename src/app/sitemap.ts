@@ -47,7 +47,7 @@ async function fetchBlogSlugs(): Promise<string[]> {
   try {
     const rawBase =
       process.env.WORDPRESS_API_URL ||
-      "https://inf.fjg.mybluehost.me/website_4ad5d5f2";
+      "https://inf.fjg.mybluehost.me/website_b45d1e40";
     const cleanBase = rawBase.split("/wp-json")[0].replace(/\/$/, "");
     const res = await fetch(
       `${cleanBase}/wp-json/wp/v2/posts?per_page=100&_fields=slug`,

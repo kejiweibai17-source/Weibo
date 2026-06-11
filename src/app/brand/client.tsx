@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import WaabiScrollIntro from "@/components/WaabiScrollIntro";
 
+const LINE_OFFICIAL_URL =
+  "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
+
 // ============================================================================
 // 昔馬 SMASMALL 真實產品系列資料設定 (全繁體中文在地化)
 // ============================================================================
@@ -18,15 +21,15 @@ const PRODUCT_CATEGORIES = [
         slogan: "重塑經典，品味隨行。",
         description:
           "採用獨創高溫壓鑄全合金機身，手感沉穩冰冷。搭載荷蘭進口精鋼刀片與雙環超薄刀網，配合自研磨技術，越用越鋒利。支援 IPX7 全機防水，乾濕兩用，讓您隨時保持俐落清爽的面貌。",
-        imgUrl: "/images/3d922fff-8ec9-4ec6-97b1-35b15933b297.png", // 替換為 S1 產品圖
+        imgUrl: "/images/accessories/青春版電動刮鬍刀禮盒-三色/情境圖/004.jpg", // 替換為 S1 產品圖
         reverse: false, // 圖片在左
       },
       {
-        name: "昔馬 S3 小金剛旗艦版",
-        slogan: "極致動力，無懈可擊。",
+        name: "昔馬捍衛者",
+        slogan: "小。很強大。",
         description:
-          "專為追求極致效能的男士打造。內建升級版毫秒級高速抗震低噪馬達，動力澎湃。搭配業界首創「磁吸式快拆刀頭」，一秒拆卸無縫貼合，徹底解決傳統卡榫易斷裂問題，清潔保養毫不費力。",
-        imgUrl: "/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png", // 替換為 S3 產品圖
+          "把刮鬍、修容、收納與快充，放進精巧而有份量的全合金設計。磁吸式快拆刀頭、荷蘭進口精鋼刀網與 IPX7 全機防水，兼顧硬派質感與日常便利。",
+        imgUrl: "/images/61e0b64e-1f2c-465c-91e6-34dde2596b4e.png",
         reverse: true, // 圖片在右
       },
       {
@@ -34,7 +37,7 @@ const PRODUCT_CATEGORIES = [
         slogan: "深邃暗黑，硬派美學。",
         description:
           "延續 S1 經典架構，披上極致深邃的消光黑夜塗裝。專為低調且注重質感的都會男士設計，每一處細節都散發著復古未來主義的獨特魅力，是展現個人風格的最佳桌面理容藝術品。",
-        imgUrl: "/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png", // 替換為黑夜騎士版產品圖
+        imgUrl: "/images/index/banner-02.png", // 替換為黑夜騎士版產品圖
         reverse: false, // 圖片在左
       },
     ],
@@ -48,7 +51,7 @@ const PRODUCT_CATEGORIES = [
         slogan: "送禮首選，極致尊榮。",
         description:
           "專為高階商務人士與節日送禮打造的頂級套裝。內含昔馬合金電動刮鬍刀、專屬訂製皮革防撞收納包，以及高質感清潔配件。威柏科技總代理品質承諾，提供最完善的一年原廠保固。",
-        imgUrl: "/images/002.png",
+        imgUrl: "/images/index/banner-05.png",
         reverse: false,
       },
     ],
@@ -114,9 +117,14 @@ export default function SmasmallCollections() {
 
                     {/* 了解更多按鈕 */}
                     <div>
-                      <button className="border-2 border-gray-900 text-gray-900 px-8 py-3 text-sm font-bold hover:bg-gray-900 hover:text-white transition-colors duration-300 rounded-full">
+                      <a
+                        href={LINE_OFFICIAL_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block border-2 border-gray-900 text-gray-900 px-8 py-3 text-sm font-bold hover:bg-gray-900 hover:text-white transition-colors duration-300 rounded-full"
+                      >
                         進一步了解
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </motion.div>

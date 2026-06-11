@@ -3,9 +3,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "next-view-transitions";
 
-// ============================================================================
-// SVG Icons
-// ============================================================================
+const LINE_OFFICIAL_URL =
+  "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
 const Icons = {
   X: (props) => (
     <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -129,7 +128,7 @@ const Section2 = () => {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/tech/alloy"
+                  href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   全合金機身工藝
@@ -137,7 +136,7 @@ const Section2 = () => {
               </li>
               <li>
                 <Link
-                  href="/tech/magnetic"
+                  href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   磁吸式刀頭技術
@@ -145,7 +144,7 @@ const Section2 = () => {
               </li>
               <li>
                 <Link
-                  href="/tech/blades"
+                  href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   荷蘭進口精鋼刀片
@@ -153,7 +152,7 @@ const Section2 = () => {
               </li>
               <li>
                 <Link
-                  href="/tech/waterproof"
+                  href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   IPX7 級防水設計
@@ -237,7 +236,7 @@ const Section2 = () => {
               </li>
               <li>
                 <a
-                  href="https://page.line.me/157yqtwl?oat_content=url&openQrModal=true"
+                  href={LINE_OFFICIAL_URL}
                   target="_blank"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -246,7 +245,7 @@ const Section2 = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="https://www.youtube.com/@weiboltd"
                   target="_blank"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
@@ -256,19 +255,24 @@ const Section2 = () => {
             </ul>
           </div>
 
-          {/* 第五欄：電子報訂閱 */}
+          {/* 第五欄：LINE 聯繫 */}
           <div className="lg:col-span-2 lg:pl-8">
             <h3 className="text-[22px] font-bold text-black mb-4 leading-tight">
               Explore the Craftsmanship <br />
               with SMASMALL
             </h3>
             <p className="text-[13px] text-gray-400 leading-relaxed mb-8 pr-4">
-              訂閱威柏科技電子報，搶先獲取昔馬 SMASMALL
-              最新產品資訊、獨家專屬優惠，以及男士理容與品味生活的靈感。
+              想進一步了解昔馬 SMASMALL 產品、保固或購買資訊？歡迎透過 LINE
+              官方帳號與威柏科技聯繫，我們將為您提供專人服務與理容建議。
             </p>
-            <button className="bg-[#00B4D8] hover:bg-[#0096B4] transition-colors text-white text-[15px] font-medium px-6 py-3 rounded-full flex items-center gap-2">
-              立即訂閱 <Icons.ArrowRight className="w-4 h-4" />
-            </button>
+            <a
+              href={LINE_OFFICIAL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex bg-[#00B4D8] hover:bg-[#0096B4] transition-colors text-white text-[15px] font-medium px-6 py-3 rounded-full items-center gap-2"
+            >
+              立即聯繫 <Icons.ArrowRight className="w-4 h-4" />
+            </a>
           </div>
         </div>
 
@@ -334,10 +338,7 @@ function ContactWidget() {
   // 🌟 修改：點擊後直接跳轉對應社群連結
   const handleLinkClick = (platform) => {
     if (platform === "line")
-      window.open(
-        "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true",
-        "_blank",
-      );
+      window.open(LINE_OFFICIAL_URL, "_blank");
     if (platform === "facebook")
       window.open("https://www.facebook.com/249wzrtv/", "_blank");
     if (platform === "instagram")

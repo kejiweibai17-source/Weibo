@@ -1,10 +1,7 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
 import { entityIds, getSiteUrl } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 
 export const revalidate = 60;
 
@@ -39,7 +36,7 @@ export const metadata = {
     siteName: "SMASMALL 昔馬 by 威柏科技",
     title: "品牌故事｜昔馬 SMASMALL - 復古未來主義理容科技",
     description:
-      "Ignite Possibilities Through Ultimate Innovation. 以極致硬派工藝，重新定義品味男士的日常剃鬚革命。",
+      "以全合金工藝與磁吸刀頭，重新定義男士日常理容體驗。了解昔馬 SMASMALL 品牌故事。",
     images: [
       {
         url: "/images/defender-og.png", // 統一使用全英文命名的 OG 圖片
@@ -52,7 +49,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "品牌故事｜昔馬 SMASMALL - 復古未來主義理容科技",
-    description: "以極致硬派工藝，重新定義品味男士的日常剃鬚革命。",
+    description: "以極致硬派工藝，重新定義品味男士的日常刮鬍革命。",
     images: ["/images/defender-og.png"],
   },
 };

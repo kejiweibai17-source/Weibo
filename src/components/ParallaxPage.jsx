@@ -44,7 +44,7 @@ const ParallaxPage = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
-          className="text-[7vmin] font-bold text-white tracking-tighter z-10 leading-none"
+          className="text-[6vmin] font-normal text-white tracking-tighter z-10 leading-none"
         >
           有力量，也有細節。
         </motion.h1>

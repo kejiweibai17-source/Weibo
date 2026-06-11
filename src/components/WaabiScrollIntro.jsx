@@ -118,12 +118,7 @@ function useIsMobileLayout() {
   return isMobile;
 }
 
-function MobileHeroBanner({
-  heroImage,
-  heroTitle,
-  heroCopy,
-  imageAlt,
-}) {
+function MobileHeroBanner({ heroImage, heroTitle, heroCopy, imageAlt }) {
   return (
     <div className="waabi-root font-sans">
       <section className="relative w-full overflow-hidden pt-[60px]">
@@ -294,7 +289,7 @@ function DesktopScrollIntro({
         </div>
 
         <div className="relative z-10 px-5 md:px-6 max-w-2xl">
-          <h3 className="text-[1.6rem] md:text-[2.2rem] lg:text-[2.75rem] text-gray-900 leading-[1.2] tracking-[-0.03em]">
+          <h3 className="text-[1.6rem] md:text-[2.2rem] lg:text-[2.75rem] text-gray-900 leading-[1.2] font-bold tracking-[-0.03em]">
             {aboutText}
           </h3>
         </div>

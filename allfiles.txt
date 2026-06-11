@@ -265,7 +265,7 @@ d00fe9378efd94af12ac4898c41c205a1cca35c7 public/images/blog/建築老屋/img01.p
 3ff7e72a0742bf193b04a88c09af6764a88d7960 public/images/building-01.jpg
 378ae58d594365fb48c86c91f2dd216832b4e143 public/images/cart.png
 4ae76c1854ce65294b388d5520a27e00898dbdc9 public/images/city-img_sp.png
-0e1f6f61d8a6db36947624cc720cb2a63ed963fc public/images/contact.png
+0e1f6f61d8a6db36947624cc720cb2a63ed963fc public/images/簡單攜帶.png
 53a9701fa825a3cd5ac671ff9dc70ebd8d7e5ddc public/images/feature-passive-design01.png
 a33c680ae32ea6beeac813aff9977c8af5e0e116 public/images/feature-passive-design02.png
 d2d68bf1a96d91e7b246d26dd1b556862027188f public/images/feature-passive-design03.png

@@ -3,7 +3,6 @@
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 
-import "yakuhanjp";
 import { ViewTransitions } from "next-view-transitions";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer1";
