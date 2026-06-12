@@ -6,7 +6,7 @@ import {
   CATEGORY_OPTIONS,
 } from "@/data/accessories";
 import { fetchAccessoriesPageData } from "@/lib/accessoriesWoo.server";
-import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { absoluteUrl, getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import { buildAccessoriesCollectionSchemas } from "@/lib/seo/schemas";
 import AccessoriesPageClient from "./AccessoriesPageClient";
 
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
       "昔馬 SMASMALL 全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
     images: [
       {
-        url: "/images/og-2.jpg",
+        url: ogImageUrl("/images/og-2.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬配件專區",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     title: "昔馬 SMASMALL 全系列｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
     description:
       "昔馬 SMASMALL 全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
-    images: [absoluteUrl(SITE_URL, "/images/og-2.jpg")],
+    images: [absoluteUrl(SITE_URL, ogImageUrl("/images/og-2.jpg"))],
   },
 };
 

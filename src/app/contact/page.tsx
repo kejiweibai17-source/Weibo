@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { entityIds, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { entityIds, getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
       "有任何問題嗎？昔馬 SMASMALL 提供產品諮詢與售後服務，LINE @weibo 線上客服、電話 05-3209919，WEiZ 專櫃可實機體驗，我們竭誠為你服務。",
     images: [
       {
-        url: "/images/og-3.jpg",
+        url: ogImageUrl("/images/og-3.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬聯絡我們",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     title: "聯繫昔馬 SMASMALL｜客服・門市・保固服務 - 威柏科技",
     description:
       "有任何問題嗎？昔馬 SMASMALL 提供產品諮詢與售後服務，LINE @weibo 線上客服、電話 05-3209919，WEiZ 專櫃可實機體驗，我們竭誠為你服務。",
-    images: ["/images/og-3.jpg"],
+    images: [ogImageUrl("/images/og-3.jpg")],
   },
 };
 

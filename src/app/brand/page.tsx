@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { entityIds, getSiteUrl } from "@/lib/seo/config";
+import { entityIds, getSiteUrl, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
       "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",
     images: [
       {
-        url: "/images/og-1.jpg",
+        url: ogImageUrl("/images/og-1.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬品牌系列總覽",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: "昔馬 SMASMALL｜森田愛用・2024 熱門刮鬍刀領導品牌",
     description:
       "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",
-    images: ["/images/og-1.jpg"],
+    images: [ogImageUrl("/images/og-1.jpg")],
   },
 };
 

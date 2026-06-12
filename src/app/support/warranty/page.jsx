@@ -1,6 +1,6 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -39,7 +39,7 @@ export const metadata = {
       "買了記得登錄保固！昔馬 SMASMALL 提供機身 12 個月雲端保固，透過 LINE @weibo 或掃 QRcode 即可完成註冊，售後安心無負擔，立即登錄。",
     images: [
       {
-        url: "/images/og-4.jpg",
+        url: ogImageUrl("/images/og-4.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬產品保固與註冊",
@@ -51,7 +51,7 @@ export const metadata = {
     title: "昔馬 SMASMALL 保固登錄｜線上 1 分鐘完成・保固 12 個月",
     description:
       "買了記得登錄保固！昔馬 SMASMALL 提供機身 12 個月雲端保固，透過 LINE @weibo 或掃 QRcode 即可完成註冊，售後安心無負擔，立即登錄。",
-    images: ["/images/og-4.jpg"],
+    images: [ogImageUrl("/images/og-4.jpg")],
   },
 };
 

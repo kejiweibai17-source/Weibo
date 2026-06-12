@@ -1,6 +1,6 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -38,7 +38,7 @@ export const metadata = {
       "刮鬍刀越用越鈍？昔馬 SMASMALL 完整保養指南教你正確充電、IPX7 水洗清潔與刀頭保養，3 分鐘上手，讓愛刀常保鋒利如新。",
     images: [
       {
-        url: "/images/og-1.jpg",
+        url: ogImageUrl("/images/og-1.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬使用與保養指南",
@@ -50,7 +50,7 @@ export const metadata = {
     title: "昔馬 SMASMALL 刮鬍刀保養教學｜延長壽命這樣做",
     description:
       "刮鬍刀越用越鈍？昔馬 SMASMALL 完整保養指南教你正確充電、IPX7 水洗清潔與刀頭保養，3 分鐘上手，讓愛刀常保鋒利如新。",
-    images: ["/images/og-1.jpg"],
+    images: [ogImageUrl("/images/og-1.jpg")],
   },
 };
 

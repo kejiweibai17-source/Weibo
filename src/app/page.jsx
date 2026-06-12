@@ -2,7 +2,7 @@
 import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
 import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
-import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
 import { getHeroSliderSlides } from "@/lib/heroSlider.server";
@@ -59,7 +59,7 @@ export const metadata = {
       "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
     images: [
       {
-        url: "/images/og-1.jpg",
+        url: ogImageUrl("/images/og-1.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬全合金電動刮鬍刀",
@@ -71,7 +71,7 @@ export const metadata = {
     title: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
     description:
       "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
-    images: ["/images/og-1.jpg"],
+    images: [ogImageUrl("/images/og-1.jpg")],
   },
   alternates: { canonical: "/" },
 };

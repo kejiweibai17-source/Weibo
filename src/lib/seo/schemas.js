@@ -1,10 +1,11 @@
 import { ACCESSORY_SERIES, resolveSeriesImages } from "@/data/accessories";
 import {
-  SEO_CONFIG,
-  SITE_PRIMARY_NAV,
   absoluteUrl,
   entityIds,
   getSiteUrl,
+  ogImageUrl,
+  SEO_CONFIG,
+  SITE_PRIMARY_NAV,
 } from "@/lib/seo/config";
 
 const SCHEMA_CONTEXT = "https://schema.org";
@@ -113,7 +114,7 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     publisher: { "@id": ids.organization },
     copyrightHolder: { "@id": ids.organization },
     about: { "@id": ids.brand },
-    image: absoluteUrl(siteUrl, "/images/og-1.jpg"),
+    image: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -478,7 +479,7 @@ export function buildHomePageSchemas({
     publisher: { "@id": ids.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
-      url: absoluteUrl(siteUrl, "/images/og-1.jpg"),
+      url: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
       width: 1200,
       height: 630,
     },

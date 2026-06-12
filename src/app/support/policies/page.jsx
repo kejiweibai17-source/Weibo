@@ -1,6 +1,6 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -38,7 +38,7 @@ export const metadata = {
       "昔馬 SMASMALL 官網使用條款、隱私權與個資保護說明，清楚說明資料蒐集、會員權益與購物規範，保障你每一次的瀏覽與消費權益。",
     images: [
       {
-        url: "/images/og-4.jpg",
+        url: ogImageUrl("/images/og-4.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬使用條款與政策",
@@ -50,7 +50,7 @@ export const metadata = {
     title: "昔馬 SMASMALL 使用條款與隱私政策｜威柏科技 WEIBO",
     description:
       "昔馬 SMASMALL 官網使用條款、隱私權與個資保護說明，清楚說明資料蒐集、會員權益與購物規範，保障你每一次的瀏覽與消費權益。",
-    images: ["/images/og-4.jpg"],
+    images: [ogImageUrl("/images/og-4.jpg")],
   },
 };
 

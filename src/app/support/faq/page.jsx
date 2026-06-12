@@ -1,6 +1,6 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
@@ -40,7 +40,7 @@ export const metadata = {
       "刮鬍刀能水洗嗎？充飽電用多久？昔馬 SMASMALL 常見問題一次解答，涵蓋續航、IPX7 防水、保固範圍與退換貨，找不到答案立即聯繫線上客服。",
     images: [
       {
-        url: "/images/og-4.jpg",
+        url: ogImageUrl("/images/og-4.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬常見問題 FAQ",
@@ -52,7 +52,7 @@ export const metadata = {
     title: "昔馬 SMASMALL 常見問題｜充電・防水・保固一次解答",
     description:
       "刮鬍刀能水洗嗎？充飽電用多久？昔馬 SMASMALL 常見問題一次解答，涵蓋續航、IPX7 防水、保固範圍與退換貨，找不到答案立即聯繫線上客服。",
-    images: ["/images/og-4.jpg"],
+    images: [ogImageUrl("/images/og-4.jpg")],
   },
 };
 

@@ -82,6 +82,23 @@ export const SEO_CONFIG = {
   appleTouchIcon: "/favicon.ico",
 };
 
+/** 社群預覽圖快取版本（換圖後遞增，強制 FB/LINE 等重新抓取） */
+export const OG_IMAGE_VERSION =
+  process.env.NEXT_PUBLIC_OG_IMAGE_VERSION || "20260612";
+
+/** 為 OG 圖片路徑加上 ?v= 後綴，避免社群平台沿用舊快取 */
+export function ogImageUrl(path) {
+  if (!path) return path;
+  if (path.startsWith("http")) {
+    const [base, query] = path.split("?");
+    const params = new URLSearchParams(query || "");
+    params.set("v", OG_IMAGE_VERSION);
+    return `${base}?${params.toString()}`;
+  }
+  const base = path.split("?")[0];
+  return `${base}?v=${OG_IMAGE_VERSION}`;
+}
+
 export function absoluteUrl(siteUrl, path = "") {
   if (!path) return siteUrl;
   if (path.startsWith("http")) return path;

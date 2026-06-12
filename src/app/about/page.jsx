@@ -1,6 +1,6 @@
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { entityIds, getSiteUrl } from "@/lib/seo/config";
+import { entityIds, getSiteUrl, ogImageUrl } from "@/lib/seo/config";
 import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 
 export const revalidate = 60;
@@ -41,7 +41,7 @@ export const metadata = {
       "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",
     images: [
       {
-        url: "/images/og-3.jpg",
+        url: ogImageUrl("/images/og-3.jpg"),
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬品牌故事與核心理念",
@@ -53,7 +53,7 @@ export const metadata = {
     title: "關於昔馬 SMASMALL｜2024 網路熱門刮鬍刀領導品牌的故事",
     description:
       "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",
-    images: ["/images/og-3.jpg"],
+    images: [ogImageUrl("/images/og-3.jpg")],
   },
 };
 
