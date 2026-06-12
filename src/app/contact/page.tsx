@@ -14,9 +14,11 @@ const ids = entityIds(SITE_URL);
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "聯絡我們｜昔馬 SMASMALL 客服與威柏科技台灣總代理",
+  title: {
+    absolute: "聯繫昔馬 SMASMALL｜客服・門市・保固服務 - 威柏科技",
+  },
   description:
-    "有任何關於昔馬 SMASMALL 電動刮鬍刀的疑問？歡迎透過電話、Email 或 LINE 聯絡威柏科技客服，週一至週五 09:00–18:00 為您服務。",
+    "有任何問題嗎？昔馬 SMASMALL 提供產品諮詢與售後服務，LINE @weibo 線上客服、電話 05-3209919，WEiZ 專櫃可實機體驗，我們竭誠為你服務。",
   keywords: [
     "昔馬客服",
     "SMASMALL 聯絡",
@@ -31,11 +33,12 @@ export const metadata: Metadata = {
     locale: "zh_TW",
     url: "/contact",
     siteName: SEO_CONFIG.siteName,
-    title: "聯絡我們｜威柏科技 SMASMALL 昔馬客服",
-    description: "歡迎聯絡威柏科技，台灣昔馬 SMASMALL 總代理。",
+    title: "聯繫昔馬 SMASMALL｜客服・門市・保固服務 - 威柏科技",
+    description:
+      "有任何問題嗎？昔馬 SMASMALL 提供產品諮詢與售後服務，LINE @weibo 線上客服、電話 05-3209919，WEiZ 專櫃可實機體驗，我們竭誠為你服務。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-3.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬聯絡我們",
@@ -44,9 +47,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "聯絡我們｜威柏科技 SMASMALL",
-    description: "歡迎聯絡威柏科技，昔馬 SMASMALL 台灣總代理。",
-    images: [SEO_CONFIG.defaultOgImage],
+    title: "聯繫昔馬 SMASMALL｜客服・門市・保固服務 - 威柏科技",
+    description:
+      "有任何問題嗎？昔馬 SMASMALL 提供產品諮詢與售後服務，LINE @weibo 線上客服、電話 05-3209919，WEiZ 專櫃可實機體驗，我們竭誠為你服務。",
+    images: ["/images/og-3.jpg"],
   },
 };
 

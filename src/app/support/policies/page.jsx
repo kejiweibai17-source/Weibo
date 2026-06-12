@@ -14,9 +14,11 @@ const PATH = "/support/policies";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "使用條款與政策｜SMASMALL 昔馬官方網站",
+  title: {
+    absolute: "昔馬 SMASMALL 使用條款與隱私政策｜威柏科技 WEIBO",
+  },
   description:
-    "SMASMALL 昔馬官方網站服務條款、隱私權政策、運送與退換貨規範及防詐騙宣導。由威柏科技台灣總代理提供。",
+    "昔馬 SMASMALL 官網使用條款、隱私權與個資保護說明，清楚說明資料蒐集、會員權益與購物規範，保障你每一次的瀏覽與消費權益。",
   keywords: [
     "服務條款",
     "隱私權政策",
@@ -31,12 +33,12 @@ export const metadata = {
     locale: "zh_TW",
     url: PATH,
     siteName: SEO_CONFIG.siteName,
-    title: "使用條款與政策｜SMASMALL 昔馬",
+    title: "昔馬 SMASMALL 使用條款與隱私政策｜威柏科技 WEIBO",
     description:
-      "了解服務條款、隱私權、運送退換貨及消費安全相關政策。",
+      "昔馬 SMASMALL 官網使用條款、隱私權與個資保護說明，清楚說明資料蒐集、會員權益與購物規範，保障你每一次的瀏覽與消費權益。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-4.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬使用條款與政策",
@@ -45,9 +47,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "使用條款與政策｜SMASMALL 昔馬",
-    description: "SMASMALL 昔馬官方網站使用條款與政策說明。",
-    images: [SEO_CONFIG.defaultOgImage],
+    title: "昔馬 SMASMALL 使用條款與隱私政策｜威柏科技 WEIBO",
+    description:
+      "昔馬 SMASMALL 官網使用條款、隱私權與個資保護說明，清楚說明資料蒐集、會員權益與購物規範，保障你每一次的瀏覽與消費權益。",
+    images: ["/images/og-4.jpg"],
   },
 };
 

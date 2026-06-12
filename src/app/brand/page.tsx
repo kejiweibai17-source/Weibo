@@ -17,9 +17,11 @@ const ids = entityIds(SITE_URL);
 // ============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "探索昔馬 SMASMALL 系列｜全合金精品電動刮鬍刀｜台灣總代理威柏科技",
+  title: {
+    absolute: "昔馬 SMASMALL｜森田愛用・2024 熱門刮鬍刀領導品牌",
+  },
   description:
-    "為追求極致的品味男士，打造專屬的理容藝術品。探索昔馬 SMASMALL S1經典青春版、S3小金剛旗艦版與黑夜騎士系列。由台灣總代理威柏科技提供最完善的原廠保固與品質承諾。",
+    "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",
   keywords: [
     "昔馬",
     "SMASMALL",
@@ -42,12 +44,12 @@ export const metadata: Metadata = {
     // ⚠️ 這裡請換成你實際的路由
     url: "/brand",
     siteName: "SMASMALL 昔馬 by 威柏科技",
-    title: "探索昔馬 SMASMALL 系列｜全合金精品電動刮鬍刀",
+    title: "昔馬 SMASMALL｜森田愛用・2024 熱門刮鬍刀領導品牌",
     description:
-      "為追求極致的品味男士，打造專屬的理容藝術品。探索昔馬 SMASMALL 產品系列，原廠授權品質承諾。",
+      "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",
     images: [
       {
-        url: "/images/defender-og.png", // 使用你剛剛設定好的全英文 OG 圖片
+        url: "/images/og-1.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬品牌系列總覽",
@@ -56,10 +58,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "探索昔馬 SMASMALL 系列｜全合金精品電動刮鬍刀",
+    title: "昔馬 SMASMALL｜森田愛用・2024 熱門刮鬍刀領導品牌",
     description:
-      "為追求極致的品味男士，打造專屬的理容藝術品。台灣總代理威柏科技。",
-    images: ["/images/defender-og.png"],
+      "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",
+    images: ["/images/og-1.jpg"],
   },
 };
 

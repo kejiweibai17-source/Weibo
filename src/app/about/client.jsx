@@ -185,7 +185,6 @@ export default function SmasmallStory() {
             {/* 品牌巨幅卡片 */}
             <div className="w-full h-[220px] md:h-[320px] bg-gradient-to-r from-blue-900 via-sky-800 to-blue-900 rounded-lg mt-8 flex items-center justify-center relative overflow-hidden shadow-inner">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)]" />
-              <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-white/20 shadow-[0_0_20px_rgba(255,255,255,0.6)]" />
               <div className="text-center z-10 text-white">
                 <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.3em]">
                   昔馬 SMASMALL

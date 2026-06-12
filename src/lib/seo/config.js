@@ -77,9 +77,9 @@ export const SEO_CONFIG = {
   ],
   /** 首頁與未指定 OG 頁面的預設社群預覽圖 */
   defaultOgImage: "/images/003-01.png",
-  /** 瀏覽器分頁 / 書籤圖示 */
+  /** 瀏覽器分頁 / 書籤圖示（全站統一 favicon.ico，避免 Google 抓到舊 logo） */
   favicon: "/favicon.ico",
-  appleTouchIcon: "/images/logo-white.png",
+  appleTouchIcon: "/favicon.ico",
 };
 
 export function absoluteUrl(siteUrl, path = "") {

@@ -9,7 +9,6 @@ import { SUPPORT_NAV } from "@/data/supportContent";
 // 🌟 引入 GSAP
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-
 // ============================================================================
 // 子組件區塊 (漢堡選單、購物車、會員)
 // ============================================================================
@@ -230,7 +229,11 @@ export default function Navbar() {
                 // 🌟 縮小手機版 Logo 字體
                 className="text-[18px] md:text-[22px] font-light tracking-[0.2em] text-white uppercase relative z-[2100]"
               >
-                SMASMALL
+                <img
+                  src="/images/SMASMALL-logo-white.png"
+                  className=" max-w-[130px] md:max-w-[200px]"
+                  alt=""
+                />
               </Link>
             </div>
           </div>

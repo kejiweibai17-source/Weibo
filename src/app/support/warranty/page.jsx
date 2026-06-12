@@ -15,9 +15,11 @@ const PATH = "/support/warranty";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "產品保固與註冊｜SMASMALL 昔馬一年原廠保固",
+  title: {
+    absolute: "昔馬 SMASMALL 保固登錄｜線上 1 分鐘完成・保固 12 個月",
+  },
   description:
-    "SMASMALL 昔馬電動刮鬍刀享有 12 個月原廠保固，由威柏科技台灣總代理提供售後服務。了解保固範圍、申請流程與保固註冊方式。",
+    "買了記得登錄保固！昔馬 SMASMALL 提供機身 12 個月雲端保固，透過 LINE @weibo 或掃 QRcode 即可完成註冊，售後安心無負擔，立即登錄。",
   keywords: [
     "昔馬保固",
     "SMASMALL 保固",
@@ -32,12 +34,12 @@ export const metadata = {
     locale: "zh_TW",
     url: PATH,
     siteName: SEO_CONFIG.siteName,
-    title: "產品保固與註冊｜SMASMALL 昔馬",
+    title: "昔馬 SMASMALL 保固登錄｜線上 1 分鐘完成・保固 12 個月",
     description:
-      "12 個月原廠保固，台灣總代理威柏科技提供完善售後服務與保固申請協助。",
+      "買了記得登錄保固！昔馬 SMASMALL 提供機身 12 個月雲端保固，透過 LINE @weibo 或掃 QRcode 即可完成註冊，售後安心無負擔，立即登錄。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-4.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬產品保固與註冊",
@@ -46,9 +48,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "產品保固與註冊｜SMASMALL 昔馬",
-    description: "SMASMALL 昔馬 12 個月原廠保固說明與申請流程。",
-    images: [SEO_CONFIG.defaultOgImage],
+    title: "昔馬 SMASMALL 保固登錄｜線上 1 分鐘完成・保固 12 個月",
+    description:
+      "買了記得登錄保固！昔馬 SMASMALL 提供機身 12 個月雲端保固，透過 LINE @weibo 或掃 QRcode 即可完成註冊，售後安心無負擔，立即登錄。",
+    images: ["/images/og-4.jpg"],
   },
 };
 

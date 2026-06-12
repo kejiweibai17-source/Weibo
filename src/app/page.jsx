@@ -29,9 +29,12 @@ const homeFAQs = [
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "SMASMALL 昔馬｜全合金電動刮鬍刀｜威柏科技台灣總代理",
+  title: {
+    absolute:
+      "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
+  },
   description:
-    "SMASMALL 昔馬電動刮鬍刀，結合重機具與航空空氣動力學的復古未來主義。獨創全合金機身、一秒磁吸刀頭、荷蘭精鋼刀片與 IPX7 全機防水。由威柏科技台灣總代理，提供完善一年保固。",
+    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
   keywords: [
     "SMASMALL",
     "昔馬",
@@ -50,12 +53,12 @@ export const metadata = {
     locale: "zh_TW",
     url: "/",
     siteName: "SMASMALL 昔馬 台灣官方商城",
-    title: "SMASMALL 昔馬｜頂級全合金電動刮鬍刀",
+    title: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
     description:
-      "顛覆傳統的理容革命！SMASMALL 昔馬全合金電動刮鬍刀，搭載創新磁吸刀頭與精鋼刀網，威柏科技原廠代理保固，為品味男士打造專屬的極致刮鬍體驗。",
+      "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-1.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬全合金電動刮鬍刀",
@@ -64,10 +67,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SMASMALL 昔馬｜頂級全合金電動刮鬍刀",
+    title: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
     description:
-      "SMASMALL 昔馬全合金電動刮鬍刀，由威柏科技台灣總代理。",
-    images: [SEO_CONFIG.defaultOgImage],
+      "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
+    images: ["/images/og-1.jpg"],
   },
   alternates: { canonical: "/" },
 };

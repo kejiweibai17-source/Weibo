@@ -13,9 +13,11 @@ const ids = entityIds(SITE_URL);
 // ============================================================================
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "品牌故事｜昔馬 SMASMALL - 復古未來主義理容科技",
+  title: {
+    absolute: "關於昔馬 SMASMALL｜2024 網路熱門刮鬍刀領導品牌的故事",
+  },
   description:
-    "了解昔馬 SMASMALL 的品牌故事。由台灣總代理威柏科技原廠授權，專注於全合金工藝與高端磁吸機構，為追求極致的品味男士打造專屬的理容藝術品。",
+    "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",
   keywords: [
     "昔馬",
     "SMASMALL",
@@ -34,12 +36,12 @@ export const metadata = {
     locale: "zh_TW",
     url: "/about",
     siteName: "SMASMALL 昔馬 by 威柏科技",
-    title: "品牌故事｜昔馬 SMASMALL - 復古未來主義理容科技",
+    title: "關於昔馬 SMASMALL｜2024 網路熱門刮鬍刀領導品牌的故事",
     description:
-      "以全合金工藝與磁吸刀頭，重新定義男士日常理容體驗。了解昔馬 SMASMALL 品牌故事。",
+      "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",
     images: [
       {
-        url: "/images/defender-og.png", // 統一使用全英文命名的 OG 圖片
+        url: "/images/og-3.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬品牌故事與核心理念",
@@ -48,9 +50,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "品牌故事｜昔馬 SMASMALL - 復古未來主義理容科技",
-    description: "以極致硬派工藝，重新定義品味男士的日常刮鬍革命。",
-    images: ["/images/defender-og.png"],
+    title: "關於昔馬 SMASMALL｜2024 網路熱門刮鬍刀領導品牌的故事",
+    description:
+      "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",
+    images: ["/images/og-3.jpg"],
   },
 };
 

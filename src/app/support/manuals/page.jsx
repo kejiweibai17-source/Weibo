@@ -14,9 +14,11 @@ const PATH = "/support/manuals";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "使用與保養指南｜SMASMALL 昔馬電動刮鬍刀",
+  title: {
+    absolute: "昔馬 SMASMALL 刮鬍刀保養教學｜延長壽命這樣做",
+  },
   description:
-    "SMASMALL 昔馬電動刮鬍刀使用與保養指南：日常清潔、刀頭保養、IPX7 防水使用、收納充電建議。由威柏科技台灣總代理提供完整售後支援。",
+    "刮鬍刀越用越鈍？昔馬 SMASMALL 完整保養指南教你正確充電、IPX7 水洗清潔與刀頭保養，3 分鐘上手，讓愛刀常保鋒利如新。",
   keywords: [
     "昔馬保養",
     "電動刮鬍刀清潔",
@@ -31,12 +33,12 @@ export const metadata = {
     locale: "zh_TW",
     url: PATH,
     siteName: SEO_CONFIG.siteName,
-    title: "使用與保養指南｜SMASMALL 昔馬",
+    title: "昔馬 SMASMALL 刮鬍刀保養教學｜延長壽命這樣做",
     description:
-      "正確保養讓全合金刮鬍刀歷久彌新。日常清潔、刀頭更換與防水使用完整指南。",
+      "刮鬍刀越用越鈍？昔馬 SMASMALL 完整保養指南教你正確充電、IPX7 水洗清潔與刀頭保養，3 分鐘上手，讓愛刀常保鋒利如新。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-1.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬使用與保養指南",
@@ -45,9 +47,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "使用與保養指南｜SMASMALL 昔馬",
-    description: "SMASMALL 昔馬電動刮鬍刀完整使用與保養指南。",
-    images: [SEO_CONFIG.defaultOgImage],
+    title: "昔馬 SMASMALL 刮鬍刀保養教學｜延長壽命這樣做",
+    description:
+      "刮鬍刀越用越鈍？昔馬 SMASMALL 完整保養指南教你正確充電、IPX7 水洗清潔與刀頭保養，3 分鐘上手，讓愛刀常保鋒利如新。",
+    images: ["/images/og-1.jpg"],
   },
 };
 

@@ -49,12 +49,9 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   icons: {
-    icon: [
-      { url: SEO_CONFIG.favicon },
-      { url: SEO_CONFIG.appleTouchIcon, type: "image/png" },
-    ],
-    shortcut: SEO_CONFIG.favicon,
-    apple: SEO_CONFIG.appleTouchIcon,
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 

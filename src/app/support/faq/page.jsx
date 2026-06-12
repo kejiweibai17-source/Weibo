@@ -16,9 +16,11 @@ const PATH = "/support/faq";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "常見問題 FAQ｜SMASMALL 昔馬電動刮鬍刀",
+  title: {
+    absolute: "昔馬 SMASMALL 常見問題｜充電・防水・保固一次解答",
+  },
   description:
-    "SMASMALL 昔馬電動刮鬍刀常見問題：產品特色、購買配送、保固售後、使用保養。由威柏科技台灣總代理提供完整解答。",
+    "刮鬍刀能水洗嗎？充飽電用多久？昔馬 SMASMALL 常見問題一次解答，涵蓋續航、IPX7 防水、保固範圍與退換貨，找不到答案立即聯繫線上客服。",
   keywords: [
     "昔馬 FAQ",
     "SMASMALL 常見問題",
@@ -33,12 +35,12 @@ export const metadata = {
     locale: "zh_TW",
     url: PATH,
     siteName: SEO_CONFIG.siteName,
-    title: "常見問題 FAQ｜SMASMALL 昔馬",
+    title: "昔馬 SMASMALL 常見問題｜充電・防水・保固一次解答",
     description:
-      "關於昔馬全合金刮鬍刀、保固、配送與保養的常見問題完整解答。",
+      "刮鬍刀能水洗嗎？充飽電用多久？昔馬 SMASMALL 常見問題一次解答，涵蓋續航、IPX7 防水、保固範圍與退換貨，找不到答案立即聯繫線上客服。",
     images: [
       {
-        url: SEO_CONFIG.defaultOgImage,
+        url: "/images/og-4.jpg",
         width: 1200,
         height: 630,
         alt: "SMASMALL 昔馬常見問題 FAQ",
@@ -47,9 +49,10 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "常見問題 FAQ｜SMASMALL 昔馬",
-    description: "SMASMALL 昔馬電動刮鬍刀常見問題完整解答。",
-    images: [SEO_CONFIG.defaultOgImage],
+    title: "昔馬 SMASMALL 常見問題｜充電・防水・保固一次解答",
+    description:
+      "刮鬍刀能水洗嗎？充飽電用多久？昔馬 SMASMALL 常見問題一次解答，涵蓋續航、IPX7 防水、保固範圍與退換貨，找不到答案立即聯繫線上客服。",
+    images: ["/images/og-4.jpg"],
   },
 };
 
