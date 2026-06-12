@@ -310,8 +310,18 @@ const Section2 = () => {
               防詐騙宣導
             </Link>
           </div>
-          <div className="text-[11px] font-bold text-black tracking-widest uppercase">
-            MADE BY WEIBO TECHNOLOGY
+          <div className="flex flex-col items-center md:items-end gap-1 text-center md:text-right">
+            <div className="text-[11px] font-bold text-black tracking-widest uppercase">
+              WEIBO TECHNOLOGY
+            </div>
+            <a
+              href="https://www.jeek-webdesign.com.tw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-gray-400 hover:text-black transition-colors"
+            >
+              Design by 極客網頁設計
+            </a>
           </div>
         </div>
       </div>
@@ -337,8 +347,7 @@ function ContactWidget() {
 
   // 🌟 修改：點擊後直接跳轉對應社群連結
   const handleLinkClick = (platform) => {
-    if (platform === "line")
-      window.open(LINE_OFFICIAL_URL, "_blank");
+    if (platform === "line") window.open(LINE_OFFICIAL_URL, "_blank");
     if (platform === "facebook")
       window.open("https://www.facebook.com/249wzrtv/", "_blank");
     if (platform === "instagram")
