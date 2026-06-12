@@ -98,17 +98,17 @@ export function entityIds(siteUrl) {
   };
 }
 
-/** 主要導覽（對應 Navbar，供 JSON-LD / Sitelinks 訊號） */
+/** 主要導覽（對應 Navbar / Footer，供 JSON-LD Sitelinks 訊號） */
 export const SITE_PRIMARY_NAV = [
-  { name: "產品資訊", path: "/product01" },
+  { name: "昔馬全系列產品", path: "/accessories" },
   { name: "關於我們", path: "/about" },
-  { name: "昔馬產品", path: "/accessories" },
-  { name: "昔馬 SMASMALL", path: "/brand" },
-  { name: "使用與保養指南", path: "/support/manuals" },
+  { name: "昔馬 SMASMALL 品牌", path: "/brand" },
+  { name: "精選文章", path: "/blog" },
   { name: "產品保固與註冊", path: "/support/warranty" },
   { name: "常見問題 FAQ", path: "/support/faq" },
-  { name: "使用條款與政策", path: "/support/policies" },
   { name: "聯絡我們", path: "/contact" },
+  { name: "使用與保養指南", path: "/support/manuals" },
+  { name: "使用條款與政策", path: "/support/policies" },
 ];
 
 /** 圖片 alt 統一品牌後綴（SEO） */

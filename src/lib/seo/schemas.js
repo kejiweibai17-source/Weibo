@@ -111,7 +111,9 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     description: brand.description,
     inLanguage: SEO_CONFIG.inLanguage,
     publisher: { "@id": ids.organization },
+    copyrightHolder: { "@id": ids.organization },
     about: { "@id": ids.brand },
+    image: absoluteUrl(siteUrl, "/images/og-1.jpg"),
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -128,34 +130,45 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
   };
 }
 
-/** 首頁主要導覽（SiteNavigationElement + ItemList，協助搜尋引擎理解站內重要頁面） */
-export function buildSiteNavigationSchema(siteUrl = getSiteUrl()) {
+/** 建立 SiteNavigationElement + ItemList 節點（嵌入 @graph 用） */
+export function buildSiteNavigationNodes(siteUrl = getSiteUrl()) {
   const ids = entityIds(siteUrl);
 
   const navigationElements = SITE_PRIMARY_NAV.map((item, index) => ({
     "@type": "SiteNavigationElement",
-    "@id": `${siteUrl}/#nav-${index + 1}`,
+    "@id": `${siteUrl}/#nav${item.path.replace(/\//g, "-") || "-home"}`,
     name: item.name,
     url: absoluteUrl(siteUrl, item.path),
+    isPartOf: { "@id": ids.website },
+    position: index + 1,
   }));
+
+  const navigationList = {
+    "@type": "ItemList",
+    "@id": ids.siteNavigation,
+    name: "SMASMALL 昔馬 主要導覽",
+    description: "昔馬 SMASMALL 官方網站主要頁面連結",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: navigationElements.length,
+    itemListElement: navigationElements.map((element, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: element.name,
+      url: element.url,
+      item: { "@id": element["@id"] },
+    })),
+  };
+
+  return { navigationList, navigationElements };
+}
+
+/** 首頁主要導覽（SiteNavigationElement + ItemList，協助搜尋引擎理解站內重要頁面） */
+export function buildSiteNavigationSchema(siteUrl = getSiteUrl()) {
+  const { navigationList, navigationElements } = buildSiteNavigationNodes(siteUrl);
 
   return {
     "@context": SCHEMA_CONTEXT,
-    "@graph": [
-      {
-        "@type": "ItemList",
-        "@id": ids.siteNavigation,
-        name: "SMASMALL 昔馬 主要導覽",
-        itemListOrder: "https://schema.org/ItemListOrderAscending",
-        numberOfItems: navigationElements.length,
-        itemListElement: navigationElements.map((element, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          item: element,
-        })),
-      },
-      ...navigationElements,
-    ],
+    "@graph": [navigationList, ...navigationElements],
   };
 }
 
@@ -435,45 +448,68 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   return [core, itemPage, productNode, breadcrumb];
 }
 
-/** 首頁擴充：在核心實體外加上 WebPage / FAQ / 主要導覽 */
+/** 首頁擴充：單一 @graph 整合 WebSite / WebPage / 導覽 / FAQ（Sitelinks 訊號） */
 export function buildHomePageSchemas({
   siteUrl = getSiteUrl(),
   faqs = [],
 } = {}) {
   const ids = entityIds(siteUrl);
   const core = buildCoreEntityGraph(siteUrl);
+  const { navigationList, navigationElements } = buildSiteNavigationNodes(siteUrl);
 
-  const websiteIdx = core["@graph"].findIndex(
-    (node) => node["@type"] === "WebSite",
+  const navUrls = SITE_PRIMARY_NAV.map((item) =>
+    absoluteUrl(siteUrl, item.path),
   );
-  if (websiteIdx >= 0) {
-    core["@graph"][websiteIdx] = {
-      ...core["@graph"][websiteIdx],
-      hasPart: { "@id": ids.siteNavigation },
-    };
-  }
+
+  const homepageTitle =
+    "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO";
+  const homepageDescription =
+    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。";
 
   const webPage = {
-    "@context": SCHEMA_CONTEXT,
     "@type": "WebPage",
     "@id": `${siteUrl}/#webpage`,
     url: siteUrl,
-    name: "SMASMALL 昔馬電動刮鬍刀｜威柏科技獨家代理",
-    description:
-      "探索 SMASMALL 昔馬全合金電動刮鬍刀與禮盒系列。磁吸刀頭、荷蘭精鋼、IPX7 防水，台灣總代理威柏科技。",
+    name: homepageTitle,
+    description: homepageDescription,
     inLanguage: SEO_CONFIG.inLanguage,
     isPartOf: { "@id": ids.website },
     about: { "@id": ids.brand },
     publisher: { "@id": ids.organization },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteUrl(siteUrl, "/images/og-1.jpg"),
+      width: 1200,
+      height: 630,
+    },
+    relatedLink: navUrls,
+    significantLink: navigationElements.map((el) => ({ "@id": el["@id"] })),
   };
 
-  const schemas = [core, webPage, buildSiteNavigationSchema(siteUrl)];
+  const enhancedGraph = core["@graph"].map((node) => {
+    if (node["@type"] === "WebSite") {
+      return {
+        ...node,
+        mainEntity: { "@id": `${siteUrl}/#webpage` },
+        hasPart: { "@id": ids.siteNavigation },
+      };
+    }
+    return node;
+  });
+
+  const graph = [
+    ...enhancedGraph,
+    navigationList,
+    ...navigationElements,
+    webPage,
+  ];
 
   if (faqs.length) {
-    schemas.push({
-      "@context": SCHEMA_CONTEXT,
+    graph.push({
       "@type": "FAQPage",
       "@id": `${siteUrl}/#faq`,
+      isPartOf: { "@id": ids.website },
+      mainEntityOfPage: { "@id": `${siteUrl}/#webpage` },
       mainEntity: faqs.map((faq) => ({
         "@type": "Question",
         name: faq.question,
@@ -482,7 +518,10 @@ export function buildHomePageSchemas({
     });
   }
 
-  return schemas;
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@graph": graph,
+  };
 }
 
 /** 支援頁 WebPage / FAQPage 結構化資料 */

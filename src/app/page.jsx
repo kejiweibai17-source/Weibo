@@ -1,6 +1,7 @@
 // app/page.jsx
 import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
+import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
@@ -90,6 +91,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={schemas} />
+      <HomeSiteLinksNav />
       <Client faqs={homeFAQs} carouselSlides={carouselSlides} heroSlides={heroSlides} />
     </>
   );
