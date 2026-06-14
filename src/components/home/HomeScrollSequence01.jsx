@@ -224,181 +224,140 @@ function HotspotMarker({ hotspot, isActive, onClick, isMobile }) {
   );
 }
 
-function InfoPanel({ hotspot, onClose }) {
+function HotspotInfoModal({ hotspot, onClose }) {
   const { info } = hotspot;
 
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   return (
-    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-[60] hidden animate-[fadeUp_0.35s_ease-out] md:flex md:justify-center md:px-4 md:pb-4">
-      <div className="w-full  max-w-[650px]   border border-gray-100 bg-white shadow-[0_-16px_48px_rgba(0,0,0,0.12)] ">
-        <div className="flex w-full flex-col px-6 py-7 md:px-8 md:py-8">
-          <div className="mb-6 flex items-start justify-between gap-6">
-            <div>
-              <h3 className="text-xl font-bold tracking-tight text-gray-900 md:text-2xl">
-                {info.title}
-              </h3>
-              {info.subtitle && (
-                <p className="mt-1.5 text-sm text-gray-500 md:text-base">
-                  {info.subtitle}
-                </p>
-              )}
+    <>
+      <button
+        type="button"
+        aria-label="關閉說明"
+        className="fixed inset-0 z-[9999999999999999] bg-black/45"
+        onClick={onClose}
+      />
+      <div className="pointer-events-none fixed inset-0 z-[9999999999999999] flex items-center justify-center p-4 md:p-6">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`hotspot-title-${hotspot.id}`}
+          className="pointer-events-auto flex h-[80vh] max-h-[80vh] w-full max-w-[650px] flex-col overflow-hidden rounded-sm border border-gray-100 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.2)]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 py-6 md:px-8 md:py-8">
+            <div className="mb-4 flex shrink-0 items-start justify-between gap-4 md:mb-6 md:gap-6">
+              <div>
+                <h3
+                  id={`hotspot-title-${hotspot.id}`}
+                  className="text-lg font-bold tracking-tight text-gray-900 md:text-2xl"
+                >
+                  {info.title}
+                </h3>
+                {info.subtitle && (
+                  <p className="mt-1 text-sm text-gray-500 md:mt-1.5 md:text-base">
+                    {info.subtitle}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="關閉"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+              >
+                ×
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="關閉"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-            >
-              ×
-            </button>
-          </div>
 
-          {info.image && (
-            <div className="relative mb-6  w-full overflow-hidden bg-gray-50  ">
-              <Image
-                src={info.image}
-                alt={info.imageAlt ?? `${info.title} 昔馬電動刮鬍刀 威柏科技-昔馬電動刮鬍刀總代理`}
-                width={1300}
-                height={600}
-                className=" w-full"
-              />
-            </div>
-          )}
+            {info.image && (
+              <div className="relative mb-4 w-full shrink-0 overflow-hidden bg-gray-50 md:mb-6">
+                <Image
+                  src={info.image}
+                  alt={
+                    info.imageAlt ??
+                    `${info.title} 昔馬電動刮鬍刀 威柏科技-昔馬電動刮鬍刀總代理`
+                  }
+                  width={1300}
+                  height={600}
+                  className="w-full"
+                />
+              </div>
+            )}
 
-          <p className="mb-6 w-full text-[15px] leading-relaxed text-gray-600 md:text-base md:leading-loose">
-            {info.description}
-          </p>
+            <p className="mb-4 w-full text-[14px] leading-relaxed text-gray-600 md:mb-6 md:text-base md:leading-loose">
+              {info.description}
+            </p>
 
-          {info.specs?.length > 0 && (
-            <ul className="grid w-full grid-cols-1 gap-3 border-t border-gray-100 pt-6 sm:grid-cols-3">
-              {info.specs.map((spec) => (
-                <li key={spec.label} className="  bg-gray-50 px-4 py-3 text-sm">
-                  <span className="block font-semibold text-gray-800">
-                    {spec.label}
-                  </span>
-                  <span className="mt-0.5 block text-gray-600">
-                    {spec.value}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {info.statusLights?.length > 0 && (
-            <div className="mt-6 border-t border-gray-100 pt-6">
-              <p className="mb-3 text-sm font-semibold text-gray-900">
-                狀態燈號
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                {info.statusLights.map((item) => (
-                  <li key={item.label} className="flex gap-2">
-                    <span className="shrink-0 font-medium text-gray-800">
-                      {item.label}：
+            {info.specs?.length > 0 && (
+              <ul className="grid w-full grid-cols-1 gap-2 border-t border-gray-100 pt-4 sm:grid-cols-3 md:gap-3 md:pt-6">
+                {info.specs.map((spec) => (
+                  <li
+                    key={spec.label}
+                    className="rounded-lg bg-gray-50 px-3 py-2.5 text-sm md:px-4 md:py-3"
+                  >
+                    <span className="block font-semibold text-gray-800">
+                      {spec.label}
                     </span>
-                    <span>{item.value}</span>
+                    <span className="mt-0.5 block text-gray-600">
+                      {spec.value}
+                    </span>
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
+            )}
 
-          {info.notices?.length > 0 && (
-            <div className="mt-6 border-t border-gray-100 pt-6">
-              <p className="mb-3 text-sm font-semibold text-gray-900">
-                充電注意事項
-              </p>
-              <ul className="list-disc space-y-2 pl-4 text-sm leading-relaxed text-gray-600">
-                {info.notices.map((notice) => (
-                  <li key={notice}>{notice}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+            {info.statusLights?.length > 0 && (
+              <div className="mt-4 border-t border-gray-100 pt-4 md:mt-6 md:pt-6">
+                <p className="mb-3 text-sm font-semibold text-gray-900">
+                  狀態燈號
+                </p>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {info.statusLights.map((item) => (
+                    <li key={item.label} className="flex gap-2">
+                      <span className="shrink-0 font-medium text-gray-800">
+                        {item.label}：
+                      </span>
+                      <span>{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-          {info.cta && (
-            <div className="mt-6 border-t border-gray-100 pt-6">
-              <Link
-                href={info.cta.href}
-                className="inline-flex items-center gap-1.5 rounded-full border border-gray-900 px-5 py-2 text-sm font-semibold tracking-wide text-gray-900 transition-colors hover:bg-gray-900 hover:text-white"
-              >
-                {info.cta.label}
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+            {info.notices?.length > 0 && (
+              <div className="mt-4 border-t border-gray-100 pt-4 md:mt-6 md:pt-6">
+                <p className="mb-3 text-sm font-semibold text-gray-900">
+                  充電注意事項
+                </p>
+                <ul className="list-disc space-y-2 pl-4 text-sm leading-relaxed text-gray-600">
+                  {info.notices.map((notice) => (
+                    <li key={notice}>{notice}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-function MobileInfoPanel({ hotspot, onClose }) {
-  const { info } = hotspot;
-
-  return (
-    <div className="pointer-events-auto fixed inset-x-0 bottom-0 z-[70] flex animate-[fadeUp_0.35s_ease-out] justify-center px-4 pb-4 md:hidden">
-      <div className="w-full max-w-[600px] overflow-hidden   border border-gray-100 bg-white shadow-[0_-16px_48px_rgba(0,0,0,0.15)]">
-        <div className="flex w-full flex-col px-5 py-6">
-          <div className="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">{info.title}</h3>
-              {info.subtitle && (
-                <p className="mt-1 text-sm text-gray-500">{info.subtitle}</p>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="關閉"
-              className="text-xl leading-none text-gray-400"
-            >
-              ×
-            </button>
-          </div>
-
-          {info.image && (
-            <div className="relative mb-4 w-full overflow-hidden  bg-gray-50">
-              <Image
-                src={info.image}
-                alt={info.imageAlt ?? `${info.title} 昔馬電動刮鬍刀 威柏科技-昔馬電動刮鬍刀總代理`}
-                width={1000}
-                height={400}
-                className="w-full"
-              />
-            </div>
-          )}
-
-          <p className="mb-4 w-full text-[14px] leading-relaxed text-gray-600">
-            {info.description}
-          </p>
-
-          {info.specs?.length > 0 && (
-            <ul className="grid w-full gap-2 border-t border-gray-100 pt-4">
-              {info.specs.map((spec) => (
-                <li
-                  key={spec.label}
-                  className="rounded-lg bg-gray-50 px-3 py-2.5 text-sm"
+            {info.cta && (
+              <div className="mt-4 border-t border-gray-100 pt-4 md:mt-6 md:pt-6">
+                <Link
+                  href={info.cta.href}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-gray-900 px-4 py-2 text-sm font-semibold tracking-wide text-gray-900 transition-colors hover:bg-gray-900 hover:text-white md:px-5"
                 >
-                  <span className="font-semibold text-gray-800">
-                    {spec.label}
-                  </span>
-                  <span className="ml-1 text-gray-600">{spec.value}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {info.cta && (
-            <div className="mt-4 border-t border-gray-100 pt-4">
-              <Link
-                href={info.cta.href}
-                className="inline-flex items-center gap-1.5 rounded-full border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900"
-              >
-                {info.cta.label}
-              </Link>
-            </div>
-          )}
+                  {info.cta.label}
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -599,6 +558,7 @@ export default function HomeScrollSequence01({ embedded = false }) {
   const activeHotspot = HOTSPOTS.find((h) => h.id === openHotspotId);
 
   return (
+    <>
     <section
       ref={sectionRef}
       className={`relative w-full overflow-hidden text-gray-900 ${
@@ -673,21 +633,7 @@ export default function HomeScrollSequence01({ embedded = false }) {
             );
           })}
         </div>
-
-        {activeHotspot && !isMobile && (
-          <InfoPanel
-            hotspot={activeHotspot}
-            onClose={() => setOpenHotspotId(null)}
-          />
-        )}
       </div>
-
-      {activeHotspot && isMobile && (
-        <MobileInfoPanel
-          hotspot={activeHotspot}
-          onClose={() => setOpenHotspotId(null)}
-        />
-      )}
 
       <div className="absolute bottom-0 left-0 z-50 h-[2px] w-full origin-left bg-gray-200/60">
         <div
@@ -709,5 +655,13 @@ export default function HomeScrollSequence01({ embedded = false }) {
         }
       `}</style>
     </section>
+
+    {activeHotspot && (
+      <HotspotInfoModal
+        hotspot={activeHotspot}
+        onClose={() => setOpenHotspotId(null)}
+      />
+    )}
+    </>
   );
 }

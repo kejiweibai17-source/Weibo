@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "next-view-transitions";
 
@@ -14,11 +15,6 @@ const Icons = {
   Facebook: (props) => (
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  ),
-  Line: (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
-      <path d="M20.2 11.5c0-4.6-4.6-8.5-10.2-8.5S0 6.9 0 11.5c0 4.2 3.7 7.7 8.5 8.3v4.1c0 .5.5.7.8.4l4.5-4c2.8-.5 6.4-3 6.4-8.8zM6.5 13.5h-2c-.3 0-.5-.2-.5-.5v-3c0-.3.2-.5.5-.5s.5.2.5.5v2.5h1.5c.3 0 .5.2.5.5s-.2.5-.5.5v3c0 .3-.2.5-.5.5zm1.5-3.5c0-.3.2-.5.5-.5s.5.2.5.5v3c0 .3-.2.5-.5.5s-.5-.2-.5-.5v-3zm5.5 1.5c0 .3-.2.5-.5.5h-1.5v1c0 .3-.2.5-.5.5s-.5-.2-.5-.5v-3c0-.3.2-.5.5-.5h2c.3 0 .5.2.5.5s-.2.5-.5.5v1h1.5c.3 0 .5.2.5.5z" />
     </svg>
   ),
   // 🌟 新增 Instagram SVG 圖示
@@ -403,7 +399,13 @@ function ContactWidget() {
             <ShareBlock
               bg="bg-transparent"
               icon={
-                <Icons.Line width={28} height={28} className="text-white" />
+                <Image
+                  src="/images/line.png"
+                  alt="LINE"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               }
               ariaLabel="加入官方 LINE"
               onClick={() => handleLinkClick("line")}

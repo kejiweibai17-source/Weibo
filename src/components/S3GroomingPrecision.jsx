@@ -52,6 +52,18 @@ const EXPLORER_DATA = [
   },
 ];
 
+const INFO_LABELS = {
+  target: "適用機型",
+  material: "機身材質",
+  battery: "續航能力",
+  waterproof: "防水等級",
+  blade: "刀網規格",
+  motor: "動力馬達",
+  speed: "轉速",
+  noise: "運轉噪音",
+  tech: "核心技術",
+};
+
 export default function InteractiveExplorer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewMode, setViewMode] = useState("full"); // "full" | "detail"
@@ -188,7 +200,7 @@ export default function InteractiveExplorer() {
             className="pointer-events-auto px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-sm font-medium rounded-full transition-colors border border-white/10"
             onClick={() => setViewMode(viewMode === "full" ? "detail" : "full")}
           >
-            {viewMode === "full" ? "Dive into Details" : "Back to Full View"}
+            {viewMode === "full" ? "深入探索細節" : "返回全視角"}
           </button>
         </div>
 
@@ -203,15 +215,15 @@ export default function InteractiveExplorer() {
             className="w-[340px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
           >
             <div className="p-4 border-b border-white/10 bg-white/5">
-              <h3 className="text-white text-sm font-bold tracking-widest uppercase">
-                Informations
+              <h3 className="text-white text-sm font-bold tracking-widest">
+                產品資訊
               </h3>
             </div>
 
             <div className="p-5">
               <div className="mb-6">
-                <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">
-                  Target
+                <p className="text-gray-500 text-xs tracking-wider mb-1">
+                  {INFO_LABELS.target}
                 </p>
                 <p className="text-white text-lg">{currentData.info.target}</p>
               </div>
@@ -221,8 +233,8 @@ export default function InteractiveExplorer() {
                   .slice(1)
                   .map(([key, value]) => (
                     <div key={key}>
-                      <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">
-                        {key}
+                      <p className="text-gray-500 text-[10px] tracking-wider mb-1">
+                        {INFO_LABELS[key] ?? key}
                       </p>
                       <p className="text-gray-200 text-sm font-medium">
                         {value}
@@ -238,13 +250,13 @@ export default function InteractiveExplorer() {
                 className="flex-1 py-4 flex justify-center items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-r border-white/10"
               >
                 <ChevronLeft size={16} />{" "}
-                <span className="text-sm font-medium">Previous</span>
+                <span className="text-sm font-medium">上一張</span>
               </button>
               <button
                 onClick={nextSlide}
                 className="flex-1 py-4 flex justify-center items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
               >
-                <span className="text-sm font-medium">Next</span>{" "}
+                <span className="text-sm font-medium">下一張</span>{" "}
                 <ChevronRight size={16} />
               </button>
             </div>
