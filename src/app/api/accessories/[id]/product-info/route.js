@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAccessoryCatalogItem } from "@/data/accessories.server";
 import { enrichSmasmallProductInfo } from "@/lib/smasmallProductEnrichment";
+import { normalizeRouteSlug } from "@/lib/utils";
 
 export async function GET(_request, { params }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = normalizeRouteSlug(rawId);
   const item = getAccessoryCatalogItem(id);
 
   if (!item) {

@@ -6,10 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import AccessoryRightPanel from "@/components/accessories/AccessoryRightPanel";
+import { accessoryDetailPath, normalizeRouteSlug } from "@/lib/utils";
 
 export default function AccessoryDetailClient({ productId }) {
   const params = useParams();
-  const id = productId ?? params.id;
+  const id = normalizeRouteSlug(String(productId ?? params.id ?? ""));
+  const apiPath = accessoryDetailPath(id);
   const router = useRouter();
   const [product, setProduct] = useState(null);
 
@@ -24,7 +26,7 @@ export default function AccessoryDetailClient({ productId }) {
     let cancelled = false;
 
     async function loadProduct() {
-      const res = await fetch(`/api/accessories/${id}/detail`);
+      const res = await fetch(`/api${apiPath}/detail`);
       if (!res.ok) {
         router.push("/accessories");
         return;
@@ -38,7 +40,7 @@ export default function AccessoryDetailClient({ productId }) {
 
       if (targetProduct.carouselFromFolders) {
         try {
-          const res = await fetch(`/api/accessories/${id}/carousel`);
+          const res = await fetch(`/api${apiPath}/carousel`);
           if (!res.ok || cancelled) return;
           const data = await res.json();
           if (cancelled || !data.images?.length) return;
@@ -53,7 +55,7 @@ export default function AccessoryDetailClient({ productId }) {
       }
 
       try {
-        const infoRes = await fetch(`/api/accessories/${id}/product-info`);
+        const infoRes = await fetch(`/api${apiPath}/product-info`);
         if (!infoRes.ok || cancelled) return;
         const info = await infoRes.json();
         if (cancelled) return;
@@ -74,7 +76,7 @@ export default function AccessoryDetailClient({ productId }) {
     return () => {
       cancelled = true;
     };
-  }, [id, router]);
+  }, [apiPath, router]);
 
   const imageCount = product?.images?.length ?? 0;
 

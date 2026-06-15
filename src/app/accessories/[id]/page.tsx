@@ -9,6 +9,7 @@ import {
   fetchAccessoriesFromWoo,
 } from "@/lib/accessoriesWoo.server";
 import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { accessoryDetailPath, normalizeRouteSlug } from "@/lib/utils";
 import { buildAccessoryDetailSchemas } from "@/lib/seo/schemas";
 import AccessoryDetailClient from "./AccessoryDetailClient";
 
@@ -32,7 +33,8 @@ type PageProps = {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = normalizeRouteSlug(rawId);
   const detail = await fetchAccessoryDetailBySlug(id);
 
   if (!detail) {
@@ -44,7 +46,7 @@ export async function generateMetadata({
     detail.shortDesc ??
     `探索昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
   const ogImage = detail.images?.[0] ?? SEO_CONFIG.defaultOgImage;
-  const pageUrl = `/accessories/${id}`;
+  const pageUrl = accessoryDetailPath(id);
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -86,7 +88,8 @@ export async function generateMetadata({
 }
 
 export default async function AccessoryDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = normalizeRouteSlug(rawId);
   const detail = await fetchAccessoryDetailBySlug(id);
 
   if (!detail) {

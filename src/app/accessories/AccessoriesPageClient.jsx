@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { Link } from "next-view-transitions";
 import Copy from "@/components/Copy";
+import { accessoryDetailPath } from "@/lib/utils";
 
 function matchesProductFilter(product, activeComp) {
   if (activeComp === "All") return true;
@@ -179,7 +180,8 @@ export default function AccessoriesPageClient({
                     key={product.id}
                   >
                     <Link
-                      href={`/accessories/${product.id}`}
+                      href={accessoryDetailPath(product.id)}
+                      prefetch={false}
                       className="block h-full cursor-pointer"
                     >
                       <ProductCard product={product} />

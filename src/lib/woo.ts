@@ -1,4 +1,5 @@
 import "server-only";
+import { normalizeRouteSlug } from "@/lib/utils";
 
 export type WooImage = { id: number; src: string; alt?: string };
 export type WooCategory = {
@@ -120,10 +121,11 @@ export async function fetchAllProductCategories() {
 
 // 3. 單一產品抓取 (透過 Slug)
 export async function fetchProductBySlug(slug: string) {
+  const normalizedSlug = normalizeRouteSlug(slug);
   const { base } = getEnv();
   const url = withAuth(
     `${base}/wp-json/wc/v3/products?slug=${encodeURIComponent(
-      slug
+      normalizedSlug
     )}&status=publish`
   );
   const res = await fetch(url, { next: { revalidate: 60 } });

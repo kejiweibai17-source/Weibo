@@ -38,3 +38,25 @@ export const getAltTextFromUrl = (url: string | undefined | null, fallbackName: 
 export function cn(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(" ");
 }
+
+/** 將動態路由 segment 還原為 WooCommerce slug（避免 client nav 雙重編碼） */
+export function normalizeRouteSlug(slug: string): string {
+  let value = String(slug ?? "").trim();
+  if (!value) return value;
+
+  for (let i = 0; i < 3; i++) {
+    try {
+      const decoded = decodeURIComponent(value);
+      if (decoded === value) break;
+      value = decoded;
+    } catch {
+      break;
+    }
+  }
+  return value;
+}
+
+/** 配件內頁路徑（slug 先正規化再 encode，確保 client / server 一致） */
+export function accessoryDetailPath(slug: string): string {
+  return `/accessories/${encodeURIComponent(normalizeRouteSlug(slug))}`;
+}
