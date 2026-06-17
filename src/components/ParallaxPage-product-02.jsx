@@ -61,11 +61,11 @@ const ParallaxPage = () => {
           transition={{ duration: 1.2, ease: "easeOut" }}
           className=" text-[33px] xl:text-[4rem] text-center font-bold text-white tracking-tighter z-10 leading-none drop-shadow-lg"
         >
-          捍衛者電動刮鬍刀
+          黑夜騎士電動刮鬍刀
         </motion.h1>
         <Copy>
           <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm drop-shadow-md">
-            合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
+            傳奇灰全合金機身，日內瓦紋低調奢華——每個人都是自己的黑夜騎士
           </p>
         </Copy>
 
@@ -86,9 +86,7 @@ const ParallaxPage = () => {
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
-            <h1 className="text-white">
-              Design & Strategy for the Vision-Driven
-            </h1>
+            <h1 className="text-white">為黑夜騎士而生的設計與工藝</h1>
           </Copy>
 
           <motion.div
@@ -98,8 +96,8 @@ const ParallaxPage = () => {
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
             <p className="text-sm text-gray-100 font-mono leading-relaxed">
-              WE HAVE METICULOUSLY HONED THE CRITICAL FACETS OF DESIGN AND
-              FUNCTIONALITY. EXACTING PRECISION IN OUR LINES, SHAPES, CURVES...
+              從傳奇灰全合金壓鑄，到日內瓦紋精密打磨。雙環外開放式刀頭、IPX7
+              全機防水——每一道線條、曲線與細節，皆為穿梭黑夜的城市騎士而精煉…
             </p>
           </motion.div>
         </div>
@@ -119,10 +117,10 @@ const ParallaxPage = () => {
             className="mb-6 text-center z-20"
           >
             <h2 className="text-3xl font-bold text-black tracking-tight mb-1 sm:text-4xl">
-              CALIBRE AMB+
+              黑夜騎士 S1-DK
             </h2>
             <p className="text-sm text-gray-600 sm:text-base">
-              Developed by Weibo Technology
+              傳奇灰全合金壓鑄
             </p>
           </motion.div>
 
@@ -139,7 +137,7 @@ const ParallaxPage = () => {
 
               <motion.button
                 type="button"
-                aria-label="播放 CALIBRE AMB+ 介紹影片"
+                aria-label="播放 S1-DK 黑夜騎士介紹影片"
                 animate={
                   markerReady
                     ? { opacity: 1, scale: 1 }
@@ -202,7 +200,7 @@ const ParallaxPage = () => {
               </button>
               <iframe
                 src={`https://www.youtube.com/embed/${CALIBRE_VIDEO_ID}?autoplay=1&rel=0`}
-                title="昔馬 SMASMALL 捍衛者+ 實測與工藝介紹"
+                title="昔馬 SMASMALL 黑夜騎士 實測與工藝介紹"
                 className="absolute inset-0 h-full w-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen

@@ -39,10 +39,10 @@ export function resolveSocialEmbedSrc(platform, url, options = {}) {
 
   if (platform === "instagram") {
     const match = trimmed.match(
-      /instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
+      /instagram\.com\/(p|reel|tv)\/([A-Za-z0-9_-]+)/,
     );
     if (match) {
-      return `https://www.instagram.com/p/${match[1]}/embed`;
+      return `https://www.instagram.com/${match[1]}/${match[2]}/embed`;
     }
     return null;
   }
@@ -83,4 +83,17 @@ export function extractYoutubeVideoId(url = "") {
 export function youtubeThumbnailUrl(videoId, quality = "hqdefault") {
   if (!videoId) return null;
   return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
+}
+
+/** 從 Instagram 網址取出官方 embed 用的 permalink */
+export function extractInstagramPermalink(url = "") {
+  const match = String(url)
+    .trim()
+    .match(/instagram\.com\/(p|reel|tv)\/([A-Za-z0-9_-]+)/i);
+  if (!match) return null;
+  return `https://www.instagram.com/${match[1]}/${match[2]}/`;
+}
+
+export function isInstagramReelUrl(url = "") {
+  return /instagram\.com\/reel\//i.test(String(url));
 }

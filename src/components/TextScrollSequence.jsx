@@ -1,79 +1,181 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-// ⚠️ 注意：SplitText 是 GSAP Club 的付費套件，確認你的專案中已安裝並有權限使用
-import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, SplitText);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-// 移除了圖片，只保留文字段落（lines 陣列 = 手動斷行，供 SplitText 逐行動畫）
-const slides = [
+const BG_IMAGE = "/images/275ad111-0677-4b7d-b249-4c4d6f93836c.png";
+const CONSTELLATION = "/images/accessories/星座系列電動刮鬍刀禮盒";
+
+const ELEMENT_CARDS = [
   {
-    lines: [
-      "小巧。強悍。剛剛好。",
-      "以合金機身、雙環刀頭與 IPX7 防水設計，",
-      "讓每一次刮鬍都更俐落、更順手。",
-    ],
+    label: "FIRE SIGNS",
+    sub: "火象星座",
+    src: `${CONSTELLATION}/主圖_火象.jpg`,
   },
   {
-    lines: [
-      "浮動刀網貼近臉部線條，",
-      "順著輪廓移動，",
-      "輕鬆修整每一處細節。",
-    ],
+    label: "AIR SIGNS",
+    sub: "風象星座",
+    src: `${CONSTELLATION}/主圖_風象.jpg`,
   },
   {
-    lines: [
-      "刮鬍、鼻毛修剪、手動細修與收納，",
-      "一次整合，日常更簡單。",
-    ],
+    label: "EARTH SIGNS",
+    sub: "土象星座",
+    src: `${CONSTELLATION}/主圖_土象.jpg`,
   },
   {
-    lines: [
-      "1 小時快速充電，約 60 分鐘續航；",
-      "臨時出門，3 分鐘快充",
-      "也能從容應對。",
-    ],
+    label: "WATER SIGNS",
+    sub: "水象星座",
+    src: `${CONSTELLATION}/主圖_水象.jpg`,
   },
 ];
 
+const SLIDE_COUNT = 3;
+
+function SlideDiscover() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <p className="reveal-line mb-4 text-[10px] font-medium uppercase tracking-[0.35em] text-amber-200/90 sm:text-xs">
+        Discover Your Sign
+      </p>
+      <h2 className="reveal-line mb-5 text-3xl font-semibold tracking-tight text-white drop-shadow-md sm:text-4xl md:text-5xl lg:text-6xl">
+        探索屬於你的星座
+      </h2>
+      <p className="reveal-line text-sm font-light tracking-wide text-white/85 sm:text-base md:text-lg">
+        四象限定 · 星座系列電動刮鬍刀
+      </p>
+    </div>
+  );
+}
+
+function SlideFourElements() {
+  return (
+    <div className="flex w-full max-w-5xl flex-col items-center px-4">
+      <p className="reveal-line mb-3 text-[10px] font-medium uppercase tracking-[0.28em] text-white/75 sm:text-xs">
+        SMASMALL 昔馬 · Four Elements
+      </p>
+      <h2 className="reveal-line text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
+        星座系列
+      </h2>
+      <h2 className="reveal-line mb-4 text-2xl font-semibold tracking-tight text-amber-200 drop-shadow-sm sm:text-3xl md:text-4xl lg:text-5xl">
+        電動刮鬍刀禮盒
+      </h2>
+      <p className="reveal-line mb-8 text-sm font-light tracking-[0.2em] text-white/80 sm:text-base">
+        火 · 風 · 土 · 水　四象限定
+      </p>
+
+      <div className="reveal-line grid w-full max-w-3xl grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        {ELEMENT_CARDS.map((card) => (
+          <div key={card.label} className="flex flex-col items-center gap-2">
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-sm bg-black/20">
+              <Image
+                src={card.src}
+                alt={card.sub}
+                fill
+                sizes="(max-width: 768px) 22vw, 160px"
+                className="object-cover"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-[8px] font-medium uppercase tracking-wider text-white/90 sm:text-[10px]">
+                {card.label}
+              </p>
+              <p className="text-[9px] text-white/55 sm:text-[11px]">{card.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SlideBornSharp() {
+  const features = ["磁吸快拆刀網", "荷蘭進口鍍鋼刀片", "IPX7 全機防水"];
+
+  return (
+    <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-4 md:flex-row md:items-center md:justify-between md:gap-10 lg:gap-16">
+      <div className="reveal-line flex shrink-0 items-end justify-center gap-3 md:gap-4">
+        <div className="relative h-36 w-20 sm:h-44 sm:w-24 md:h-52 md:w-28">
+          <Image
+            src={`${CONSTELLATION}/產品內容物/星座系列電動刮鬍刀禮盒-風象星座-02.png`}
+            alt="昔馬星座系列電動刮鬍刀 風象星座"
+            fill
+            sizes="120px"
+            className="object-contain object-bottom drop-shadow-2xl"
+          />
+        </div>
+        <div className="relative h-24 w-32 overflow-hidden rounded-sm bg-black/20 sm:h-28 sm:w-40 md:h-32 md:w-48">
+          <Image
+            src={`${CONSTELLATION}/產品內容物/星座系列電動刮鬍刀禮盒.png`}
+            alt="昔馬星座系列電動刮鬍刀禮盒 四象全系列"
+            fill
+            sizes="200px"
+            className="object-contain object-bottom"
+          />
+        </div>
+      </div>
+
+      <div className="reveal-line flex flex-col items-center text-center md:items-end md:text-right">
+        <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.28em] text-white/75 sm:text-xs">
+          SMASMALL 昔馬
+        </p>
+        <h2 className="mb-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl md:text-4xl">
+          為俐落而生
+        </h2>
+        <p className="mb-6 text-sm font-semibold uppercase tracking-[0.22em] text-amber-200 sm:text-base">
+          Born To Be Sharp
+        </p>
+        <ul className="space-y-2.5 text-sm font-light text-white/90 sm:text-base">
+          {features.map((item) => (
+            <li key={item} className="reveal-line flex items-center gap-2 md:justify-end">
+              <span className="text-amber-200/90" aria-hidden>
+                ◆
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+const SLIDES = [SlideDiscover, SlideFourElements, SlideBornSharp];
+
 export default function TextScrollSequence() {
   const sliderRef = useRef(null);
-  const titleRef = useRef(null);
   const indicesRef = useRef(null);
   const progressBarRef = useRef(null);
+  const slideRefs = useRef([]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useGSAP(
     () => {
-      let activeSlide = 0;
-      let currentSplit = null;
-      // 每個 slide 佔用一個螢幕高度的滾動距離
-      const pinDistance = window.innerHeight * slides.length;
+      let currentActive = 0;
+      const pinDistance = window.innerHeight * SLIDE_COUNT;
 
-      // 1. 動態建立右側點點與數字指示器
       function createIndices() {
         if (!indicesRef.current) return;
         indicesRef.current.innerHTML = "";
 
-        slides.forEach((_, index) => {
+        SLIDES.forEach((_, index) => {
           const indexNum = (index + 1).toString().padStart(2, "0");
           const indicatorElement = document.createElement("div");
           indicatorElement.dataset.index = index;
-          // 使用 Tailwind 排版指示器
           indicatorElement.className =
-            "flex items-center justify-end gap-3 mb-4 text-white font-mono text-sm";
+            "mb-4 flex items-center justify-end gap-3 font-mono text-sm text-white";
           indicatorElement.innerHTML = `
-            <span class="marker block w-3 h-[1px] bg-white origin-right transform scale-x-0"></span>
+            <span class="marker block h-[1px] w-3 origin-right scale-x-0 bg-white"></span>
             <span class="index opacity-30">${indexNum}</span>
           `;
           indicesRef.current.appendChild(indicatorElement);
 
-          // 初始化第一個點點的狀態
           if (index === 0) {
             gsap.set(indicatorElement.querySelector(".index"), { opacity: 1 });
             gsap.set(indicatorElement.querySelector(".marker"), { scaleX: 1 });
@@ -81,64 +183,53 @@ export default function TextScrollSequence() {
         });
       }
 
-      // 2. 切換指示器動畫
       function animateIndicators(index) {
         if (!indicesRef.current) return;
-        const indicators = indicesRef.current.querySelectorAll("div");
-
-        indicators.forEach((indicator, i) => {
+        indicesRef.current.querySelectorAll("div").forEach((indicator, i) => {
           const marker = indicator.querySelector(".marker");
           const idxEl = indicator.querySelector(".index");
+          const isActive = i === index;
 
-          if (i === index) {
-            gsap.to(idxEl, { opacity: 1, duration: 0.3, ease: "power2.out" });
-            gsap.to(marker, { scaleX: 1, duration: 0.3, ease: "power2.out" });
-          } else {
-            gsap.to(idxEl, { opacity: 0.3, duration: 0.3, ease: "power2.out" });
-            gsap.to(marker, { scaleX: 0, duration: 0.3, ease: "power2.out" });
+          gsap.to(idxEl, {
+            opacity: isActive ? 1 : 0.3,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+          gsap.to(marker, {
+            scaleX: isActive ? 1 : 0,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        });
+      }
+
+      function revealSlide(index) {
+        slideRefs.current.forEach((slideEl, i) => {
+          if (!slideEl) return;
+
+          if (i !== index) {
+            gsap.set(slideEl, { autoAlpha: 0, pointerEvents: "none" });
+            return;
           }
+
+          gsap.set(slideEl, { autoAlpha: 1, pointerEvents: "auto" });
+          const lines = slideEl.querySelectorAll(".reveal-line");
+
+          gsap.set(lines, { y: 36, opacity: 0, filter: "blur(10px)" });
+          gsap.to(lines, {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.75,
+            stagger: 0.09,
+            ease: "power3.out",
+          });
         });
       }
 
-      // 🌟 3. 新標題動畫 (加入退去模糊 Blur Reveal 效果)
-      function animateNewTitle(index) {
-        if (!titleRef.current) return;
-
-        // 如果之前有切分過文字，先還原
-        if (currentSplit) currentSplit.revert();
-
-        // 注入新標題並套用置中排版的 Class
-        titleRef.current.innerHTML = `<h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal tracking-[-0.03em] sm:tracking-[-0.05em] leading-[1.45] sm:leading-[1.35] text-center">${slides[index].lines.join("<br />")}</h1>`;
-
-        // 將 <h1> 拆分為多行
-        currentSplit = new SplitText(titleRef.current.querySelector("h1"), {
-          type: "lines",
-          linesClass: "line overflow-hidden py-1",
-        });
-
-        // 🌟 初始狀態：往下沉、全透明、高度模糊
-        gsap.set(currentSplit.lines, {
-          y: 40,
-          opacity: 0,
-          filter: "blur(12px)",
-        });
-
-        // 🌟 動畫進場：歸位、不透明、退去模糊 (Stagger 錯落效果)
-        gsap.to(currentSplit.lines, {
-          y: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.8,
-          stagger: 0.1, // 每行文字延遲 0.1 秒出現
-          ease: "power3.out",
-        });
-      }
-
-      // 執行初始化
       createIndices();
-      animateNewTitle(0);
+      revealSlide(0);
 
-      // 4. 綁定滾動觸發器
       ScrollTrigger.create({
         trigger: sliderRef.current,
         start: "top top",
@@ -147,29 +238,21 @@ export default function TextScrollSequence() {
         pin: true,
         pinSpacing: true,
         onUpdate: (self) => {
-          // 右側進度條跟隨滾動比例伸長
           if (progressBarRef.current) {
             gsap.set(progressBarRef.current, { scaleY: self.progress });
           }
 
-          // 計算目前應該顯示哪一個 Slide
-          let currentSlide = Math.floor(self.progress * slides.length);
-          // 防呆：避免滑到底時 index 溢出
-          currentSlide = Math.min(currentSlide, slides.length - 1);
+          let nextSlide = Math.floor(self.progress * SLIDE_COUNT);
+          nextSlide = Math.min(nextSlide, SLIDE_COUNT - 1);
 
-          // 當 Slide 改變時，觸發文字與指示器動畫
-          if (activeSlide !== currentSlide) {
-            activeSlide = currentSlide;
-            animateNewTitle(activeSlide);
-            animateIndicators(activeSlide);
+          if (currentActive !== nextSlide) {
+            currentActive = nextSlide;
+            setActiveSlide(nextSlide);
+            revealSlide(nextSlide);
+            animateIndicators(nextSlide);
           }
         },
       });
-
-      // 清除時還原 SplitText 避免記憶體洩漏
-      return () => {
-        if (currentSplit) currentSplit.revert();
-      };
     },
     { scope: sliderRef },
   );
@@ -177,27 +260,45 @@ export default function TextScrollSequence() {
   return (
     <section
       ref={sliderRef}
-      className="relative w-full h-screen bg-[#ffffff] text-stone-800 overflow-hidden font-sans"
+      className="relative h-screen w-full overflow-hidden font-sans text-white"
     >
-      {/* 🌟 文字正中間佈局 */}
-      <div
-        ref={titleRef}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[92%] max-w-4xl px-2 sm:w-[85%] sm:px-0 flex items-center justify-center z-10"
-      >
-        {/* JS 會動態將 <h1 ...> 插入此處 */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src={BG_IMAGE}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
+      <div className="absolute inset-0 z-[1] bg-black/70" aria-hidden />
+
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        {SLIDES.map((Slide, index) => (
+          <div
+            key={index}
+            ref={(el) => {
+              slideRefs.current[index] = el;
+            }}
+            className="absolute inset-0 flex items-center justify-center px-4"
+            style={{
+              visibility: index === activeSlide ? "visible" : "hidden",
+              opacity: index === activeSlide ? 1 : 0,
+            }}
+          >
+            <Slide />
+          </div>
+        ))}
       </div>
 
-      {/* 右側進度指示器 */}
-      <div className="absolute top-1/2 right-4 md:right-12 -translate-y-1/2 z-20 flex items-center gap-6">
-        {/* 數字與點點 */}
-        <div ref={indicesRef} className="flex flex-col"></div>
-
-        {/* 垂直進度條 */}
-        <div className="relative w-[1px] h-[200px] md:h-[300px] bg-white/20">
+      <div className="absolute right-4 top-1/2 z-20 flex -translate-y-1/2 items-center gap-6 md:right-12">
+        <div ref={indicesRef} className="flex flex-col" />
+        <div className="relative h-[200px] w-[1px] bg-white/20 md:h-[300px]">
           <div
             ref={progressBarRef}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[3px] h-full bg-white origin-top scale-y-0"
-          ></div>
+            className="absolute left-1/2 top-0 h-full w-[3px] origin-top -translate-x-1/2 scale-y-0 bg-white"
+          />
         </div>
       </div>
     </section>

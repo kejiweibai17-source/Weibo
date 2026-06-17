@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { resolveSocialEmbedSrc } from "@/lib/socialEmbed";
 import FacebookEmbed from "@/components/accessories/FacebookEmbed";
+import InstagramEmbed from "@/components/accessories/InstagramEmbed";
 import YoutubeEmbedCarousel from "@/components/accessories/YoutubeEmbedCarousel";
 
 const ICON_MAP = {
@@ -29,6 +30,7 @@ const PLATFORM_META = {
 
 const EMBED_GROUPS = [
   { platform: "youtube", titleKey: "youtubeSectionTitle" },
+  { platform: "instagram", titleKey: "instagramSectionTitle" },
   { platform: "facebook", titleKey: "facebookSectionTitle" },
 ];
 
@@ -64,6 +66,10 @@ function FeatureVisual({ icon }) {
 function SocialEmbedCard({ embed }) {
   if (embed.platform === "facebook") {
     return <FacebookEmbed embed={embed} />;
+  }
+
+  if (embed.platform === "instagram") {
+    return <InstagramEmbed embed={embed} />;
   }
 
   const src = resolveSocialEmbedSrc(embed.platform, embed.url, {
@@ -219,11 +225,13 @@ export default function AccessoryRightPanel({ panel }) {
     socialSectionTitle,
     reviewsSectionTitle,
     youtubeSectionTitle,
+    instagramSectionTitle,
     facebookSectionTitle,
   } = panel;
 
   const sectionTitles = {
     youtubeSectionTitle: youtubeSectionTitle || "YouTube",
+    instagramSectionTitle: instagramSectionTitle || "Instagram",
     facebookSectionTitle: facebookSectionTitle || "Facebook",
   };
 
@@ -261,6 +269,7 @@ export default function AccessoryRightPanel({ panel }) {
             if (items.length === 0) return null;
 
             const isFacebook = platform === "facebook";
+            const isInstagram = platform === "instagram";
             const isYoutube = platform === "youtube";
             const useYoutubeCarousel = isYoutube && items.length > 1;
 
@@ -279,7 +288,9 @@ export default function AccessoryRightPanel({ panel }) {
                     className={`grid items-start ${
                       isFacebook
                         ? "grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-2"
-                        : "grid-cols-1 gap-4 lg:gap-6"
+                        : isInstagram
+                          ? "grid-cols-1 gap-4"
+                          : "grid-cols-1 gap-4 lg:gap-6"
                     }`}
                   >
                     {items.map((embed) => (

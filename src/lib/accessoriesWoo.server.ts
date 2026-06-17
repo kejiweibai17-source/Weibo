@@ -6,6 +6,10 @@ import {
   type WooCategory,
   type WooProduct,
 } from "@/lib/woo";
+import {
+  normalizeAccordionContent,
+  parseContentBullets,
+} from "@/lib/productContentBullets";
 
 const DEFAULT_SHIPPING =
   "全館消費滿 NT$1,500 即享免運優惠。台灣本島地區約 1-3 個工作天送達。";
@@ -36,6 +40,67 @@ function stripHtml(input = "") {
     .replace(/&nbsp;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** 將 WooCommerce 商品說明（HTML 或 • 分隔）解析為條列項目 */
+function parseShortDescBullets(product: WooProduct | null): string[] {
+  const html = product?.short_description || product?.description || "";
+  if (!html) return [];
+  return parseContentBullets(html.includes("<") ? html : stripHtml(html));
+}
+
+function pickMetaText(product: WooProduct, keys: string[]): string {
+  const raw = pickMetaValue(product, keys);
+  if (typeof raw !== "string") return "";
+  return repairUnicodeText(normalizeAccordionContent(raw.trim()));
+}
+
+type AccordionFeature = {
+  title: string;
+  content: string;
+  bullets: string[];
+};
+
+function buildAccordionFeature(
+  title: string,
+  content: string,
+): AccordionFeature | null {
+  const normalized = normalizeAccordionContent(repairUnicodeText(content));
+  if (!normalized) return null;
+  const bullets = parseContentBullets(normalized);
+  const useBullets =
+    bullets.length > 1 ||
+    (bullets.length >= 1 && normalized.includes("•"));
+  return {
+    title,
+    content: normalized,
+    bullets: useBullets ? bullets : [],
+  };
+}
+
+function decodeLegacyAccordionItems(
+  product: WooProduct,
+): Array<{ title: string; content: string }> {
+  const accordionRaw = pickMetaValue(product, [
+    "smasmall_accordion_items",
+    "_smasmall_accordion_items",
+  ]);
+  const accordionParsed = parseMaybeJson(accordionRaw);
+  if (!Array.isArray(accordionParsed) || !accordionParsed.length) return [];
+
+  return accordionParsed
+    .map((item, idx) => {
+      if (typeof item === "string") {
+        return { title: `項目 ${idx + 1}`, content: repairUnicodeText(item) };
+      }
+      return {
+        title:
+          repairUnicodeText(String(item?.title ?? "").trim()) ||
+          `項目 ${idx + 1}`,
+        content: repairUnicodeText(String(item?.content ?? "").trim()),
+      };
+    })
+    .filter((item) => item.title && item.content);
 }
 
 function parseMaybeJson(value: any) {
@@ -171,31 +236,42 @@ function isYoutubeShortsUrl(url: string) {
   return /youtube\.com\/shorts\//i.test(url);
 }
 
-function normalizeFeatures(product: WooProduct) {
-  const accordionRaw = pickMetaValue(product, [
-    "smasmall_accordion_items",
-    "_smasmall_accordion_items",
-  ]);
-  const accordionParsed = parseMaybeJson(accordionRaw);
+function isInstagramReelUrl(url: string) {
+  return /instagram\.com\/reel\//i.test(url);
+}
 
-  if (Array.isArray(accordionParsed) && accordionParsed.length) {
-    return accordionParsed
-      .map((item, idx) => {
-        if (typeof item === "string") {
-          return {
-            title: `項目 ${idx + 1}`,
-            content: repairUnicodeText(item),
-          };
-        }
-        return {
-          title:
-            repairUnicodeText(String(item?.title ?? "").trim()) ||
-            `項目 ${idx + 1}`,
-          content: repairUnicodeText(String(item?.content ?? "").trim()),
-        };
-      })
-      .filter((item) => item.title && item.content);
-  }
+function normalizeFeatures(product: WooProduct): AccordionFeature[] {
+  const legacy = decodeLegacyAccordionItems(product);
+  const findLegacy = (keyword: string) =>
+    legacy.find((item) => item.title.includes(keyword))?.content ?? "";
+
+  const specsContent =
+    pickMetaText(product, ["smasmall_product_specs", "_smasmall_product_specs"]) ||
+    findLegacy("規格");
+  const highlightsContent =
+    pickMetaText(product, [
+      "smasmall_product_highlights",
+      "_smasmall_product_highlights",
+    ]) || findLegacy("特色");
+  const afterSalesContent =
+    pickMetaText(product, ["smasmall_after_sales", "_smasmall_after_sales"]) ||
+    findLegacy("售後") ||
+    findLegacy("服務") ||
+    pickMetaText(product, ["smasmall_shipping_note", "_smasmall_shipping_note"]) ||
+    DEFAULT_SHIPPING;
+
+  const sections: AccordionFeature[] = [];
+
+  const specs = buildAccordionFeature("產品規格", specsContent);
+  if (specs) sections.push(specs);
+
+  const highlights = buildAccordionFeature("產品特色", highlightsContent);
+  if (highlights) sections.push(highlights);
+
+  const afterSales = buildAccordionFeature("售後服務", afterSalesContent);
+  if (afterSales) sections.push(afterSales);
+
+  if (sections.length > 0) return sections;
 
   const custom = pickMetaValue(product, [
     "smasmall_features",
@@ -207,19 +283,19 @@ function normalizeFeatures(product: WooProduct) {
   if (Array.isArray(parsed) && parsed.length) {
     return parsed
       .map((f, idx) => {
-        if (typeof f === "string") {
-          return { title: `特色 ${idx + 1}`, content: f };
-        }
-        return {
-          title: f?.title || `特色 ${idx + 1}`,
-          content: f?.content || "",
-        };
+        const title = f?.title || `特色 ${idx + 1}`;
+        const content = f?.content || "";
+        return buildAccordionFeature(title, content);
       })
-      .filter((f) => f.content);
+      .filter(Boolean) as AccordionFeature[];
   }
 
   const desc = stripHtml(product?.short_description || product?.description);
-  if (!desc) return [{ title: "產品特色", content: "請參考商品說明。" }];
+  if (!desc) {
+    return [
+      buildAccordionFeature("產品特色", "請參考商品說明。")!,
+    ];
+  }
 
   const lines = desc
     .split(/[。；\n]/)
@@ -228,8 +304,12 @@ function normalizeFeatures(product: WooProduct) {
     .slice(0, 4);
 
   return lines.length
-    ? lines.map((line, idx) => ({ title: `特色 ${idx + 1}`, content: line }))
-    : [{ title: "產品特色", content: desc }];
+    ? lines
+        .map((line, idx) =>
+          buildAccordionFeature(`特色 ${idx + 1}`, line),
+        )
+        .filter(Boolean) as AccordionFeature[]
+    : [buildAccordionFeature("產品特色", desc)!];
 }
 
 function normalizeSocialEmbeds(product: WooProduct) {
@@ -243,18 +323,35 @@ function normalizeSocialEmbeds(product: WooProduct) {
     "_smasmall_facebook_urls",
     "facebook_urls",
   ]);
+  const instagramRaw = pickMetaValue(product, [
+    "smasmall_instagram_urls",
+    "_smasmall_instagram_urls",
+    "instagram_urls",
+  ]);
 
   const youtubeUrls = normalizeUrlList(youtubeRaw);
   const facebookUrls = normalizeUrlList(facebookRaw);
+  const instagramUrls = normalizeUrlList(instagramRaw);
 
   const socialEmbeds = [
     ...youtubeUrls.map((url, idx) => ({
       id: `yt-${idx + 1}`,
       platform: "youtube",
-      label: isYoutubeShortsUrl(url) ? `YouTube Shorts ${idx + 1}` : `YouTube ${idx + 1}`,
+      label: isYoutubeShortsUrl(url)
+        ? `YouTube Shorts ${idx + 1}`
+        : `YouTube ${idx + 1}`,
       url,
       height: isYoutubeShortsUrl(url) ? undefined : 400,
       isShorts: isYoutubeShortsUrl(url),
+    })),
+    ...instagramUrls.map((url, idx) => ({
+      id: `ig-${idx + 1}`,
+      platform: "instagram",
+      label: isInstagramReelUrl(url)
+        ? `Instagram Reels ${idx + 1}`
+        : `Instagram ${idx + 1}`,
+      url,
+      isReel: isInstagramReelUrl(url),
     })),
     ...facebookUrls.map((url, idx) => ({
       id: `fb-${idx + 1}`,
@@ -269,6 +366,7 @@ function normalizeSocialEmbeds(product: WooProduct) {
     ? {
         socialSectionTitle: "影片與社群",
         youtubeSectionTitle: "YouTube",
+        instagramSectionTitle: "Instagram",
         facebookSectionTitle: "Facebook",
         socialEmbeds,
       }
@@ -482,6 +580,12 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
       ? purchaseUrlRaw.trim()
       : null;
 
+  const shortDescBullets = parseShortDescBullets(product);
+  const shortDescPlain =
+    stripHtml(product.short_description) ||
+    stripHtml(product.description) ||
+    product.name;
+
   return {
     id: product.slug,
     title: product.name,
@@ -489,9 +593,10 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
     rating: Number(product.average_rating || 4.7),
     reviews: Number(product.rating_count || 0),
     shortDesc:
-      stripHtml(product.short_description) ||
-      stripHtml(product.description) ||
-      product.name,
+      shortDescBullets.length > 0
+        ? shortDescBullets.join("\n")
+        : shortDescPlain,
+    shortDescBullets,
     features,
     details: typeof specs === "string" ? specs : JSON.stringify(specs),
     shipping:

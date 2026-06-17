@@ -3,10 +3,10 @@
  * SMASMALL — WooCommerce 商品擴充欄位（Code Snippets）
  *
  * 商品編輯頁 meta box：
- * - SMASMALL 社群連結（YouTube / Facebook）
+ * - SMASMALL 社群連結（YouTube / Instagram / Facebook）
  * - 情境圖（批次上傳，顯示於 Next.js 商品頁右側）
  * - 前往購買連結（官網「前往購買」按鈕）
- * - Accordion 摺疊說明（標題 + 內容，可新增多筆）
+ * - 商品頁 Accordion 固定三區（產品規格 / 產品特色 / 售後服務）
  *
  * 左側輪播請使用 WooCommerce 預設「商品圖片 + 商品圖庫」。
  *
@@ -28,9 +28,13 @@ define('SMASMALL_PRODUCT_META_LOADED', true);
 
 const SMASMALL_META_YOUTUBE   = 'smasmall_youtube_urls';
 const SMASMALL_META_FACEBOOK  = 'smasmall_facebook_urls';
+const SMASMALL_META_INSTAGRAM = 'smasmall_instagram_urls';
 const SMASMALL_META_SCENARIO  = 'smasmall_scenario_images';
 const SMASMALL_META_PURCHASE   = 'smasmall_purchase_url';
 const SMASMALL_META_ACCORDION  = 'smasmall_accordion_items';
+const SMASMALL_META_SPECS      = 'smasmall_product_specs';
+const SMASMALL_META_HIGHLIGHTS = 'smasmall_product_highlights';
+const SMASMALL_META_AFTER_SALES = 'smasmall_after_sales';
 
 /** ---------- 強制不壓縮（全站媒體上傳） ---------- */
 
@@ -138,8 +142,12 @@ add_action('init', function () {
         [
             SMASMALL_META_YOUTUBE  => 'SMASMALL YouTube URLs',
             SMASMALL_META_FACEBOOK => 'SMASMALL Facebook URLs',
+            SMASMALL_META_INSTAGRAM => 'SMASMALL Instagram URLs',
             SMASMALL_META_SCENARIO => 'SMASMALL scenario images',
             SMASMALL_META_ACCORDION => 'SMASMALL accordion items',
+            SMASMALL_META_SPECS => 'SMASMALL product specs',
+            SMASMALL_META_HIGHLIGHTS => 'SMASMALL product highlights',
+            SMASMALL_META_AFTER_SALES => 'SMASMALL after-sales service',
         ] as $key => $label
     ) {
         register_post_meta(
@@ -150,9 +158,11 @@ add_action('init', function () {
                 'single'            => true,
                 'show_in_rest'      => true,
                 'description'       => $label,
-                'sanitize_callback' => in_array($key, [SMASMALL_META_YOUTUBE, SMASMALL_META_FACEBOOK], true)
+                'sanitize_callback' => in_array($key, [SMASMALL_META_YOUTUBE, SMASMALL_META_FACEBOOK, SMASMALL_META_INSTAGRAM], true)
                     ? 'smasmall_sanitize_url_list_meta'
-                    : 'smasmall_sanitize_json_string_meta',
+                    : ($key === SMASMALL_META_SPECS || $key === SMASMALL_META_HIGHLIGHTS || $key === SMASMALL_META_AFTER_SALES
+                        ? 'smasmall_sanitize_textarea_meta'
+                        : 'smasmall_sanitize_json_string_meta'),
                 'auth_callback'     => function () {
                     return current_user_can('edit_products');
                 },
@@ -245,8 +255,33 @@ function smasmall_sanitize_json_string_meta($value): string
     return smasmall_json_encode(smasmall_json_decode_array($value));
 }
 
+function smasmall_sanitize_textarea_meta($value): string
+{
+    return smasmall_normalize_accordion_text(
+        smasmall_repair_unicode_text(
+            sanitize_textarea_field(is_string($value) ? wp_unslash($value) : '')
+        )
+    );
+}
+
+function smasmall_render_accordion_textarea(string $label, string $name, string $value, string $placeholder = ''): void
+{
+    ?>
+    <div class="smasmall-accordion-fixed-field">
+        <label class="smasmall-accordion-label"><strong><?php echo esc_html($label); ?></strong></label>
+        <p class="description">每行一項，或使用「•」開頭。官網會以條列式顯示。</p>
+        <textarea
+            class="widefat smasmall-accordion-fixed-textarea"
+            name="<?php echo esc_attr($name); ?>"
+            rows="6"
+            placeholder="<?php echo esc_attr($placeholder); ?>"
+        ><?php echo esc_textarea($value); ?></textarea>
+    </div>
+    <?php
+}
+
 /**
- * 正規化並驗證社群影片／貼文 URL（支援 YouTube Shorts、youtu.be 等）
+ * 正規化並驗證社群影片／貼文 URL（支援 YouTube 一般影片／Shorts、Instagram Reels、Facebook）
  */
 function smasmall_sanitize_social_url(string $url): string
 {
@@ -269,11 +304,14 @@ function smasmall_sanitize_social_url(string $url): string
         return $clean;
     }
 
-    // esc_url_raw 失敗時，對已知 YouTube / Facebook 格式做 fallback
+    // esc_url_raw 失敗時，對已知 YouTube / Instagram / Facebook 格式做 fallback
     if (preg_match('#^https://(?:www\.)?youtube\.com/(?:watch\?v=|embed/|shorts/|live/)[^\s"\']+#i', $url)) {
         return $url;
     }
     if (preg_match('#^https://youtu\.be/[A-Za-z0-9_-]{11}[^\s"\']*#i', $url)) {
+        return $url;
+    }
+    if (preg_match('#^https://(?:www\.)?instagram\.com/(?:p|reel|tv)/[A-Za-z0-9_-]+[^\s"\']*#i', $url)) {
         return $url;
     }
     if (preg_match('#^https://(?:www\.)?facebook\.com/[^\s"\']+#i', $url)) {
@@ -295,7 +333,7 @@ function smasmall_sanitize_url_array(array $list): array
     return array_values(array_unique($out));
 }
 
-/** REST / WC API 儲存 YouTube、Facebook URL 列表用 */
+/** REST / WC API 儲存 YouTube、Instagram、Facebook URL 列表用 */
 function smasmall_sanitize_url_list_meta($value): string
 {
     if (is_array($value)) {
@@ -437,29 +475,35 @@ function smasmall_encode_accordion_items($items): string
     return smasmall_json_encode(smasmall_decode_accordion_items($items));
 }
 
-function smasmall_render_accordion_row(array $item, int $index): void
+/** 修復舊版 Accordion 內容中遺失的換行（n• → 換行 + •） */
+function smasmall_normalize_accordion_text(string $text): string
 {
-    ?>
-    <li class="smasmall-accordion-item">
-        <span class="smasmall-accordion-drag dashicons dashicons-move" title="拖曳排序"></span>
-        <div class="smasmall-accordion-fields">
-            <label class="smasmall-accordion-label">標題</label>
-            <input
-                type="text"
-                class="widefat smasmall-accordion-title"
-                value="<?php echo esc_attr($item['title'] ?? ''); ?>"
-                placeholder="例如：產品規格與細節"
-            />
-            <label class="smasmall-accordion-label">內容</label>
-            <textarea
-                class="widefat smasmall-accordion-content"
-                rows="4"
-                placeholder="Accordion 展開後顯示的說明文字"
-            ><?php echo esc_textarea($item['content'] ?? ''); ?></textarea>
-        </div>
-        <button type="button" class="button-link-delete smasmall-remove-accordion">移除</button>
-    </li>
-    <?php
+    $text = str_replace('\\n', "\n", $text);
+    $text = preg_replace('/([^\n])n(?=•)/u', "$1\n", $text);
+    $text = preg_replace('/n(\s{2,})/u', "\n$1", $text);
+    return trim($text);
+}
+
+function smasmall_find_legacy_accordion_content(array $accordion, array $keywords): string
+{
+    foreach ($accordion as $item) {
+        foreach ($keywords as $keyword) {
+            if ($keyword !== '' && mb_strpos($item['title'], $keyword) !== false) {
+                return smasmall_normalize_accordion_text($item['content']);
+            }
+        }
+    }
+    return '';
+}
+
+/** 固定三區：優先讀新欄位，空白時從舊版 Accordion 依標題關鍵字帶入 */
+function smasmall_resolve_fixed_accordion_field(string $stored, array $legacy, array $keywords): string
+{
+    $stored = trim($stored);
+    if ($stored !== '') {
+        return smasmall_normalize_accordion_text($stored);
+    }
+    return smasmall_find_legacy_accordion_content($legacy, $keywords);
 }
 
 /** ---------- Meta box（僅註冊一次） ---------- */
@@ -480,9 +524,25 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
 
     $youtube      = smasmall_decode_url_list(get_post_meta($post->ID, SMASMALL_META_YOUTUBE, true));
     $facebook     = smasmall_decode_url_list(get_post_meta($post->ID, SMASMALL_META_FACEBOOK, true));
+    $instagram    = smasmall_decode_url_list(get_post_meta($post->ID, SMASMALL_META_INSTAGRAM, true));
     $scenario     = smasmall_decode_scenario_images(get_post_meta($post->ID, SMASMALL_META_SCENARIO, true));
     $purchase_url = esc_url((string) get_post_meta($post->ID, SMASMALL_META_PURCHASE, true));
-    $accordion    = smasmall_decode_accordion_items(get_post_meta($post->ID, SMASMALL_META_ACCORDION, true));
+    $legacy_accordion = smasmall_decode_accordion_items(get_post_meta($post->ID, SMASMALL_META_ACCORDION, true));
+    $product_specs = smasmall_resolve_fixed_accordion_field(
+        (string) get_post_meta($post->ID, SMASMALL_META_SPECS, true),
+        $legacy_accordion,
+        ['規格']
+    );
+    $product_highlights = smasmall_resolve_fixed_accordion_field(
+        (string) get_post_meta($post->ID, SMASMALL_META_HIGHLIGHTS, true),
+        $legacy_accordion,
+        ['特色']
+    );
+    $after_sales = smasmall_resolve_fixed_accordion_field(
+        (string) get_post_meta($post->ID, SMASMALL_META_AFTER_SALES, true),
+        $legacy_accordion,
+        ['售後', '服務']
+    );
     ?>
     <div class="smasmall-product-meta">
         <input type="hidden" name="smasmall_social_sync" value="1" />
@@ -492,7 +552,7 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
 
         <div class="smasmall-meta-section">
             <h4 class="smasmall-meta-heading">YouTube</h4>
-            <p class="description">貼上 YouTube 影片或 Shorts 連結，可新增多筆。</p>
+            <p class="description">貼上一般影片（watch?v=）或 Shorts 連結，可新增多筆。官網會自動區分橫式影片與直式 Shorts。</p>
             <div class="smasmall-url-add-row">
                 <input type="url" class="widefat smasmall-url-input" data-platform="youtube" placeholder="https://www.youtube.com/watch?v=... 或 https://youtube.com/shorts/..." />
                 <button type="button" class="button smasmall-add-url" data-platform="youtube">新增連結</button>
@@ -501,6 +561,24 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
                 <?php foreach ($youtube as $i => $url) : ?>
                     <li class="smasmall-url-item">
                         <input type="hidden" name="smasmall_youtube_urls[]" value="<?php echo esc_attr($url); ?>" />
+                        <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($url); ?></a>
+                        <button type="button" class="button-link-delete smasmall-remove-url">移除</button>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+
+        <div class="smasmall-meta-section">
+            <h4 class="smasmall-meta-heading">Instagram</h4>
+            <p class="description">貼上 Instagram Reels 或貼文連結，可新增多筆。官網會以直式 Reels 或橫式貼文嵌入顯示。</p>
+            <div class="smasmall-url-add-row">
+                <input type="url" class="widefat smasmall-url-input" data-platform="instagram" placeholder="https://www.instagram.com/reel/... 或 https://www.instagram.com/p/..." />
+                <button type="button" class="button smasmall-add-url" data-platform="instagram">新增連結</button>
+            </div>
+            <ul class="smasmall-url-list" id="smasmall-instagram-list" data-platform="instagram">
+                <?php foreach ($instagram as $i => $url) : ?>
+                    <li class="smasmall-url-item">
+                        <input type="hidden" name="smasmall_instagram_urls[]" value="<?php echo esc_attr($url); ?>" />
                         <a href="<?php echo esc_url($url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($url); ?></a>
                         <button type="button" class="button-link-delete smasmall-remove-url">移除</button>
                     </li>
@@ -526,22 +604,29 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
             </ul>
         </div>
 
-        <div class="smasmall-meta-section smasmall-accordion-section">
-            <h4 class="smasmall-meta-heading">Accordion 摺疊說明</h4>
-            <p class="description">官網商品頁右側可展開的說明區塊，可新增多筆並自訂標題與內容。可拖曳排序。</p>
-            <input type="hidden" id="smasmall-accordion-json" name="smasmall_accordion_items" value="<?php echo esc_attr(smasmall_encode_accordion_items($accordion)); ?>" />
-            <p>
-                <button type="button" class="button button-secondary" id="smasmall-add-accordion-item">
-                    <span class="dashicons dashicons-plus-alt2" style="margin-top:3px;"></span>
-                    新增 Accordion 項目
-                </button>
-            </p>
-            <ul class="smasmall-accordion-list" id="smasmall-accordion-list">
-                <?php foreach ($accordion as $i => $row) : ?>
-                    <?php smasmall_render_accordion_row($row, $i); ?>
-                <?php endforeach; ?>
-            </ul>
-            <p class="description smasmall-accordion-empty" <?php echo $accordion ? 'style="display:none;"' : ''; ?>>尚未新增 Accordion 項目。</p>
+        <div class="smasmall-meta-section smasmall-accordion-fixed-section">
+            <h4 class="smasmall-meta-heading">商品頁 Accordion（固定三區）</h4>
+            <p class="description">官網商品頁右側依序顯示：產品規格 → 產品特色 → 售後服務。每行一項或使用「•」開頭，官網會自動條列式渲染。</p>
+            <?php
+            smasmall_render_accordion_textarea(
+                '產品規格',
+                'smasmall_product_specs',
+                $product_specs,
+                "•刮鬍刀型號：S1-SHAVER\n•顏色：銀\n•防水功能：IPX7"
+            );
+            smasmall_render_accordion_textarea(
+                '產品特色',
+                'smasmall_product_highlights',
+                $product_highlights,
+                "•精緻小巧的黃金比例，外型時尚\n•全機採用貴金屬鋅合金材質"
+            );
+            smasmall_render_accordion_textarea(
+                '售後服務',
+                'smasmall_after_sales',
+                $after_sales,
+                "•保固：12個月（主機）\n•全館消費滿 NT$1,500 即享免運"
+            );
+            ?>
         </div>
 
         <div class="smasmall-meta-section smasmall-scenario-section">
@@ -612,16 +697,32 @@ add_action('save_post_product', function ($post_id) {
         }
     }
 
+    $instagram = [];
+    if (isset($_POST['smasmall_instagram_urls']) && is_array($_POST['smasmall_instagram_urls'])) {
+        foreach (wp_unslash($_POST['smasmall_instagram_urls']) as $url) {
+            $clean = smasmall_sanitize_social_url((string) $url);
+            if ($clean !== '') {
+                $instagram[] = $clean;
+            }
+        }
+    }
+
     $scenario_raw = isset($_POST['smasmall_scenario_images']) ? wp_unslash($_POST['smasmall_scenario_images']) : '[]';
     $scenario = smasmall_decode_scenario_images($scenario_raw);
 
-    $accordion_raw = isset($_POST['smasmall_accordion_items']) ? wp_unslash($_POST['smasmall_accordion_items']) : '[]';
-    $accordion = smasmall_decode_accordion_items($accordion_raw);
+    $specs = smasmall_sanitize_textarea_meta($_POST['smasmall_product_specs'] ?? '');
+    $highlights = smasmall_sanitize_textarea_meta($_POST['smasmall_product_highlights'] ?? '');
+    $after_sales = smasmall_sanitize_textarea_meta($_POST['smasmall_after_sales'] ?? '');
 
     update_post_meta($post_id, SMASMALL_META_YOUTUBE, smasmall_json_encode(array_values(array_unique($youtube))));
     update_post_meta($post_id, SMASMALL_META_FACEBOOK, smasmall_json_encode(array_values(array_unique($facebook))));
+    update_post_meta($post_id, SMASMALL_META_INSTAGRAM, smasmall_json_encode(array_values(array_unique($instagram))));
     update_post_meta($post_id, SMASMALL_META_SCENARIO, smasmall_encode_scenario_images($scenario));
-    update_post_meta($post_id, SMASMALL_META_ACCORDION, smasmall_encode_accordion_items($accordion));
+    update_post_meta($post_id, SMASMALL_META_SPECS, $specs);
+    update_post_meta($post_id, SMASMALL_META_HIGHLIGHTS, $highlights);
+    update_post_meta($post_id, SMASMALL_META_AFTER_SALES, $after_sales);
+    // 舊版 Accordion 已整合至固定三區，儲存後清除避免重複
+    update_post_meta($post_id, SMASMALL_META_ACCORDION, '[]');
 
     $purchase_url = isset($_POST['smasmall_purchase_url'])
         ? esc_url_raw(trim((string) wp_unslash($_POST['smasmall_purchase_url'])))
@@ -675,21 +776,10 @@ add_action('admin_head', function () {
         .smasmall-scenario-drag { cursor: grab; color: #787c82; margin-bottom: 4px; }
         .smasmall-remove-scenario { margin-top: 4px; }
         .smasmall-scenario-item.ui-sortable-helper { box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-        .smasmall-accordion-list { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .smasmall-accordion-item {
-            display: grid;
-            grid-template-columns: 24px 1fr auto;
-            gap: 12px;
-            align-items: start;
-            border: 1px solid #dcdcde;
-            border-radius: 8px;
-            background: #fff;
-            padding: 14px;
-        }
-        .smasmall-accordion-drag { cursor: grab; color: #787c82; margin-top: 6px; }
+        .smasmall-accordion-fixed-field { margin-bottom: 16px; }
+        .smasmall-accordion-fixed-field:last-child { margin-bottom: 0; }
+        .smasmall-accordion-fixed-textarea { font-family: inherit; min-height: 120px; }
         .smasmall-accordion-label { display: block; font-weight: 600; margin: 0 0 6px; font-size: 12px; }
-        .smasmall-accordion-fields .widefat { margin-bottom: 10px; }
-        .smasmall-accordion-item.ui-sortable-helper { box-shadow: 0 8px 24px rgba(0,0,0,.12); }
     </style>
     <?php
 });
@@ -702,60 +792,6 @@ add_action('admin_footer', function () {
     ?>
     <script>
     jQuery(function ($) {
-        function syncAccordionJson() {
-            var rows = [];
-            $('#smasmall-accordion-list .smasmall-accordion-item').each(function () {
-                var title = ($(this).find('.smasmall-accordion-title').val() || '').trim();
-                var content = ($(this).find('.smasmall-accordion-content').val() || '').trim();
-                if (!title || !content) return;
-                rows.push({ title: title, content: content });
-            });
-            $('#smasmall-accordion-json').val(JSON.stringify(rows));
-            $('.smasmall-accordion-empty').toggle(rows.length === 0);
-        }
-
-        function bindAccordionItem($item) {
-            $item.find('.smasmall-accordion-title, .smasmall-accordion-content')
-                .off('input.smasmallAccordion')
-                .on('input.smasmallAccordion', syncAccordionJson);
-            $item.find('.smasmall-remove-accordion')
-                .off('click.smasmallAccordion')
-                .on('click.smasmallAccordion', function (e) {
-                    e.preventDefault();
-                    $item.remove();
-                    syncAccordionJson();
-                });
-        }
-
-        function appendAccordionItem(title, content) {
-            var $item = $('<li class="smasmall-accordion-item"></li>');
-            $item.append('<span class="smasmall-accordion-drag dashicons dashicons-move" title="拖曳排序"></span>');
-            var $fields = $('<div class="smasmall-accordion-fields"></div>');
-            $fields.append('<label class="smasmall-accordion-label">標題</label>');
-            $fields.append($('<input>', {
-                type: 'text',
-                class: 'widefat smasmall-accordion-title',
-                placeholder: '例如：產品規格與細節',
-                value: title || ''
-            }));
-            $fields.append('<label class="smasmall-accordion-label">內容</label>');
-            $fields.append($('<textarea>', {
-                class: 'widefat smasmall-accordion-content',
-                rows: 4,
-                placeholder: 'Accordion 展開後顯示的說明文字',
-                text: content || ''
-            }));
-            $item.append($fields);
-            $item.append($('<button>', {
-                type: 'button',
-                class: 'button-link-delete smasmall-remove-accordion',
-                text: '移除'
-            }));
-            $('#smasmall-accordion-list').append($item);
-            bindAccordionItem($item);
-            syncAccordionJson();
-        }
-
         function smasmallPickScenarioUrl(data) {
             var id = data.id || 0;
             var url = data.originalImageURL || data.originalUrl || '';
@@ -784,8 +820,15 @@ add_action('admin_footer', function () {
         function appendUrl(platform, url) {
             url = (url || '').trim();
             if (!url) return;
-            var $list = platform === 'youtube' ? $('#smasmall-youtube-list') : $('#smasmall-facebook-list');
-            var name = platform === 'youtube' ? 'smasmall_youtube_urls[]' : 'smasmall_facebook_urls[]';
+            var listMap = {
+                youtube: { list: '#smasmall-youtube-list', name: 'smasmall_youtube_urls[]' },
+                instagram: { list: '#smasmall-instagram-list', name: 'smasmall_instagram_urls[]' },
+                facebook: { list: '#smasmall-facebook-list', name: 'smasmall_facebook_urls[]' }
+            };
+            var config = listMap[platform];
+            if (!config) return;
+            var $list = $(config.list);
+            var name = config.name;
             var duplicate = false;
             $list.find('input[type=hidden]').each(function () {
                 if ($(this).val() === url) duplicate = true;
@@ -826,27 +869,8 @@ add_action('admin_footer', function () {
             $(this).closest('.smasmall-url-item').remove();
         });
 
-        $('#smasmall-add-accordion-item').on('click', function (e) {
-            e.preventDefault();
-            appendAccordionItem('', '');
-        });
-
-        $('#smasmall-accordion-list .smasmall-accordion-item').each(function () {
-            bindAccordionItem($(this));
-        });
-
-        if ($.fn.sortable) {
-            $('#smasmall-accordion-list').sortable({
-                handle: '.smasmall-accordion-drag',
-                update: syncAccordionJson
-            });
-        }
-
-        syncAccordionJson();
-
         $('#post').on('submit', function () {
             flushPendingUrls();
-            syncAccordionJson();
             syncScenarioJson();
         });
 

@@ -197,6 +197,14 @@ const Section2 = () => {
               </li>
               <li>
                 <Link
+                  href="/stores"
+                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                >
+                  全台門市
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/contact"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >

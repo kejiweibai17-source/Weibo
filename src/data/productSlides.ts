@@ -54,3 +54,37 @@ export const PRODUCT04_SLIDES: ProductSlideSet = {
     { image: "/images/d9872a6c-f0cb-4df0-9c83-28a682df1a6f.png" },
   ],
 };
+
+/** 完美紳士 MATEBOX 3in1 */
+export const PRODUCT07_SLIDES: ProductSlideSet = {
+  ogImage: "/images/accessories/完美紳士/情境圖/玩美-1.jpg",
+  slides: [
+    { image: "/images/accessories/完美紳士/情境圖/玩美-1.jpg" },
+    { image: "/images/accessories/完美紳士/情境圖/玩美-2.jpg" },
+    { image: "/images/accessories/完美紳士/情境圖/玩美-3.jpg" },
+    { image: "/images/accessories/完美紳士/情境圖/玩美-4.jpg" },
+    { image: "/images/accessories/完美紳士/情境圖/玩美-5.jpg" },
+  ],
+};
+
+/** 電動鼻毛修剪器 */
+export const PRODUCT06_SLIDES: ProductSlideSet = {
+  ogImage: "/images/accessories/電動鼻毛修剪器/情境圖/01.jpg",
+  slides: [
+    { image: "/images/accessories/電動鼻毛修剪器/情境圖/01.jpg" },
+    { image: "/images/accessories/電動鼻毛修剪器/情境圖/02.jpg" },
+    { image: "/images/accessories/電動鼻毛修剪器/情境圖/03.jpg" },
+    { image: "/images/accessories/電動鼻毛修剪器/情境圖/04.jpg" },
+    { image: "/images/accessories/電動鼻毛修剪器/情境圖/05.jpg" },
+  ],
+};
+
+/** 小金剛旗艦三刀頭電動刮鬍刀 */
+export const PRODUCT05_SLIDES: ProductSlideSet = {
+  ogImage: "/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/情境圖/1.png",
+  slides: [
+    { image: "/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/情境圖/1.png" },
+    { image: "/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/情境圖/2.png" },
+    { image: "/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/情境圖/3.png" },
+  ],
+};

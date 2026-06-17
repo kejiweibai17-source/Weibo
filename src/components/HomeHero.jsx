@@ -6,15 +6,13 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useLenis } from "lenis/react";
 import Preloader from "./Preloader";
-import { hasPreloaderPlayedThisSession } from "@/lib/preloaderSession";
+import {
+  markPreloaderPlayedThisSession,
+  shouldShowHomePreloader,
+} from "@/lib/preloaderSession";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * HomeHero
- * 負責：Preloader 狀態、Lenis 滾動鎖定、Hero 影片區、GSAP 文字動畫、頁面內容淡入
- * @param {{ pageContentRef: React.RefObject }} props
- */
 function revealHomeWithoutPreloader(pageContentRef) {
   gsap.set(".hero-title", { opacity: 1, scale: 1 });
   gsap.set(".hero-sub", { opacity: 1, y: 0 });
@@ -25,21 +23,26 @@ function revealHomeWithoutPreloader(pageContentRef) {
   ScrollTrigger.refresh();
 }
 
+/**
+ * HomeHero
+ * 負責：Preloader 狀態、Lenis 滾動鎖定、Hero 影片區、GSAP 文字動畫、頁面內容淡入
+ * @param {{ pageContentRef: React.RefObject }} props
+ */
 export default function HomeHero({ pageContentRef }) {
   const [introFinished, setIntroFinished] = useState(false);
   const [preloaderMounted, setPreloaderMounted] = useState(false);
   const [skipIntroAnimations, setSkipIntroAnimations] = useState(false);
   const lenis = useLenis();
 
-  // 站內再回首頁：同分頁 session 內略過 Preloader；關閉瀏覽器／無痕新開會重播
+  // 重新整理 → 顯示 Preloader；站內再回首頁 → 略過
   useEffect(() => {
-    if (hasPreloaderPlayedThisSession()) {
-      setSkipIntroAnimations(true);
-      setIntroFinished(true);
-      requestAnimationFrame(() => revealHomeWithoutPreloader(pageContentRef));
+    if (shouldShowHomePreloader()) {
+      setPreloaderMounted(true);
       return;
     }
-    setPreloaderMounted(true);
+    setSkipIntroAnimations(true);
+    setIntroFinished(true);
+    requestAnimationFrame(() => revealHomeWithoutPreloader(pageContentRef));
   }, [pageContentRef]);
 
   // 🌟 Lenis 滾動鎖定 / 解鎖 (已修復：移除 overflow: hidden)

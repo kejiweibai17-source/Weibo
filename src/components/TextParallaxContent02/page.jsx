@@ -21,32 +21,25 @@ const INTRO_DATA = {
 
 const ACCORDION_DATA = [
   {
-    id: "feature-1",
-    label: "Magnetic design",
-    title: "業界首創磁吸快拆刀頭",
+    id: "blade-2",
+    label: "Constellation Series",
+    title: "刀頭 2.0（星座系列）",
     description:
-      "搭載高精密磁吸結構，一秒即可無縫貼合與拆卸。不僅大幅縮短日常清理時間，更徹底解決傳統機械卡榫易斷裂、易磨損的問題。",
+      "標配雙環開放式 2.0 圓刀頭，採德國進口鋼材與日本精密加工，近 40 道成型工藝打造。外環開放式圓刀搭配獨立浮動刀網，貼合臉部輪廓、順滑捕捉各方向鬍鬚。磁吸式快拆設計，一秒拆卸可直接水洗，建議每 6–12 個月更換，維持最佳鋒利度。適用星座系列 CQ1 等磁吸式機身。",
   },
   {
-    id: "feature-2",
-    label: "Premium materials",
-    title: "荷蘭進口精鋼刀片",
+    id: "blade-3",
+    label: "Dark Knight Series",
+    title: "刀頭 3.0（黑夜系列）",
     description:
-      "嚴選頂規荷蘭進口精鋼，搭配雙環超薄刀網與自銳研磨技術。刀片越用越鋒利，精準捕捉各種方向的鬍鬚，享受極致滑順的刮鬍體驗。",
-  },
-  {
-    id: "feature-3",
-    label: "Waterproof capability",
-    title: "IPX7 頂級全機防水",
-    description:
-      "支援全機身水洗與乾濕兩用。無論是搭配刮鬍泡的深層淨容，或是淋浴時的快速刮鬍，都能輕鬆應對，用水一沖即淨，衛生無死角。",
+      "雙環外開放式 3.0 版圓刀頭，外環採開放式結構，進鬚量再升級，刮剃效率更俐落。德國進口頂級鋼材，經 SGS 檢驗對金黃色葡萄球菌、大腸桿菌抗菌率高達 96%。同樣支援磁吸快拆與全機水洗，建議每 6–12 個月更換。為黑夜騎士等進階機型與升級替換首選。",
   },
 ];
 
 export default function ElegantScrollSection() {
   const containerRef = useRef(null);
   const bgRef = useRef(null);
-  const [openAccordion, setOpenAccordion] = useState("feature-1");
+  const [openAccordion, setOpenAccordion] = useState("blade-2");
 
   useGSAP(
     () => {
@@ -178,11 +171,19 @@ export default function ElegantScrollSection() {
           </div>
         </div>
 
-        {/* --- 區塊 B：左側手風琴選單 (毛玻璃面板) --- */}
-        {/* 🌟 修改 trigger 用的 class 名稱以完美銜接動畫 */}
+        {/* --- 區塊 B：左側刀頭介紹手風琴 --- */}
         <div className="accordion-container min-h-screen flex items-start px-[6%] md:px-[10%] pt-[10vh]">
           <div className="accordion-wrapper w-full md:w-[60%] lg:w-[35%] flex flex-col bg-white/[0.03] backdrop-blur-xl border border-white/10 p-6 md:p-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
-            {ACCORDION_DATA.map((item, index) => {
+            <div className="mb-2 border-b border-white/10 pb-6">
+              <p className="mb-2 text-xs font-medium uppercase tracking-widest text-gray-400">
+                Blade System
+              </p>
+              <h2 className="text-xl font-medium tracking-wide text-white md:text-2xl">
+                刀頭介紹
+              </h2>
+            </div>
+
+            {ACCORDION_DATA.map((item) => {
               const isOpen = openAccordion === item.id;
 
               return (

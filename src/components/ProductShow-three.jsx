@@ -3,25 +3,24 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 // ============================================================================
-// 昔馬 捍衛者 (Defender) 產品線資料
+// 昔馬 青春版 (Youth Edition) 產品線資料
 // ============================================================================
 const PRODUCTS = [
   {
     id: 1,
-    badge: "產品",
-
+    badge: "配色",
     name: "元素灰",
-    tags: ["全合金壓鑄", "戰損塗裝", "IPX7全機防水"],
+    tags: ["合金鍛造", "IPX7全機防水", "掌心尺寸"],
     thumbUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/元素灰.png",
     mainUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/元素灰.png",
     features: [
       {
-        title: "硬派美學，戰損塗裝",
+        title: "硬核設計，質感滿分",
         bullets: [
-          "手工打磨戰損痕跡，每把皆獨一無二",
-          "高溫壓鑄全合金機身，沉穩冰冷握感",
+          "簡約線條與細緻做工，展現俐落工業美學",
+          "合金機身扎實握感，細緻表面處理舒適順手",
         ],
         boxPos: "md:absolute md:top-[15%] md:left-[5%]",
         lineClass:
@@ -29,8 +28,11 @@ const PRODUCTS = [
         dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
       },
       {
-        title: "澎湃動力，長效續航",
-        bullets: ["毫秒級高速抗震低噪馬達", "1小時Type-C快充，60天超長待機"],
+        title: "雙環刀頭，乾濕兩用",
+        bullets: [
+          "外開放式圓刀頭搭配浮動貼面，貼合臉部輪廓",
+          "Type-C 快充搭配長效續航，日常與差旅都從容",
+        ],
         boxPos: "md:absolute md:bottom-[15%] md:left-[8%]",
         lineClass:
           "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-20deg]",
@@ -40,18 +42,20 @@ const PRODUCTS = [
   },
   {
     id: 2,
-    badge: "產品",
-
+    badge: "配色",
     name: "幻影黑",
-    tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
+    tags: ["經典黑色", "高顏值設計", "磁吸快拆"],
     thumbUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/幻影黑.png",
     mainUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/幻影黑.png",
     features: [
       {
-        title: "專利太空艙設計",
-        bullets: ["便利隨行"],
+        title: "掌心尺寸，輕巧便攜",
+        bullets: [
+          "單手即可掌握，放進口袋或洗漱包都不佔空間",
+          "出差、健身、旅行，隨身帶著走也不負擔",
+        ],
         boxPos: "md:absolute md:top-[20%] md:left-[10%]",
         lineClass:
           "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
@@ -61,17 +65,20 @@ const PRODUCTS = [
   },
   {
     id: 3,
-    badge: "產品",
+    badge: "配色",
     name: "月光銀",
-    tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
+    tags: ["經典銀色", "浮動刀網", "IPX7防水"],
     thumbUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/月光銀.png",
     mainUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/月光銀.png",
     features: [
       {
-        title: "專利太空艙設計",
-        bullets: ["便利隨行"],
+        title: "浮動旋轉，貼合輪廓",
+        bullets: [
+          "刀頭可隨臉部線條微幅調整，難剃區域也能順暢處理",
+          "貼面刀網配合穩定動力，早晚整理都能快速完成",
+        ],
         boxPos: "md:absolute md:top-[20%] md:left-[10%]",
         lineClass:
           "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
@@ -83,15 +90,18 @@ const PRODUCTS = [
     id: 4,
     badge: "包裝",
     name: "青春版紙袋",
-    tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
+    tags: ["精美禮盒", "送禮首選", "完整配件"],
     thumbUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/青春版紙袋.png",
     mainUrl:
       "/images/accessories/青春版電動刮鬍刀禮盒-三色/產品內容物/青春版紙袋.png",
     features: [
       {
-        title: "專利太空艙設計",
-        bullets: ["便利隨行"],
+        title: "精美禮盒，送禮首選",
+        bullets: [
+          "開箱即可看見完整配件配置，刮鬍刀與周邊一應俱全",
+          "送男友、送父親、送同事都體面周到",
+        ],
         boxPos: "md:absolute md:top-[20%] md:left-[10%]",
         lineClass:
           "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",

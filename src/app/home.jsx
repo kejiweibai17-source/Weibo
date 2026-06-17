@@ -9,7 +9,6 @@ import TextParallaxContentExample02 from "../components/TextParallaxContent02/pa
 import Slider from "../components/Slider/Slider";
 import TextScrollSequence from "../components/TextScrollSequence";
 import ContactSection from "../components/ContactSection";
-import S3 from "../components/S3GroomingPrecision";
 import Copy from "@/components/Copy";
 
 export default function Home({ carouselSlides = [], heroSlides = [] }) {
@@ -73,7 +72,6 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
         <EmblaCarousel slides={carouselSlides} options={OPTIONS} />
 
         <Slider slides={heroSlides} />
-        <S3 />
 
         <Parallax />
         <TextParallaxContentExample02 />

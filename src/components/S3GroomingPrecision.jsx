@@ -12,7 +12,8 @@ const EXPLORER_DATA = [
   {
     id: 1,
     image: "/images/focus/carousel-01.png",
-    imageAlt: "智慧散熱系統透視圖 昔馬電動刮鬍刀內部結構 威柏科技-昔馬電動刮鬍刀總代理",
+    imageAlt:
+      "智慧散熱系統透視圖 昔馬電動刮鬍刀內部結構 威柏科技-昔馬電動刮鬍刀總代理",
     bgScale: 2.2,
     hotspot: { top: "35%", left: "50%" },
     info: {
@@ -33,7 +34,8 @@ const EXPLORER_DATA = [
     id: 2,
     // 🌟 已經幫你替換成第二張圖的正確路徑
     image: "/images/index/banner-04.png",
-    imageAlt: "手持昔馬電動刮鬍刀 黑色質感機身展示 威柏科技-昔馬電動刮鬍刀總代理",
+    imageAlt:
+      "手持昔馬電動刮鬍刀 黑色質感機身展示 威柏科技-昔馬電動刮鬍刀總代理",
     bgScale: 1.4,
     hotspot: { top: "52%", left: "50%" },
     info: {
@@ -194,13 +196,13 @@ export default function InteractiveExplorer() {
       {/* =========================================================
           4. UI 介面層
           ========================================================= */}
-      <div className="absolute inset-0 z-20 p-8 md:p-12 flex flex-col justify-between pointer-events-none">
+      <div className="absolute inset-0 z-20 p-8 md:p-12 top-20 flex flex-col justify-between pointer-events-none">
         <div className="w-full flex justify-end">
           <button
             className="pointer-events-auto px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-sm font-medium rounded-full transition-colors border border-white/10"
             onClick={() => setViewMode(viewMode === "full" ? "detail" : "full")}
           >
-            {viewMode === "full" ? "深入探索細節" : "返回全視角"}
+            {viewMode === "full" ? "深入細節" : "返回全視角"}
           </button>
         </div>
 

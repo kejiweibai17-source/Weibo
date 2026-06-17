@@ -65,7 +65,7 @@ const ParallaxPage = () => {
         </motion.h1>
         <Copy>
           <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm drop-shadow-md">
-            合金壓鑄手工精心打磨，每處劃痕都是戰損痕跡的力量印記
+            火、土、風、水四象主題配色，專屬星座圖騰與質感禮盒——你的星座，你的風格
           </p>
         </Copy>
 
@@ -86,9 +86,7 @@ const ParallaxPage = () => {
         <div className="max-w-3xl text-center space-y-16">
           {/* 使用 whileInView 讓元素進入畫面時觸發動畫 */}
           <Copy>
-            <h1 className="text-white">
-              Design & Strategy for the Vision-Driven
-            </h1>
+            <h1 className="text-white">為星座系列而生的設計與工藝</h1>
           </Copy>
 
           <motion.div
@@ -98,8 +96,8 @@ const ParallaxPage = () => {
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
             <p className="text-sm text-gray-100 font-mono leading-relaxed">
-              WE HAVE METICULOUSLY HONED THE CRITICAL FACETS OF DESIGN AND
-              FUNCTIONALITY. EXACTING PRECISION IN OUR LINES, SHAPES, CURVES...
+              從四象主題配色到專屬雷雕序號。雙環浮動刀網、IPX7
+              全機防水——明信片、轉盤卡、手提袋完整配置，送禮自用兩相宜…
             </p>
           </motion.div>
         </div>
@@ -119,10 +117,10 @@ const ParallaxPage = () => {
             className="mb-6 text-center z-20"
           >
             <h2 className="text-3xl font-bold text-black tracking-tight mb-1 sm:text-4xl">
-              CALIBRE AMB+
+              星座系列 CQ1
             </h2>
             <p className="text-sm text-gray-600 sm:text-base">
-              Developed by Weibo Technology
+              四象禮盒完整配件
             </p>
           </motion.div>
 
@@ -132,14 +130,14 @@ const ParallaxPage = () => {
           >
             <div className="relative w-full">
               <img
-                src="/images/accessories/黑夜騎士/黑夜騎士-01.png"
-                alt="昔馬黑夜騎士電動刮鬍刀 霧黑機身正面 威柏科技-昔馬電動刮鬍刀總代理"
+                src="/images/accessories/星座系列電動刮鬍刀禮盒/產品內容物/星座系列電動刮鬍刀禮盒-水象星座-02.png"
+                alt="昔馬星座系列電動刮鬍刀禮盒 水象星座配色 威柏科技-昔馬電動刮鬍刀總代理"
                 className="relative z-10 block w-full h-auto object-contain  "
               />
 
               <motion.button
                 type="button"
-                aria-label="播放 CALIBRE AMB+ 介紹影片"
+                aria-label="播放星座系列 CQ1 介紹影片"
                 animate={
                   markerReady
                     ? { opacity: 1, scale: 1 }
@@ -202,7 +200,7 @@ const ParallaxPage = () => {
               </button>
               <iframe
                 src={`https://www.youtube.com/embed/${CALIBRE_VIDEO_ID}?autoplay=1&rel=0`}
-                title="昔馬 SMASMALL 捍衛者+ 實測與工藝介紹"
+                title="昔馬 SMASMALL 星座系列 實測與工藝介紹"
                 className="absolute inset-0 h-full w-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen

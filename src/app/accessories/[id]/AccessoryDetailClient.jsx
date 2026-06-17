@@ -7,6 +7,36 @@ import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import AccessoryRightPanel from "@/components/accessories/AccessoryRightPanel";
 import { accessoryDetailPath, normalizeRouteSlug } from "@/lib/utils";
+import { getContentBullets } from "@/lib/productContentBullets";
+
+function getShortDescBullets(product) {
+  if (product?.shortDescBullets?.length) return product.shortDescBullets;
+  const desc = product?.shortDesc ?? "";
+  return getContentBullets(desc);
+}
+
+function AccordionContent({ feature }) {
+  const bullets =
+    feature?.bullets?.length > 0
+      ? feature.bullets
+      : getContentBullets(feature?.content);
+
+  if (bullets?.length) {
+    return (
+      <ul className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6 space-y-2 list-disc pl-5 marker:text-gray-400">
+        {bullets.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6 whitespace-pre-line">
+      {feature.content}
+    </p>
+  );
+}
 
 export default function AccessoryDetailClient({ productId }) {
   const params = useParams();
@@ -97,6 +127,8 @@ export default function AccessoryDetailClient({ productId }) {
   }, [imageCount, carouselPaused, product?.id]);
 
   if (!product) return <div className="min-h-screen bg-white"></div>;
+
+  const shortDescBullets = getShortDescBullets(product);
 
   const toggleAccordion = (key) => {
     setActiveAccordion(activeAccordion === key ? null : key);
@@ -272,9 +304,17 @@ export default function AccessoryDetailClient({ productId }) {
               </p>
             )}
 
-            <p className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10">
-              {product.shortDesc}
-            </p>
+            {shortDescBullets ? (
+              <ul className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10 space-y-2.5 list-disc pl-5 marker:text-stone-600">
+                {shortDescBullets.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10">
+                {product.shortDesc}
+              </p>
+            )}
 
             <div className="w-full border-t border-gray-200">
               {(product.features ?? []).map((feature, idx) => {
@@ -303,9 +343,7 @@ export default function AccessoryDetailClient({ productId }) {
                           exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden"
                         >
-                          <p className="pb-6 lg:pb-8 text-[14px] text-gray-600 leading-relaxed pr-6 whitespace-pre-line">
-                            {feature.content}
-                          </p>
+                          <AccordionContent feature={feature} />
                         </motion.div>
                       )}
                     </AnimatePresence>

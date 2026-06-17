@@ -284,3 +284,288 @@ body {
     font-size: 60px;
   }
 }
+
+/* ── Preloader cinematic backdrop (synced zoom + smoke cycle) ──
+ * 0–22%   煙霧散去 + 緩慢開始放大（第二輪銜接）
+ * 22–78%  持續緩慢放大 + 煙霧漸濃
+ * 78–90%  接近最大 + 黑罩升起
+ * 90–92%  全黑停留（scale 在 92% 瞬間重置，觀眾看不見）
+ * 92–100% 黑罩褪去 + 煙霧散去（銜接 0%）
+ * ───────────────────────────────────────────────────────── */
+
+.preloader-overlay {
+  background-color: #050505;
+}
+
+.preloader-cycle {
+  position: absolute;
+  inset: 0;
+  --cycle-duration: 28s;
+}
+
+.preloader-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.preloader-bg-image {
+  position: absolute;
+  inset: -12%;
+  will-change: transform;
+  animation: preloaderKenBurns var(--cycle-duration) linear infinite;
+}
+
+@keyframes preloaderKenBurns {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  /* 第二輪：黑罩褪去後緩慢開始放大 */
+  22% {
+    transform: scale(1.05);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+  72% {
+    transform: scale(1.2);
+  }
+  86% {
+    transform: scale(1.26);
+  }
+  90%,
+  91.5% {
+    transform: scale(1.28);
+  }
+  /* 全黑時瞬間縮回（91.5%→92% 觀眾看不見） */
+  92%,
+  99.99% {
+    transform: scale(1);
+  }
+}
+
+.preloader-base-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* 調暗遮罩：改這個 opacity（0–1，越大越暗） */
+  --preloader-dim-opacity: 4.92;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.58) 48%,
+      rgba(0, 0, 0, 0.58) 100%
+    ),
+    radial-gradient(
+      ellipse 95% 85% at 50% 50%,
+      rgba(0, 0, 0, 0.12) 0%,
+      rgba(0, 0, 0, 0.38) 100%
+    );
+  opacity: var(--preloader-dim-opacity);
+}
+
+.preloader-smoke {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.preloader-smoke-layer {
+  --smoke-y: 40%;
+  --smoke-scale: 1;
+  --smoke-peak: 0.5;
+  --layer-phase: 0;
+
+  position: absolute;
+  top: var(--smoke-y);
+  left: -50%;
+  width: min(95vw, 1280px);
+  height: min(62vh, 640px);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 42% 50%,
+    rgba(0, 0, 0, 0.98) 0%,
+    rgba(0, 0, 0, 0.78) 30%,
+    rgba(0, 0, 0, 0.42) 52%,
+    rgba(0, 0, 0, 0.1) 72%,
+    transparent 86%
+  );
+  filter: blur(64px);
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  animation: preloaderSmokeBuild var(--cycle-duration) linear infinite;
+  animation-delay: calc(var(--layer-phase) * var(--cycle-duration) * -1);
+}
+
+@keyframes preloaderSmokeBuild {
+  0%,
+  100% {
+    transform: translateX(-38%) translateY(2%) scale(calc(var(--smoke-scale) * 0.68));
+    opacity: 0;
+    filter: blur(48px);
+  }
+  /* 92–100% 煙霧散去，銜接 0% 完全乾淨 */
+  92% {
+    transform: translateX(52%) translateY(-6%) scale(calc(var(--smoke-scale) * 1.22));
+    opacity: calc(var(--smoke-peak) * 1.1);
+    filter: blur(100px);
+  }
+  96% {
+    transform: translateX(12%) translateY(-2%) scale(calc(var(--smoke-scale) * 0.88));
+    opacity: calc(var(--smoke-peak) * 0.38);
+    filter: blur(68px);
+  }
+  22% {
+    transform: translateX(-18%) translateY(-1%) scale(calc(var(--smoke-scale) * 0.82));
+    opacity: 0;
+    filter: blur(52px);
+  }
+  35% {
+    transform: translateX(-5%) translateY(-2%) scale(calc(var(--smoke-scale) * 0.92));
+    opacity: calc(var(--smoke-peak) * 0.38);
+    filter: blur(68px);
+  }
+  55% {
+    transform: translateX(18%) translateY(-3%) scale(calc(var(--smoke-scale) * 1.02));
+    opacity: var(--smoke-peak);
+    filter: blur(76px);
+  }
+  72% {
+    transform: translateX(38%) translateY(-5%) scale(calc(var(--smoke-scale) * 1.12));
+    opacity: calc(var(--smoke-peak) * 1.08);
+    filter: blur(88px);
+  }
+  84% {
+    transform: translateX(52%) translateY(-6%) scale(calc(var(--smoke-scale) * 1.22));
+    opacity: calc(var(--smoke-peak) * 1.15);
+    filter: blur(100px);
+  }
+  90%,
+  91.5% {
+    transform: translateX(58%) translateY(-7%) scale(calc(var(--smoke-scale) * 1.3));
+    opacity: 1;
+    filter: blur(112px);
+  }
+}
+
+.preloader-smoke-envelope {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 130% 110% at 50% 50%,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.88) 55%,
+      #000 100%
+    ),
+    #000;
+  opacity: 0;
+  will-change: opacity;
+  animation: preloaderSmokeEnvelope var(--cycle-duration) linear infinite;
+}
+
+@keyframes preloaderSmokeEnvelope {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  72% {
+    opacity: 0.08;
+  }
+  80% {
+    opacity: 0.32;
+  }
+  86% {
+    opacity: 0.62;
+  }
+  90%,
+  91.5% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 0.42;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-bg-image,
+  .preloader-smoke-layer,
+  .preloader-smoke-envelope {
+    animation: none;
+  }
+
+  .preloader-bg-image {
+    transform: scale(1.08);
+  }
+
+  .preloader-base-dim {
+    opacity: var(--preloader-dim-opacity, 0.72);
+  }
+
+  .preloader-smoke-layer {
+    opacity: 0.2;
+  }
+
+  .preloader-smoke-envelope {
+    opacity: 0.35;
+  }
+}
+
+/* Instagram 官方 embed — 無滾動軸、貼齊右欄寬度 */
+.instagram-embed-host {
+  width: 100%;
+  overflow: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.instagram-embed-host::-webkit-scrollbar {
+  display: none;
+}
+
+.instagram-embed-host__inner {
+  width: 100%;
+  overflow: hidden;
+}
+
+.instagram-embed-host--post .instagram-embed-host__inner {
+  max-width: 100%;
+}
+
+.instagram-embed-host--reel {
+  display: flex;
+  justify-content: center;
+}
+
+.instagram-embed-host--reel .instagram-embed-host__inner {
+  width: 100%;
+  max-width: 360px;
+}
+
+.instagram-embed-host .instagram-media,
+.instagram-embed-host iframe {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+.instagram-embed-host iframe {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.instagram-embed-host iframe::-webkit-scrollbar {
+  display: none;
+}

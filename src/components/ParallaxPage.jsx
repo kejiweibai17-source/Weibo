@@ -1,7 +1,8 @@
 "use client";
-import React, { useRef } from "react";
+
+import React from "react";
 import dynamic from "next/dynamic";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Copy from "@/components/Copy";
 
 const HomeScrollSequence01 = dynamic(
@@ -16,56 +17,27 @@ const HomeScrollSequence01 = dynamic(
   },
 );
 
+const S3GroomingPrecision = dynamic(
+  () => import("@/components/S3GroomingPrecision"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0c] text-sm text-white/50">
+        載入產品探索…
+      </div>
+    ),
+  },
+);
+
 const ParallaxPage = () => {
-  // 針對第三區塊（灰色機芯區）建立滾動參考點
-  const calibreRef = useRef(null);
-
-  // 追蹤第三區塊的滾動進度：從元素頂部碰到視窗底部開始，到元素中心碰到視窗中心結束
-  const { scrollYProgress: calibreScrollY } = useScroll({
-    target: calibreRef,
-    offset: ["start end", "center center"],
-  });
-
-  // 將滾動進度 (0 到 1) 映射到 CSS 屬性上 (比例、透明度、Y軸位移)
-  const scale = useTransform(calibreScrollY, [0, 1], [0.85, 1]);
-  const opacity = useTransform(calibreScrollY, [0, 1], [0, 1]);
-  const y = useTransform(calibreScrollY, [0, 1], [150, 0]);
-
   return (
     <div className="relative w-full bg-black font-sans">
-      {/* Section 1: 黑色主視覺 (Hero Section) 
-        使用 sticky top-0 讓它固定在頂部，z-0 讓後續區塊可以覆蓋它
-      */}
-      <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden z-0">
-        {/* 頂部導覽列模擬 */}
-
-        {/* 標題動畫 */}
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="text-[6vmin] font-normal text-white tracking-tighter z-10 leading-none"
-        >
-          有力量，也有細節。
-        </motion.h1>
-        <Copy>
-          {" "}
-          <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm">
-            強勁動力不易卡毛，細緻刀網舒適貼面，兼顧效率與膚感。
-          </p>
-        </Copy>
-
-        {/* 這裡替換成影片中那張黑色手錶的背景圖 */}
-        {/* 替換成這個寫法 */}
-        <div
-          className="absolute inset-0 opacity-50 bg-cover bg-center z-[-1]"
-          style={{
-            backgroundImage: `url('/images/2863f91d-4ff8-45c9-9c4c-f9a80a210e2d.png')`,
-          }}
-        />
+      {/* sticky 固定層：滾動時下方區塊會覆蓋其上（視差效果） */}
+      <div className="sticky top-0 z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+        <S3GroomingPrecision />
       </div>
 
-      {/* Section 2: 昔馬捍衛者文案 + 3D 互動展示 */}
+      {/* 接續區塊：z-10 滑過 sticky 層 */}
       <div className="relative z-10 w-full bg-[#f5f5f5] text-black">
         <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-8 text-center md:px-8 md:pt-28 md:pb-10">
           <Copy>
@@ -87,10 +59,6 @@ const ParallaxPage = () => {
 
         <HomeScrollSequence01 embedded />
       </div>
-
-      {/* Section 3: 淺灰色機芯展示區 (Calibre Section) 
-        綁定 calibreRef 來追蹤視差滾動進度
-      */}
     </div>
   );
 };

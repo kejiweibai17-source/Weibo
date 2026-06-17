@@ -3,22 +3,22 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 // ============================================================================
-// 昔馬 捍衛者 (Defender) 產品線資料
+// 昔馬 黑夜騎士 (Dark Knight) 產品線資料
 // ============================================================================
 const PRODUCTS = [
   {
     id: 1,
-    badge: "配件 1",
-    name: "捍衛者-全合金戰損刮鬍刀",
-    tags: ["全合金壓鑄", "戰損塗裝", "IPX7全機防水"],
+    badge: "主機",
+    name: "昔馬 SMASMALL 黑夜騎士電動刮鬍刀",
+    tags: ["傳奇灰配色", "全合金機身", "IPX7全機防水"],
     thumbUrl: "/images/accessories/黑夜騎士/黑夜騎士-01.png",
     mainUrl: "/images/accessories/黑夜騎士/黑夜騎士-01.png",
     features: [
       {
-        title: "硬派美學，戰損塗裝",
+        title: "傳奇灰，黑夜騎士",
         bullets: [
-          "手工打磨戰損痕跡，每把皆獨一無二",
-          "高溫壓鑄全合金機身，沉穩冰冷握感",
+          "傳奇灰機身點綴日內瓦紋，低調硬派、質感內斂",
+          "全合金壓鑄機身，經十八道精密工藝打造",
         ],
         boxPos: "md:absolute md:top-[15%] md:left-[5%]",
         lineClass:
@@ -26,8 +26,11 @@ const PRODUCTS = [
         dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
       },
       {
-        title: "澎湃動力，長效續航",
-        bullets: ["毫秒級高速抗震低噪馬達", "1小時Type-C快充，60天超長待機"],
+        title: "雙環刀頭，乾濕兩用",
+        bullets: [
+          "雙環外開放式圓刀＋獨立浮動刀網，貼合臉部輪廓",
+          "1 小時 Type-C 快充，續航 60 分鐘；3 分鐘閃充應急 10 分鐘",
+        ],
         boxPos: "md:absolute md:bottom-[15%] md:left-[8%]",
         lineClass:
           "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-20deg]",
@@ -37,18 +40,32 @@ const PRODUCTS = [
   },
   {
     id: 2,
-    badge: "配件 2",
-    name: "昔馬蛋收納倉",
-    tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
+    badge: "配件",
+    name: "黑夜騎士 3合1 禮盒配件組",
+    tags: ["鼻毛修剪器", "定制收納皮套", "Type-C充電線"],
     thumbUrl: "/images/accessories/黑夜騎士/1.png",
     mainUrl: "/images/accessories/黑夜騎士/1.png",
     features: [
       {
-        title: "專利太空艙設計",
-        bullets: ["便利隨行"],
-        boxPos: "md:absolute md:top-[20%] md:left-[10%]",
+        title: "3合1 完整禮盒",
+        bullets: [
+          "內含鼻毛修剪器、定制收納皮套與清潔毛刷",
+          "Type-C 充電線、配件盒、精緻抽拉式禮盒與說明書",
+        ],
+        boxPos: "md:absolute md:top-[18%] md:left-[8%]",
         lineClass:
-          "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
+          "hidden md:block top-[50%] left-full w-[150px] h-[1px] origin-left rotate-[10deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+      {
+        title: "送禮自用皆宜",
+        bullets: [
+          "一次備齊理容所需，外出旅行輕鬆收納",
+          "燙金紅字體包裝，傳奇灰配色呼應黑夜騎士主機",
+        ],
+        boxPos: "md:absolute md:bottom-[18%] md:left-[10%]",
+        lineClass:
+          "hidden md:block top-[30%] left-full w-[130px] h-[1px] origin-left rotate-[-15deg]",
         dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
       },
     ],

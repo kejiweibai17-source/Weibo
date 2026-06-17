@@ -3,6 +3,25 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 const IMG_BASE = "/images/accessories/星座系列電動刮鬍刀禮盒/產品內容物";
+const IMG_ROOT = "/images/accessories/星座系列電動刮鬍刀禮盒";
+
+function ProductImage({ src, alt, className = "" }) {
+  if (!src) {
+    return (
+      <div
+        className={`flex items-center justify-center rounded-lg border border-dashed border-white/10 bg-white/[0.03] text-[11px] text-gray-500 ${className}`}
+        aria-label={alt}
+      >
+        圖片待補
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} className={className} />
+  );
+}
 
 // ============================================================================
 // 昔馬 星座系列 (CQ) 產品線資料
@@ -13,8 +32,8 @@ const PRODUCTS = [
     badge: "系列",
     name: "四象全系列",
     tags: ["火象", "土象", "風象", "水象", "CQ1"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒.jpg`,
+    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒.png`,
+    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒.png`,
     features: [
       {
         title: "十二星座 四象主題",
@@ -31,17 +50,17 @@ const PRODUCTS = [
   },
   {
     id: 2,
-    badge: "禮盒",
-    name: "火象星座禮盒",
-    tags: ["雷雕序號", "450mAh", "IPX7防水"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-火象星座-01-100x100.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-火象星座-01-100x100.jpg`,
+    badge: "配件",
+    name: "皮革包裝袋",
+    tags: ["皮革收納", "質感配件", "便攜"],
+    thumbUrl: `${IMG_ROOT}/11.jpg`,
+    mainUrl: `${IMG_ROOT}/11.jpg`,
     features: [
       {
-        title: "火象專屬 熱情禮盒",
+        title: "皮革包裝袋 質感收納",
         bullets: [
-          "完整配件與星座主題包裝",
-          "專屬雷雕序號，享一年保固",
+          "專屬皮革袋保護主機，外出收納更體面",
+          "輕巧便攜，差旅與日常隨行皆宜",
         ],
         boxPos: "md:absolute md:top-[18%] md:left-[8%]",
         lineClass:
@@ -52,15 +71,18 @@ const PRODUCTS = [
   },
   {
     id: 3,
-    badge: "產品",
-    name: "火象星座刮鬍刀",
-    tags: ["磁吸刀頭", "Type-C快充", "合金機身"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-火象星座-02.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-火象星座-02.jpg`,
+    badge: "配件",
+    name: "毛刷",
+    tags: ["清潔毛刷", "刀頭保養", "配件"],
+    thumbUrl: null,
+    mainUrl: null,
     features: [
       {
-        title: "火象配色 俐落動感",
-        bullets: ["雙環浮動刀網，貼合臉部輪廓", "續航約 95 分鐘，快充約 65 分鐘"],
+        title: "專用清潔毛刷",
+        bullets: [
+          "輕鬆清理刀頭與網罩殘屑，維持刮鬍順暢",
+          "日常保養必備，延長刀頭使用壽命",
+        ],
         boxPos: "md:absolute md:bottom-[18%] md:left-[8%]",
         lineClass:
           "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-15deg]",
@@ -70,108 +92,21 @@ const PRODUCTS = [
   },
   {
     id: 4,
-    badge: "禮盒",
-    name: "土象星座禮盒",
-    tags: ["雷雕序號", "450mAh", "IPX7防水"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-土象星座-01.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-土象星座-01.jpg`,
+    badge: "配件",
+    name: "外包裝紙袋",
+    tags: ["紙袋", "送禮包裝", "品牌識別"],
+    thumbUrl: `${IMG_ROOT}/13.jpg`,
+    mainUrl: `${IMG_ROOT}/13.jpg`,
     features: [
       {
-        title: "土象專屬 沉穩禮盒",
-        bullets: ["明信片、轉盤卡、手提袋完整配置", "開箱即享星座主題儀式感"],
+        title: "外包裝紙袋 送禮加分",
+        bullets: [
+          "品牌紙袋完整包裝，送禮體面有質感",
+          "搭配禮盒一同呈現，開箱儀式感更完整",
+        ],
         boxPos: "md:absolute md:top-[20%] md:left-[10%]",
         lineClass:
           "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 5,
-    badge: "產品",
-    name: "土象星座刮鬍刀",
-    tags: ["磁吸刀頭", "Type-C快充", "合金機身"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-土象星座-02.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-土象星座-02.jpg`,
-    features: [
-      {
-        title: "土象配色 質感內斂",
-        bullets: ["星雲塗裝與星座符號設計", "全機可水洗，清潔更省心"],
-        boxPos: "md:absolute md:bottom-[15%] md:left-[5%]",
-        lineClass:
-          "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-20deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 6,
-    badge: "禮盒",
-    name: "風象星座禮盒",
-    tags: ["雷雕序號", "450mAh", "IPX7防水"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-風象星座-01-100x100.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-風象星座-01-100x100.jpg`,
-    features: [
-      {
-        title: "風象專屬 輕盈禮盒",
-        bullets: ["附收納皮套、Type-C 線與清潔毛刷", "送禮體面，配件一應俱全"],
-        boxPos: "md:absolute md:top-[18%] md:left-[8%]",
-        lineClass:
-          "hidden md:block top-[50%] left-full w-[140px] h-[1px] origin-left rotate-[8deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 7,
-    badge: "產品",
-    name: "風象星座刮鬍刀",
-    tags: ["磁吸刀頭", "Type-C快充", "合金機身"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-風象星座-02.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-風象星座-02.jpg`,
-    features: [
-      {
-        title: "風象配色 自由多變",
-        bullets: ["荷蘭進口自研磨刀片", "9100 轉高速馬達，順暢不拉扯"],
-        boxPos: "md:absolute md:bottom-[18%] md:left-[8%]",
-        lineClass:
-          "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-12deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 8,
-    badge: "禮盒",
-    name: "水象星座禮盒",
-    tags: ["雷雕序號", "450mAh", "IPX7防水"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-水象星座-01.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-水象星座-01.jpg`,
-    features: [
-      {
-        title: "水象專屬 深邃禮盒",
-        bullets: ["星座明信片信封組完整呈現", "適合生日、節日與紀念送禮"],
-        boxPos: "md:absolute md:top-[20%] md:left-[10%]",
-        lineClass:
-          "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
-        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
-      },
-    ],
-  },
-  {
-    id: 9,
-    badge: "產品",
-    name: "水象星座刮鬍刀",
-    tags: ["磁吸刀頭", "Type-C快充", "合金機身"],
-    thumbUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-水象星座-02.jpg`,
-    mainUrl: `${IMG_BASE}/星座系列電動刮鬍刀禮盒-水象星座-02.jpg`,
-    features: [
-      {
-        title: "水象配色 沉靜質感",
-        bullets: ["IPX7 全機防水，可搭配刮鬍泡", "掌心尺寸，差旅隨行無負擔"],
-        boxPos: "md:absolute md:bottom-[15%] md:left-[5%]",
-        lineClass:
-          "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-18deg]",
         dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
       },
     ],
@@ -220,10 +155,14 @@ export default function ProductShowcase() {
           >
             {/* 🌟 核心大圖：已經完全置中 */}
             <div className="relative w-full md:w-[60%] h-[280px] md:h-[90%] flex items-center justify-center z-10 pointer-events-none mb-4 md:mb-0 shrink-0">
-              <img
+              <ProductImage
                 src={currentProduct.mainUrl}
                 alt={currentProduct.name}
-                className="max-h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                className={
+                  currentProduct.mainUrl
+                    ? "max-h-full w-full max-w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                    : "h-[180px] md:h-[280px] w-full max-w-[420px] object-contain"
+                }
               />
             </div>
 
@@ -322,10 +261,14 @@ export default function ProductShowcase() {
 
                 {/* 縮圖 */}
                 <div className="w-full h-[100px] md:h-[120px] mb-3 flex items-center justify-center p-2">
-                  <img
+                  <ProductImage
                     src={product.thumbUrl}
                     alt={product.name}
-                    className="max-h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    className={
+                      product.thumbUrl
+                        ? "max-h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+                        : "h-full w-full"
+                    }
                   />
                 </div>
 

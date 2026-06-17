@@ -6,6 +6,7 @@ export const SUPPORT_NAV = {
     { label: "使用與保養指南", href: "/support/manuals" },
     { label: "產品保固與註冊", href: "/support/warranty" },
     { label: "常見問題 FAQ", href: "/support/faq" },
+    { label: "全台門市", href: "/stores" },
     { label: "使用條款與政策", href: "/support/policies" },
   ],
 };

@@ -191,6 +191,9 @@ export default function Navbar() {
         { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product02" },
         { label: "青春版電動刮鬍刀禮盒-三色", href: "/product03" },
         { label: "星座系列 (CQ系列)", href: "/product04" },
+        { label: "小金剛旗艦三刀頭電動刮鬍刀", href: "/product05" },
+        { label: "電動鼻毛修剪器", href: "/product06" },
+        { label: "完美紳士 MATEBOX 3in1", href: "/product07" },
       ],
     },
     { label: "關於我們", href: "/about" },
@@ -198,6 +201,7 @@ export default function Navbar() {
     { label: "昔馬SMASMALL", href: "/brand" },
     { label: "精選文章", href: "/blog" },
     SUPPORT_NAV,
+    { label: "全台門市", href: "/stores" },
     { label: "聯絡我們", href: "/contact" },
   ];
 

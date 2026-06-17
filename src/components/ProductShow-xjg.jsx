@@ -1,0 +1,296 @@
+"use client";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+
+const IMG_BASE = "/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/產品內容物";
+
+// ============================================================================
+// 昔馬 小金剛旗艦三刀頭 (XJG) 產品線資料
+// ============================================================================
+const PRODUCTS = [
+  {
+    id: 1,
+    badge: "主機",
+    name: "小金剛旗艦三刀頭電動刮鬍刀",
+    tags: ["三刀頭旗艦", "IPX7全機防水", "磁吸快拆"],
+    thumbUrl: `${IMG_BASE}/1.png`,
+    mainUrl: `${IMG_BASE}/1.png`,
+    features: [
+      {
+        title: "三刀頭，大面積覆蓋",
+        bullets: [
+          "三組獨立浮動刀片同步運作，省時高效",
+          "各刀頭自由浮動，精準貼合臉部輪廓",
+        ],
+        boxPos: "md:absolute md:top-[15%] md:left-[5%]",
+        lineClass:
+          "hidden md:block top-[50%] left-full w-[150px] h-[1px] origin-left rotate-[15deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+      {
+        title: "Type-C 快充，長效續航",
+        bullets: [
+          "1 小時充電，使用約 60 分鐘，滿足日常需求",
+          "IPX7 全機防水，可直接水洗機身與刀頭",
+        ],
+        boxPos: "md:absolute md:bottom-[15%] md:left-[8%]",
+        lineClass:
+          "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-20deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 2,
+    badge: "產品",
+    name: "正面展示",
+    tags: ["三刀頭", "旗艦工藝", "鋁合金機身"],
+    thumbUrl: `${IMG_BASE}/2.png`,
+    mainUrl: `${IMG_BASE}/2.png`,
+    features: [
+      {
+        title: "旗艦工藝，質感到位",
+        bullets: [
+          "精密鋁合金機身，工業設計感十足",
+          "握在手中沉穩有力，操控精準",
+        ],
+        boxPos: "md:absolute md:top-[20%] md:left-[10%]",
+        lineClass:
+          "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 3,
+    badge: "產品",
+    name: "刀頭細節",
+    tags: ["磁吸快拆", "水洗清潔", "三組浮動刀片"],
+    thumbUrl: `${IMG_BASE}/3.png`,
+    mainUrl: `${IMG_BASE}/3.png`,
+    features: [
+      {
+        title: "磁吸快拆，清洗無負擔",
+        bullets: [
+          "一秒拆卸刀頭，直接水洗不費力",
+          "保持刀片鋒利，維持最佳刮剃狀態",
+        ],
+        boxPos: "md:absolute md:top-[20%] md:left-[10%]",
+        lineClass:
+          "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+  {
+    id: 4,
+    badge: "包裝",
+    name: "專屬紙袋",
+    tags: ["精美包裝", "送禮首選", "完整配件"],
+    thumbUrl: `${IMG_BASE}/紙袋01.png`,
+    mainUrl: `${IMG_BASE}/紙袋01.png`,
+    features: [
+      {
+        title: "精美包裝，送禮首選",
+        bullets: [
+          "旗艦級包裝設計，拆箱即享儀式感",
+          "完整配件一次到位，送禮體面周到",
+        ],
+        boxPos: "md:absolute md:top-[20%] md:left-[10%]",
+        lineClass:
+          "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
+        dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      },
+    ],
+  },
+];
+
+export default function ProductShowcase() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const currentProduct = PRODUCTS[activeIndex] || PRODUCTS[0];
+
+  const handleDragEnd = (event, info) => {
+    const swipeThreshold = 50;
+    if (info.offset.x < -swipeThreshold) {
+      setActiveIndex((prev) => (prev + 1) % PRODUCTS.length);
+    } else if (info.offset.x > swipeThreshold) {
+      setActiveIndex((prev) => (prev - 1 + PRODUCTS.length) % PRODUCTS.length);
+    }
+  };
+
+  return (
+    <section className="w-full bg-[#050507] font-sans pt-16 pb-[150px] h-auto flex flex-col relative overflow-hidden">
+      {/* 科技感背景光暈 */}
+      <div className="absolute inset-0 z-0 flex items-start justify-center pointer-events-none pt-[13vh]">
+        <div className="absolute w-[80%] max-w-[1200px] h-[400px] bg-[#ea580c] opacity-[0.15] blur-[120px] rounded-[100%]"></div>
+        <div className="absolute w-[50%] max-w-[600px] h-[200px] bg-white opacity-[0.08] blur-[80px] rounded-[100%] mt-[50px]"></div>
+      </div>
+
+      {/* 上方：動態大圖與產品賣點 */}
+      <div className="relative w-full max-w-[1400px] mx-auto min-h-[400px] md:h-[650px] mb-8 md:mb-12 z-10 px-4 md:px-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0, scale: 0.98, x: 0 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.98, x: 0 }}
+            transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={handleDragEnd}
+            className="relative md:absolute inset-0 w-full h-full flex flex-col items-center justify-center touch-pan-y cursor-grab active:cursor-grabbing"
+          >
+            <div className="relative w-full md:w-[60%] h-[280px] md:h-[90%] flex items-center justify-center z-10 pointer-events-none mb-4 md:mb-0 shrink-0">
+              <img
+                src={currentProduct.mainUrl}
+                alt={currentProduct.name}
+                className="max-h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+              />
+            </div>
+
+            {/* 手機版滑動圓點指示器 */}
+            <div className="flex md:hidden items-center justify-center gap-2 mb-6 pointer-events-none">
+              {PRODUCTS.map((_, dotIdx) => (
+                <div
+                  key={dotIdx}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    activeIndex === dotIdx
+                      ? "w-4 bg-[#ea580c]"
+                      : "w-1.5 bg-white/20"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* 浮動賣點文字方塊 */}
+            <div className="w-full flex flex-col gap-4 md:absolute md:inset-0 z-20 pointer-events-none md:pointer-events-auto">
+              {currentProduct.features?.map((feature, idx) => (
+                <div
+                  key={idx}
+                  className={`
+                    ${feature.boxPos}
+                    relative md:absolute
+                    w-full md:w-[280px] bg-[#18181b]/60 md:bg-[#18181b]/80 backdrop-blur-md
+                    p-4 md:p-5 rounded-xl border border-white/5 md:border-white/10 shadow-lg md:shadow-2xl
+                  `}
+                >
+                  <h3 className="text-white text-[14px] md:text-[15px] font-bold leading-tight mb-2 md:mb-3">
+                    {feature.title}
+                  </h3>
+
+                  <ul className="text-[#a1a1aa] text-[12px] md:text-[13px] leading-relaxed space-y-1.5 pl-3">
+                    {feature.bullets.map((bullet, bIdx) => (
+                      <li key={bIdx} className="relative">
+                        <span className="absolute left-[-12px] top-[7px] w-[3px] h-[3px] bg-gray-500 rounded-full"></span>
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {feature.lineClass && (
+                    <div
+                      className={`absolute bg-white/30 pointer-events-none ${feature.lineClass}`}
+                    >
+                      <div
+                        className={`absolute w-[5px] h-[5px] bg-[#ea580c] rounded-full shadow-[0_0_8px_rgba(234,88,12,0.8)] ${feature.dotClass}`}
+                      ></div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* 下方：產品卡片列 */}
+      <div className="w-full max-w-[1600px] mx-auto px-6 overflow-x-auto pb-8 custom-scrollbar z-10 mt-4 md:mt-0">
+        <div className="flex md:justify-center gap-4 min-w-max mx-auto">
+          {PRODUCTS.map((product, index) => {
+            const isActive = activeIndex === index;
+
+            return (
+              <div
+                key={product.id}
+                onMouseEnter={() => setActiveIndex(index)}
+                onClick={() => setActiveIndex(index)}
+                className={`
+                  relative w-[180px] md:w-[220px] flex-shrink-0 rounded-xl p-3 md:p-4 cursor-pointer
+                  transition-all duration-300 ease-out group flex flex-col
+                  ${isActive ? "bg-[#1f1f22]" : "bg-[#131315] hover:bg-[#1a1a1d]"}
+                `}
+                style={{
+                  boxShadow: isActive
+                    ? "inset 0 0 0 1px rgba(255,255,255,0.08)"
+                    : "inset 0 0 0 1px rgba(255,255,255,0.03)",
+                }}
+              >
+                {/* 頂部高光線 */}
+                <div
+                  className={`absolute top-0 left-0 w-full h-[3px] rounded-t-xl transition-all duration-300 ${
+                    isActive
+                      ? "bg-[#ea580c] shadow-[0_0_12px_rgba(234,88,12,0.8)]"
+                      : "bg-transparent"
+                  }`}
+                ></div>
+
+                <div className="bg-[#27272a] text-[#ea580c] border border-[#ea580c]/20 text-[10px] font-bold px-2 py-1 rounded w-fit mb-3">
+                  {product.badge}
+                </div>
+
+                <div className="w-full h-[100px] md:h-[120px] mb-3 flex items-center justify-center p-2">
+                  <img
+                    src={product.thumbUrl}
+                    alt={product.name}
+                    className="max-h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+
+                <h4 className="text-white text-[12px] md:text-[14px] font-medium leading-snug line-clamp-2 mb-3">
+                  {product.name}
+                </h4>
+
+                <div className="flex flex-wrap gap-1.5 mt-auto">
+                  {product.tags?.map((tag, tIdx) => (
+                    <span
+                      key={tIdx}
+                      className="px-1.5 py-0.5 bg-black/40 border border-white/10 rounded-sm text-[10px] text-gray-400 font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 max-w-[1420px] w-[95%] sm:w-[80%] xl:w-[70%] mx-auto">
+        <div className="p-3">
+          <Image
+            src="/images/accessories/小金剛旗艦三刀頭電動刮鬍刀/說明書/繁體版說明書.png"
+            alt="昔馬小金剛旗艦三刀頭電動刮鬍刀說明書 威柏科技-昔馬電動刮鬍刀總代理"
+            width={1000}
+            height={1000}
+            placeholder="empty"
+            loading="lazy"
+            className="w-full"
+          />
+        </div>
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `,
+        }}
+      />
+    </section>
+  );
+}

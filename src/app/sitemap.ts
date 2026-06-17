@@ -13,6 +13,7 @@ const STATIC_PAGES: Array<{
   { path: "/brand", changeFrequency: "monthly", priority: 0.8 },
   { path: "/about", changeFrequency: "monthly", priority: 0.7 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/stores", changeFrequency: "monthly", priority: 0.75 },
   { path: "/support/manuals", changeFrequency: "monthly", priority: 0.65 },
   { path: "/support/warranty", changeFrequency: "monthly", priority: 0.65 },
   { path: "/support/faq", changeFrequency: "monthly", priority: 0.7 },
