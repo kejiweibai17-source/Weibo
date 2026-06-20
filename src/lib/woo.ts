@@ -25,6 +25,11 @@ export type WooProduct = {
   average_rating?: string;
   rating_count?: number;
   meta_data?: Array<{ id?: number; key: string; value: any }>;
+  yoast_seo?: {
+    title?: string;
+    description?: string;
+    focus_keyword?: string;
+  };
   [key: string]: any;
 };
 
@@ -72,6 +77,7 @@ const mapWoo = (p: any): WooProduct => {
     average_rating: p.average_rating || "0",
     rating_count: Number(p.rating_count || 0),
     meta_data: p.meta_data || [],
+    yoast_seo: p.yoast_seo || undefined,
   } as WooProduct;
 };
 

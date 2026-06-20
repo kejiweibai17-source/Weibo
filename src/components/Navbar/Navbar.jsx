@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "next-view-transitions";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { User, ShoppingBag, Menu, X } from "lucide-react";
@@ -104,6 +104,7 @@ export default function Navbar() {
   );
 
   const [navState, setNavState] = useState("global");
+  const [accessoryNavItems, setAccessoryNavItems] = useState([]);
 
   const { scrollYProgress } = useScroll();
 
@@ -182,28 +183,57 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const globalLinks = [
-    {
-      label: "產品資訊",
-      href: "/product01",
-      dropdown: [
-        { label: "捍衛者套裝", href: "/product01" },
-        { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product02" },
-        { label: "青春版電動刮鬍刀禮盒-三色", href: "/product03" },
-        { label: "星座系列 (CQ系列)", href: "/product04" },
-        { label: "小金剛旗艦三刀頭電動刮鬍刀", href: "/product05" },
-        { label: "電動鼻毛修剪器", href: "/product06" },
-        { label: "完美紳士 MATEBOX 3in1", href: "/product07" },
-      ],
-    },
-    { label: "關於我們", href: "/about" },
-    { label: "昔馬產品", href: "/accessories" },
-    { label: "昔馬SMASMALL", href: "/brand" },
-    { label: "精選文章", href: "/blog" },
-    SUPPORT_NAV,
-    { label: "全台門市", href: "/stores" },
-    { label: "聯絡我們", href: "/contact" },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/accessories/nav")
+      .then((res) => (res.ok ? res.json() : { items: [] }))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.items)) {
+          setAccessoryNavItems(data.items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAccessoryNavItems([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const globalLinks = useMemo(
+    () => [
+      {
+        label: "產品內容",
+        href: "/accessories",
+        dropdown:
+          accessoryNavItems.length > 0
+            ? accessoryNavItems
+            : [{ label: "查看全部產品", href: "/accessories" }],
+      },
+      {
+        label: "產品資訊",
+        href: "/product01",
+        dropdown: [
+          { label: "捍衛者套裝", href: "/product01" },
+          { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product02" },
+          { label: "青春版電動刮鬍刀禮盒-三色", href: "/product03" },
+          { label: "星座系列 (CQ系列)", href: "/product04" },
+          { label: "小金剛旗艦三刀頭電動刮鬍刀", href: "/product05" },
+          { label: "電動鼻毛修剪器", href: "/product06" },
+          { label: "完美紳士 MATEBOX 3in1", href: "/product07" },
+        ],
+      },
+      { label: "關於我們", href: "/about" },
+      { label: "昔馬SMASMALL", href: "/brand" },
+      { label: "精選文章", href: "/blog" },
+      SUPPORT_NAV,
+      { label: "全台門市", href: "/stores" },
+      { label: "聯絡我們", href: "/contact" },
+    ],
+    [accessoryNavItems],
+  );
 
   const headerVariants = {
     visible: {
@@ -279,9 +309,9 @@ export default function Navbar() {
                       <div className="absolute top-[80%] left-0 w-full h-8 bg-transparent z-[1999]"></div>
                       <div className="absolute top-[100%] left-0 pt-2 opacity-0 invisible translate-y-4 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-[2000]">
                         <div className="bg-white shadow-2xl py-3 min-w-[260px] border border-gray-100 flex flex-col">
-                          {link.dropdown.map((sub, idx) => (
+                          {link.dropdown.map((sub) => (
                             <Link
-                              key={idx}
+                              key={sub.href}
                               href={sub.href}
                               className="group/item flex items-center px-6 py-3.5 text-[13px] font-medium text-gray-500 hover:bg-slate-50 transition-colors duration-300 overflow-hidden"
                             >

@@ -10,6 +10,7 @@ import {
   normalizeAccordionContent,
   parseContentBullets,
 } from "@/lib/productContentBullets";
+import { extractYoastSeoFromProduct } from "@/lib/yoastSeo";
 
 const DEFAULT_SHIPPING =
   "全館消費滿 NT$1,500 即享免運優惠。台灣本島地區約 1-3 個工作天送達。";
@@ -586,6 +587,8 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
     stripHtml(product.description) ||
     product.name;
 
+  const yoastSeo = extractYoastSeoFromProduct(product);
+
   return {
     id: product.slug,
     title: product.name,
@@ -617,6 +620,9 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
     mediaFolder: null,
     rightPanel,
     purchaseUrl,
+    seoTitle: yoastSeo.title,
+    seoDescription: yoastSeo.description,
+    seoFocusKeyword: yoastSeo.focusKeyword,
   };
 }
 

@@ -924,3 +924,21 @@ add_action('admin_footer', function () {
     </script>
     <?php
 });
+
+/** ---------- WooCommerce REST：輸出 Yoast SEO 供 Next.js 商品頁 metadata ---------- */
+add_filter('woocommerce_rest_prepare_product_object', function ($response, $product, $request) {
+    if (!($product instanceof \WC_Product)) {
+        return $response;
+    }
+
+    $post_id = $product->get_id();
+    $data = $response->get_data();
+    $data['yoast_seo'] = [
+        'title'          => (string) get_post_meta($post_id, '_yoast_wpseo_title', true),
+        'description'    => (string) get_post_meta($post_id, '_yoast_wpseo_metadesc', true),
+        'focus_keyword'  => (string) get_post_meta($post_id, '_yoast_wpseo_focuskw', true),
+    ];
+    $response->set_data($data);
+
+    return $response;
+}, 10, 3);

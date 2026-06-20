@@ -41,9 +41,6 @@ const SLIDE_COUNT = 3;
 function SlideDiscover() {
   return (
     <div className="flex flex-col items-center text-center">
-      <p className="reveal-line mb-4 text-[10px] font-medium uppercase tracking-[0.35em] text-amber-200/90 sm:text-xs">
-        Discover Your Sign
-      </p>
       <h2 className="reveal-line mb-5 text-3xl font-semibold tracking-tight text-white drop-shadow-md sm:text-4xl md:text-5xl lg:text-6xl">
         探索屬於你的星座
       </h2>
@@ -86,7 +83,9 @@ function SlideFourElements() {
               <p className="text-[8px] font-medium uppercase tracking-wider text-white/90 sm:text-[10px]">
                 {card.label}
               </p>
-              <p className="text-[9px] text-white/55 sm:text-[11px]">{card.sub}</p>
+              <p className="text-[9px] text-white/55 sm:text-[11px]">
+                {card.sub}
+              </p>
             </div>
           </div>
         ))}
@@ -100,23 +99,23 @@ function SlideBornSharp() {
 
   return (
     <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-4 md:flex-row md:items-center md:justify-between md:gap-10 lg:gap-16">
-      <div className="reveal-line flex shrink-0 items-end justify-center gap-3 md:gap-4">
-        <div className="relative h-36 w-20 sm:h-44 sm:w-24 md:h-52 md:w-28">
+      <div className="reveal-line flex shrink-0 items-end justify-center gap-4 sm:gap-5 md:gap-6">
+        <div className="relative h-48 w-28 sm:h-56 sm:w-32 md:h-72 md:w-40 lg:h-80 lg:w-44">
           <Image
             src={`${CONSTELLATION}/產品內容物/星座系列電動刮鬍刀禮盒-風象星座-02.png`}
             alt="昔馬星座系列電動刮鬍刀 風象星座"
             fill
-            sizes="120px"
+            sizes="(max-width: 768px) 120px, 180px"
             className="object-contain object-bottom drop-shadow-2xl"
           />
         </div>
-        <div className="relative h-24 w-32 overflow-hidden rounded-sm bg-black/20 sm:h-28 sm:w-40 md:h-32 md:w-48">
+        <div className="relative h-40 w-48 sm:h-48 sm:w-56 md:h-60 md:w-72 lg:h-72 lg:w-80">
           <Image
             src={`${CONSTELLATION}/產品內容物/星座系列電動刮鬍刀禮盒.png`}
             alt="昔馬星座系列電動刮鬍刀禮盒 四象全系列"
             fill
-            sizes="200px"
-            className="object-contain object-bottom"
+            sizes="(max-width: 768px) 200px, 320px"
+            className="object-contain object-bottom drop-shadow-2xl"
           />
         </div>
       </div>
@@ -133,7 +132,10 @@ function SlideBornSharp() {
         </p>
         <ul className="space-y-2.5 text-sm font-light text-white/90 sm:text-base">
           {features.map((item) => (
-            <li key={item} className="reveal-line flex items-center gap-2 md:justify-end">
+            <li
+              key={item}
+              className="reveal-line flex items-center gap-2 md:justify-end"
+            >
               <span className="text-amber-200/90" aria-hidden>
                 ◆
               </span>

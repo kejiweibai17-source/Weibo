@@ -41,26 +41,30 @@ export async function generateMetadata({
     return { title: "商品不存在" };
   }
 
-  const title = `${detail.title}｜昔馬 SMASMALL`;
+  const title =
+    detail.seoTitle?.trim() || `${detail.title}｜昔馬 SMASMALL`;
   const description =
-    detail.shortDesc ??
+    detail.seoDescription?.trim() ||
+    detail.shortDesc ||
     `探索昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
   const ogImage = detail.images?.[0] ?? SEO_CONFIG.defaultOgImage;
   const pageUrl = accessoryDetailPath(id);
+  const keywords = [
+    "昔馬",
+    "SMASMALL",
+    detail.title,
+    "電動刮鬍刀",
+    "威柏科技",
+    "配件",
+    "禮盒",
+    ...(detail.seoFocusKeyword ? [detail.seoFocusKeyword] : []),
+  ];
 
   return {
     metadataBase: new URL(SITE_URL),
     title,
     description,
-    keywords: [
-      "昔馬",
-      "SMASMALL",
-      detail.title,
-      "電動刮鬍刀",
-      "威柏科技",
-      "配件",
-      "禮盒",
-    ],
+    keywords,
     alternates: { canonical: pageUrl },
     openGraph: {
       type: "website",

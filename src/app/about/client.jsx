@@ -44,7 +44,7 @@ const VALUE_PANELS = [
     id: "value-3",
     title: "在地服務",
     subtitle: "總代理承諾",
-    bgImage: "/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png",
+    bgImage: "/images/61e0b64e-1f2c-465c-91e6-34dde2596b4e.png",
     bgGradient: "from-stone-800/80 to-slate-900/95",
     bullets: [
       "威柏科技台灣唯一官方授權總代理",
