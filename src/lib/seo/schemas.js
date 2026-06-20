@@ -114,6 +114,8 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     publisher: { "@id": ids.organization },
     copyrightHolder: { "@id": ids.organization },
     about: { "@id": ids.brand },
+    /** 搜尋結果站點圖示應與 favicon / 品牌 logo 一致（昔馬），勿沿用舊威柏橫幅圖 */
+    thumbnailUrl: absoluteUrl(siteUrl, brand.logoPath),
     image: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
     potentialAction: {
       "@type": "SearchAction",

@@ -77,9 +77,9 @@ export const SEO_CONFIG = {
   ],
   /** 首頁與未指定 OG 頁面的預設社群預覽圖 */
   defaultOgImage: "/images/003-01.png",
-  /** 瀏覽器分頁 / 書籤圖示（全站統一 favicon.ico，避免 Google 抓到舊 logo） */
+  /** 瀏覽器分頁 / 書籤圖示（昔馬 smasmall；勿用威柏橫幅當 favicon） */
   favicon: "/favicon.ico",
-  appleTouchIcon: "/favicon.ico",
+  appleTouchIcon: "/apple-touch-icon.png",
 };
 
 /** 社群預覽圖快取版本（換圖後遞增，強制 FB/LINE 等重新抓取） */
