@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
+import { motion } from "framer-motion";
 
 const ANKER_BLUE = "#1a5cff";
 
@@ -230,13 +231,41 @@ function ConfidenceSection({ confidence }) {
       }}
     >
       <div className="relative mx-auto max-w-[1200px]">
-        <h2 className="text-[28px] font-bold text-white md:text-[36px]">
+        <motion.h2
+          className="text-[28px] font-bold text-white md:text-[36px]"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        >
           {confidence.title}
-        </h2>
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        </motion.h2>
+        <motion.div
+          className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.25, margin: "-48px" }}
+          variants={{
+            hidden: {},
+            show: {
+              transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+            },
+          }}
+        >
           {confidence.items.map((item) => (
-            <div
+            <motion.div
               key={item.label}
+              variants={{
+                hidden: { opacity: 0, y: 48 },
+                show: {
+                  opacity: 1,
+                  y: 0,
+                  transition: {
+                    duration: 0.68,
+                    ease: [0.16, 1, 0.3, 1],
+                  },
+                },
+              }}
               className="flex min-h-[160px] flex-col justify-between bg-white p-6"
             >
               <div className="flex items-start justify-between gap-4">
@@ -248,9 +277,9 @@ function ConfidenceSection({ confidence }) {
               <p className="mt-8 text-[17px] font-bold leading-snug text-[#1d1d1f]">
                 {item.text}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

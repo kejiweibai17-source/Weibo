@@ -272,11 +272,12 @@ export default function AccessoryRightPanel({ panel }) {
             const isInstagram = platform === "instagram";
             const isYoutube = platform === "youtube";
             const useYoutubeCarousel = isYoutube && items.length > 1;
+            const useCompactSocialGrid = isFacebook || isInstagram;
 
             return (
               <div
                 key={platform}
-                className={isFacebook ? "space-y-3" : "space-y-4"}
+                className={useCompactSocialGrid ? "space-y-3" : "space-y-4"}
               >
                 <h4 className="text-[15px] font-semibold text-gray-500 uppercase tracking-wider">
                   {sectionTitles[titleKey]}
@@ -286,11 +287,9 @@ export default function AccessoryRightPanel({ panel }) {
                 ) : (
                   <div
                     className={`grid items-start ${
-                      isFacebook
+                      useCompactSocialGrid
                         ? "grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-2"
-                        : isInstagram
-                          ? "grid-cols-1 gap-4"
-                          : "grid-cols-1 gap-4 lg:gap-6"
+                        : "grid-cols-1 gap-4 lg:gap-6"
                     }`}
                   >
                     {items.map((embed) => (
