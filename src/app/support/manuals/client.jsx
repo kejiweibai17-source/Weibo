@@ -10,6 +10,7 @@ import {
   MANUAL_DOWNLOADS,
 } from "@/data/supportContent";
 import { POLICY_NAV_LINKS } from "@/data/policyContent";
+import BladeRemovalParallax from "@/components/BladeRemovalParallax";
 
 const ICONS = {
   droplets: () => (
@@ -85,7 +86,6 @@ const ICONS = {
 };
 
 const SECTION_IMG = {
-  "daily-clean": "/images/index/banner-02.png",
   "blade-care": "/images/index/banner-03.png",
   waterproof: "/images/index/banner-04.png",
   storage: "/images/index/banner-05.png",
@@ -180,6 +180,58 @@ export default function ManualsClient() {
           <div className="space-y-20">
             {CARE_GUIDE_SECTIONS.map((section, idx) => {
               const isEven = idx % 2 === 0;
+              const isDailyClean = section.id === "daily-clean";
+
+              const stepContent = (
+                <div className="flex-1 lg:sticky lg:top-28 lg:self-start">
+                  <span className="text-[11px] font-mono font-bold text-[#00B4D8] tracking-[0.2em] uppercase">
+                    Step {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="text-[1.5rem] md:text-[2rem] font-black text-[#0d2233] uppercase mt-2 mb-4 tracking-tight">
+                    {section.title}
+                  </h3>
+                  <p className="text-[15px] text-[#4a7c99] leading-relaxed mb-6 font-medium">
+                    {section.summary}
+                  </p>
+                  <ol className="space-y-3">
+                    {section.steps.map((step, stepIdx) => (
+                      <li key={stepIdx} className="flex gap-4 items-start">
+                        <span className="shrink-0 w-6 h-6 rounded-full bg-[#00B4D8] text-white text-[11px] font-black flex items-center justify-center mt-0.5">
+                          {stepIdx + 1}
+                        </span>
+                        <p className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed">
+                          {step}
+                        </p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              );
+
+              if (isDailyClean) {
+                return (
+                  <motion.div
+                    key={section.id}
+                    id={`section-${section.id}`}
+                    className="scroll-mt-28 flex flex-col lg:flex-row gap-10 lg:gap-16 lg:items-center"
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <div className="w-full lg:w-[45%] shrink-0 relative">
+                      <BladeRemovalParallax />
+                      <div className="pointer-events-none absolute bottom-4 left-4 z-20 sm:bottom-6 sm:left-6">
+                        <span className="text-[#0d2233]/45 text-[12px] font-semibold tracking-widest">
+                          0{idx + 1} / {CARE_GUIDE_SECTIONS.length}
+                        </span>
+                      </div>
+                    </div>
+                    {stepContent}
+                  </motion.div>
+                );
+              }
+
               return (
                 <motion.div
                   key={section.id}
@@ -205,30 +257,7 @@ export default function ManualsClient() {
                       </span>
                     </div>
                   </div>
-
-                  <div className="flex-1">
-                    <span className="text-[11px] font-mono font-bold text-[#00B4D8] tracking-[0.2em] uppercase">
-                      Step {String(idx + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="text-[1.5rem] md:text-[2rem] font-black text-[#0d2233] uppercase mt-2 mb-4 tracking-tight">
-                      {section.title}
-                    </h3>
-                    <p className="text-[15px] text-[#4a7c99] leading-relaxed mb-6 font-medium">
-                      {section.summary}
-                    </p>
-                    <ol className="space-y-3">
-                      {section.steps.map((step, stepIdx) => (
-                        <li key={stepIdx} className="flex gap-4 items-start">
-                          <span className="shrink-0 w-6 h-6 rounded-full bg-[#00B4D8] text-white text-[11px] font-black flex items-center justify-center mt-0.5">
-                            {stepIdx + 1}
-                          </span>
-                          <p className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed">
-                            {step}
-                          </p>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
+                  {stepContent}
                 </motion.div>
               );
             })}
