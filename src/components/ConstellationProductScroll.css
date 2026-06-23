@@ -1,0 +1,235 @@
+@import url("https://fonts.cdnfonts.com/css/pp-neue-montreal");
+
+.cps-section {
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  background-color: #e0dfdf;
+  color: #0d0d0d;
+  overflow: hidden;
+  font-family: "PP Neue Montreal", sans-serif;
+}
+
+.cps-section h1 {
+  font-size: 4rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.cps-section h2 {
+  font-size: 3rem;
+  font-weight: 500;
+  line-height: 1.125;
+  letter-spacing: -0.03rem;
+}
+
+.cps-section p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.cps-section .model-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.cps-section .model-container canvas {
+  display: block;
+}
+
+.cps-section .header-1 {
+  position: relative;
+  width: 200vw;
+  height: 100svh;
+  color: #0d0d0d;
+  transform: translateX(0%);
+  z-index: 50;
+}
+
+.cps-section .header-2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 150vw;
+  height: 100svh;
+  color: #e0dfdf;
+  transform: translateX(100%);
+  z-index: 50;
+}
+
+.cps-section .header-1,
+.cps-section .header-2 {
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.cps-section .header-1 h1,
+.cps-section .header-2 h1 {
+  width: 100%;
+  font-size: 15vw;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.cps-section .circular-mask-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  clip-path: circle(0% at 50% 50%);
+  z-index: 1;
+  will-change: clip-path;
+}
+
+.cps-section .circular-mask-glass {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  clip-path: circle(0% at 50% 50%);
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.42);
+  will-change: clip-path;
+}
+
+.cps-section .tooltips {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  height: 75%;
+  display: flex;
+  gap: 15rem;
+  z-index: 55;
+  pointer-events: none;
+}
+
+.cps-section .tooltip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: #e0dfdf;
+}
+
+.cps-section .tooltip:nth-child(2) {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.cps-section .tooltip .eyebrow {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.cps-section .tooltip .divider {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background-color: #5f5f5f;
+  margin: 0.5rem 0;
+  transform: scaleX(0%);
+}
+
+.cps-section .tooltip:nth-child(1) .divider {
+  transform-origin: right center;
+}
+
+.cps-section .tooltip:nth-child(2) .divider {
+  transform-origin: left center;
+}
+
+.cps-section .tooltip .description {
+  color: #a8a8a8;
+}
+
+.cps-section .tooltip:nth-child(2) .eyebrow,
+.cps-section .tooltip:nth-child(2) .title,
+.cps-section .tooltip:nth-child(2) .description {
+  width: 70%;
+}
+
+.cps-section .header-1 h1 .char,
+.cps-section .tooltip .title .line,
+.cps-section .tooltip .description .line {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.cps-section .header-1 h1 .char > span {
+  position: relative;
+  display: block;
+  transform: translateY(100%);
+  will-change: transform;
+}
+
+.cps-section .tooltip .eyebrow,
+.cps-section .tooltip .title .line > span,
+.cps-section .tooltip .description .line > span {
+  position: relative;
+  display: block;
+  transform: translateY(125%);
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+
+@media (max-width: 1000px) {
+  .cps-section h1 {
+    text-align: center;
+    font-size: 2rem;
+  }
+
+  .cps-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .cps-section .tooltips {
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .cps-section .tooltip {
+    width: 85%;
+  }
+
+  .cps-section .tooltip:nth-child(2) {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .cps-section .tooltip .divider {
+    width: 70%;
+  }
+
+  .cps-section .tooltip:nth-child(2) .divider {
+    transform-origin: right center;
+  }
+
+  .cps-section .tooltip:nth-child(2) .eyebrow,
+  .cps-section .tooltip:nth-child(2) .title,
+  .cps-section .tooltip:nth-child(2) .description {
+    width: 100%;
+  }
+}

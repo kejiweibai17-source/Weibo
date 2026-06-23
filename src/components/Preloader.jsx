@@ -10,13 +10,19 @@ import PreloaderBackdrop from "./PreloaderBackdrop";
 export default function Preloader({ onComplete }) {
   const overlayRef = useRef(null);
   const introTextRef = useRef(null);
+  const brandTextRef = useRef(null);
   const lineRef = useRef(null);
 
-  const { contextSafe } = useGSAP({ scope: overlayRef });
+  const { contextSafe } = useGSAP(
+    () => {
+      gsap.set(brandTextRef.current, { opacity: 0 });
+      gsap.set(lineRef.current, { opacity: 0, scaleX: 0 });
+    },
+    { scope: overlayRef },
+  );
 
   const playIntro = contextSafe(() => {
     const tl = gsap.timeline({
-      // 當黑幕完全消失時，呼叫父層傳入的 onComplete 函數
       onComplete: () => {
         markPreloaderPlayedThisSession();
         if (onComplete) onComplete();
@@ -28,13 +34,30 @@ export default function Preloader({ onComplete }) {
       duration: 0.6,
       ease: "power2.inOut",
     })
-      .to(lineRef.current, { opacity: 1, duration: 0.2 })
+      .to(
+        brandTextRef.current,
+        {
+          opacity: 1,
+          duration: 0.75,
+          ease: "power2.out",
+        },
+        "-=0.1",
+      )
+      .to(
+        lineRef.current,
+        { opacity: 1, duration: 0.5, ease: "power2.out" },
+        "<0.15",
+      )
       .to(lineRef.current, {
         scaleX: 1,
         duration: 2.5,
         ease: "power2.inOut",
       })
-      .to(lineRef.current, { opacity: 0, duration: 0.4 })
+      .to(
+        [brandTextRef.current, lineRef.current],
+        { opacity: 0, duration: 0.55, ease: "power2.inOut" },
+        "+=0",
+      )
       .to(overlayRef.current, {
         opacity: 0,
         duration: 1.5,
@@ -72,10 +95,18 @@ export default function Preloader({ onComplete }) {
         </button>
       </div>
 
-      <div
-        ref={lineRef}
-        className="absolute z-10 h-[1px] w-[250px] bg-white opacity-0 origin-left scale-x-0"
-      />
+      <div className="absolute z-10 flex flex-col items-center">
+        <p
+          ref={brandTextRef}
+          className="mb-5 text-lg font-light uppercase tracking-[0.35em] text-white opacity-0 drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)] will-change-opacity md:text-2xl"
+        >
+          昔馬smasmall
+        </p>
+        <div
+          ref={lineRef}
+          className="h-[1px] w-[250px] origin-left scale-x-0 bg-white opacity-0 md:w-[320px]"
+        />
+      </div>
     </div>
   );
 }

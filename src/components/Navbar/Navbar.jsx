@@ -204,16 +204,9 @@ export default function Navbar() {
 
   const globalLinks = useMemo(
     () => [
+      { label: "昔馬smasmall", href: "/brand" },
       {
-        label: "產品內容",
-        href: "/accessories",
-        dropdown:
-          accessoryNavItems.length > 0
-            ? accessoryNavItems
-            : [{ label: "查看全部產品", href: "/accessories" }],
-      },
-      {
-        label: "產品資訊",
+        label: "系列商品",
         href: "/product01",
         dropdown: [
           { label: "捍衛者套裝", href: "/product01" },
@@ -225,8 +218,14 @@ export default function Navbar() {
           { label: "完美紳士 MATEBOX 3in1", href: "/product07" },
         ],
       },
-      { label: "關於我們", href: "/about" },
-      { label: "昔馬SMASMALL", href: "/brand" },
+      {
+        label: "產品列表",
+        href: "/accessories",
+        dropdown:
+          accessoryNavItems.length > 0
+            ? accessoryNavItems
+            : [{ label: "查看全部產品", href: "/accessories" }],
+      },
       { label: "精選文章", href: "/blog" },
       SUPPORT_NAV,
       { label: "全台門市", href: "/stores" },

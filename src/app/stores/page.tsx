@@ -1,14 +1,15 @@
 import { Metadata } from "next";
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
-import { RETAIL_STORES, getGoogleMapsUrl } from "@/data/retailStores";
+import { getStoreMapsUrl } from "@/data/retailStores";
+import { getRetailStores } from "@/lib/retailStores.server";
 import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
 } from "@/lib/seo/schemas";
 
-export const revalidate = 86400;
+export const revalidate = 60;
 
 const SITE_URL = getSiteUrl();
 const PATH = "/stores";
@@ -57,14 +58,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function StoresPage() {
+export default async function StoresPage() {
+  const stores = await getRetailStores();
+
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "昔馬 SMASMALL 全台門市據點",
     description: "販售昔馬 SMASMALL 電動刮鬍刀之實體門市列表",
-    numberOfItems: RETAIL_STORES.length,
-    itemListElement: RETAIL_STORES.map((store, index) => ({
+    numberOfItems: stores.length,
+    itemListElement: stores.map((store, index) => ({
       "@type": "ListItem",
       position: index + 1,
       item: {
@@ -78,7 +81,7 @@ export default function StoresPage() {
           addressRegion: store.region,
           addressCountry: "TW",
         },
-        url: getGoogleMapsUrl(store.address),
+        url: getStoreMapsUrl(store),
         brand: {
           "@type": "Brand",
           name: "SMASMALL 昔馬",
@@ -100,7 +103,7 @@ export default function StoresPage() {
     <>
       <JsonLd data={schemas} />
       <main className="w-full min-h-screen">
-        <Client />
+        <Client stores={stores} />
       </main>
     </>
   );

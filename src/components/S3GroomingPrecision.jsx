@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 const EXPLORER_DATA = [
   {
     id: 1,
-    image: "/images/focus/carousel-01.png",
+    image: "/images/61e0b64e-1f2c-465c-91e6-34dde2596b4e.png",
     imageAlt:
       "智慧散熱系統透視圖 昔馬電動刮鬍刀內部結構 威柏科技-昔馬電動刮鬍刀總代理",
     bgScale: 2.2,
@@ -89,11 +89,11 @@ export default function InteractiveExplorer() {
           1. 背景圖片層 (🌟 已拔除 16:9 限制，現在是真正的全螢幕滿版)
           ========================================================= */}
       <motion.div
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 w-full h-full pointer-events-none will-change-transform [backface-visibility:hidden] [transform:translateZ(0)]"
         animate={{
           scale: viewMode === "detail" ? currentData.bgScale : 1,
-          opacity: viewMode === "detail" ? 0.7 : 1,
-          filter: viewMode === "detail" ? "brightness(0.6)" : "brightness(1)",
+          opacity: 1,
+          filter: "brightness(1)",
           transformOrigin: `${currentData.hotspot.left} ${currentData.hotspot.top}`,
         }}
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
@@ -112,12 +112,27 @@ export default function InteractiveExplorer() {
               src={currentData.image}
               alt={currentData.imageAlt}
               fill
-              className="object-cover"
+              quality={100}
+              sizes={`${Math.ceil(currentData.bgScale * 100)}vw`}
+              className="object-cover [image-rendering:auto]"
               priority
             />
           </motion.div>
         </AnimatePresence>
       </motion.div>
+
+      <AnimatePresence>
+        {viewMode === "detail" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 z-[5] pointer-events-none bg-black/25"
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
 
       {/* =========================================================
           2. 全視角模式 - 閃爍點 (Hotspot)
@@ -160,7 +175,7 @@ export default function InteractiveExplorer() {
             className="absolute inset-0 pointer-events-none z-10"
           >
             <div
-              className="absolute border border-white/40 rounded-xl bg-white/5 backdrop-blur-[2px] transition-all duration-700"
+              className="absolute rounded-xl border border-white/50 bg-transparent shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)] transition-all duration-700"
               style={{
                 top: currentData.detail.frame.top,
                 left: currentData.detail.frame.left,

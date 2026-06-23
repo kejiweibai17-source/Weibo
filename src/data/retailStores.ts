@@ -2,17 +2,74 @@ export type RetailStore = {
   id: string;
   name: string;
   brand: string;
-  region: "中部" | "南部";
+  region: "北部" | "中部" | "南部" | "東部" | "離島";
   city: string;
   address: string;
   phone: string;
   hours: string;
   note?: string;
+  /** 官方 Google Maps 短網址（若有） */
+  mapsUrl?: string;
 };
 
-/** 產生 Google Maps 搜尋／導航連結 */
+/** 產生 Google Maps 搜尋／導航連結（無官方短網址時使用） */
 export function getGoogleMapsUrl(address: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+export function getStoreMapsUrl(store: RetailStore) {
+  return store.mapsUrl ?? getGoogleMapsUrl(store.address);
+}
+
+export function getRetailStoreCities(stores: RetailStore[] = RETAIL_STORES) {
+  return Array.from(new Set(stores.map((store) => store.city)));
+}
+
+export function filterRetailStores(
+  stores: RetailStore[],
+  { keyword = "", city = "" }: { keyword?: string; city?: string },
+) {
+  const normalizedKeyword = keyword.trim().toLowerCase();
+
+  return stores.filter((store) => {
+    const matchesCity = !city || store.city === city;
+    if (!matchesCity) return false;
+    if (!normalizedKeyword) return true;
+
+    const haystack = [
+      store.name,
+      store.brand,
+      store.city,
+      store.address,
+      store.phone,
+      store.hours,
+      store.note ?? "",
+      store.region,
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(normalizedKeyword);
+  });
+}
+
+export function getStoresGroupedByRegion(stores: RetailStore[] = RETAIL_STORES) {
+  const REGION_ORDER: RetailStore["region"][] = [
+    "北部",
+    "中部",
+    "南部",
+    "東部",
+    "離島",
+  ];
+
+  const presentRegions = Array.from(new Set(stores.map((store) => store.region)));
+
+  return REGION_ORDER.filter((region) => presentRegions.includes(region)).map(
+    (region) => ({
+      region,
+      stores: stores.filter((store) => store.region === region),
+    }),
+  );
 }
 
 /**
@@ -30,6 +87,7 @@ export const RETAIL_STORES: RetailStore[] = [
     phone: "05-3208040",
     hours: "每日 11:00 – 22:00",
     note: "威柏科技旗下選物店，可體驗昔馬刮鬍刀系列",
+    mapsUrl: "https://maps.app.goo.gl/pAuMevHryYvVAh4E7",
   },
   {
     id: "weiz-taichung",
@@ -41,6 +99,7 @@ export const RETAIL_STORES: RetailStore[] = [
     phone: "04-37048488",
     hours: "平日 11:00 – 22:00｜假日 10:30 – 22:00",
     note: "威柏科技旗下選物店，可體驗昔馬刮鬍刀系列",
+    mapsUrl: "https://maps.app.goo.gl/W7Bg4iXpCRWBQ2Ke6",
   },
   {
     id: "jc-taichung",
@@ -63,14 +122,6 @@ export const RETAIL_STORES: RetailStore[] = [
     phone: "07-9715557",
     hours: "每日 11:00 – 22:00",
     note: "威柏科技旗下選物店，可體驗昔馬刮鬍刀系列",
+    mapsUrl: "https://maps.app.goo.gl/DkKuRovqTmFEJRvb9",
   },
 ];
-
-const REGION_ORDER = ["中部", "南部"] as const;
-
-export function getStoresGroupedByRegion() {
-  return REGION_ORDER.map((region) => ({
-    region,
-    stores: RETAIL_STORES.filter((store) => store.region === region),
-  })).filter((group) => group.stores.length > 0);
-}

@@ -1,24 +1,171 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import WaabiScrollIntro from "@/components/WaabiScrollIntro";
 import { Globe, ArrowRight } from "lucide-react";
 import Copy from "@/components/Copy";
+
+gsap.registerPlugin(ScrollTrigger);
+
 const LINE_OFFICIAL_URL =
   "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
+
+const BRAND_HERO_IMAGE = "/images/3d922fff-8ec9-4ec6-97b1-35b15933b297.png";
 
 // ============================================================================
 // 昔馬 SMASMALL 真實產品系列資料設定 (全繁體中文在地化)
 // ============================================================================
 const CORE_STATS = [
-  { value: "100%", label: "全合金壓鑄機身" },
-  { value: "1 秒", label: "磁吸刀頭快拆" },
-  { value: "IPX7", label: "全機防水乾濕兩用" },
-  { value: "0.05mm", label: "荷蘭進口精鋼刀網" },
-  { value: "12 個月", label: "台灣總代理原廠保固" },
+  { end: 100, suffix: "%", decimals: 0, label: "全合金壓鑄機身" },
+  { end: 1, suffix: " 秒", decimals: 0, label: "磁吸刀頭快拆" },
+  { display: "IPX7", label: "全機防水乾濕兩用" },
+  { end: 0.05, suffix: "mm", decimals: 2, label: "荷蘭進口精鋼刀網" },
+  { end: 12, suffix: " 個月", decimals: 0, label: "台灣總代理原廠保固" },
 ];
+
+function formatStatValue(value: number, decimals: number) {
+  return decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
+}
+
+function BrandRevealImage() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (!wrapRef.current || !innerRef.current) return;
+
+      gsap.set(wrapRef.current, { width: "0%" });
+      gsap.set(innerRef.current, { scale: 1.18, transformOrigin: "left center" });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: wrapRef.current,
+          start: "top 82%",
+          once: true,
+        },
+      });
+
+      tl.to(
+        wrapRef.current,
+        { width: "100%", duration: 1.35, ease: "power3.inOut" },
+        0,
+      ).to(
+        innerRef.current,
+        { scale: 1, duration: 1.35, ease: "power3.out" },
+        0,
+      );
+    },
+    { scope: wrapRef },
+  );
+
+  return (
+    <div
+      ref={wrapRef}
+      className="lg:col-span-7 relative h-[400px] md:h-[500px] max-w-full overflow-hidden rounded-lg shadow-sm"
+    >
+      <div ref={innerRef} className="absolute inset-0 h-full w-full">
+        <Image
+          src={BRAND_HERO_IMAGE}
+          alt="昔馬 SMASMALL 全合金電動刮鬍刀 品牌形象 威柏科技台灣總代理"
+          fill
+          sizes="(min-width: 1024px) 60vw, 100vw"
+          quality={100}
+          className="object-cover object-center"
+          priority
+        />
+      </div>
+    </div>
+  );
+}
+
+function AnimatedStatValue({
+  stat,
+  index,
+}: {
+  stat: (typeof CORE_STATS)[number];
+  index: number;
+}) {
+  const valueRef = useRef<HTMLDivElement>(null);
+  const initialText =
+    stat.display ??
+    `${formatStatValue(0, stat.decimals ?? 0)}${stat.suffix ?? ""}`;
+  const [text, setText] = useState(initialText);
+
+  useGSAP(
+    () => {
+      if (!valueRef.current) return;
+
+      if (stat.display) {
+        gsap.fromTo(
+          valueRef.current,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.9,
+            delay: index * 0.08,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: valueRef.current,
+              start: "top 88%",
+              once: true,
+            },
+          },
+        );
+        return;
+      }
+
+      const counter = { value: 0 };
+      gsap.to(counter, {
+        value: stat.end ?? 0,
+        duration: 1.8,
+        delay: index * 0.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: valueRef.current,
+          start: "top 88%",
+          once: true,
+        },
+        onUpdate: () => {
+          setText(
+            `${formatStatValue(counter.value, stat.decimals ?? 0)}${stat.suffix ?? ""}`,
+          );
+        },
+      });
+    },
+    { scope: valueRef, dependencies: [stat, index] },
+  );
+
+  return (
+    <div
+      ref={valueRef}
+      className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-1 tabular-nums"
+    >
+      {stat.display ?? text}
+    </div>
+  );
+}
+
+function BrandCoreStats() {
+  return (
+    <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-gray-200 pt-8">
+      {CORE_STATS.map((stat, idx) => (
+        <div key={stat.label} className={idx === 4 ? "col-span-2" : ""}>
+          <AnimatedStatValue stat={stat} index={idx} />
+          <div className="text-xs md:text-sm text-gray-500 font-medium">
+            {stat.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 const PRODUCT_CATEGORIES = [
   {
     categoryTitle: "Premium Alloy Series",
@@ -92,10 +239,7 @@ export default function SmasmallCollections() {
 
         {/* 下方左右內容：左側形象大圖，右側數據與敘述 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* 左側大圖 (光束延伸入空的情境) */}
-          <div className="lg:col-span-7 relative h-[400px] md:h-[500px] w-full rounded-lg overflow-hidden shadow-sm">
-            <div className="absolute inset-0 bg-[url('/images/3d922fff-8ec9-4ec6-97b1-35b15933b297.png')] bg-cover bg-center" />
-          </div>
+          <BrandRevealImage />
 
           {/* 右側文字與數據面板 */}
           <div className="lg:col-span-5 flex flex-col justify-between h-full">
@@ -107,19 +251,7 @@ export default function SmasmallCollections() {
               </p>
             </Copy>
 
-            {/* 核心數據網格佈局 */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-gray-200 pt-8">
-              {CORE_STATS.map((stat, idx) => (
-                <div key={idx} className={idx === 4 ? "col-span-2" : ""}>
-                  <div className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs md:text-sm text-gray-500 font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <BrandCoreStats />
           </div>
         </div>
       </section>

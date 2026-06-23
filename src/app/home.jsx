@@ -7,7 +7,7 @@ import Parallax from "../components/ParallaxPage";
 import EmblaCarousel, { OPTIONS } from "@/components/EmblaCarousel/index";
 import TextParallaxContentExample02 from "../components/TextParallaxContent02/page";
 import Slider from "../components/Slider/Slider";
-import TextScrollSequence from "../components/TextScrollSequence";
+import ConstellationProductScroll from "../components/ConstellationProductScroll";
 import ContactSection from "../components/ContactSection";
 import Copy from "@/components/Copy";
 
@@ -21,7 +21,7 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
 
       {/* 僅移除 opacity-0，讓底下的 GSAP 能夠正常鎖定背景 */}
       <div ref={pageContentRef} className="page-content z-10 relative">
-        <TextScrollSequence />
+        <ConstellationProductScroll />
         <section className="bg-white px-6 py-16 md:py-24">
           <div className="mx-auto mb-12 max-w-3xl text-center md:mb-16">
             <Copy>

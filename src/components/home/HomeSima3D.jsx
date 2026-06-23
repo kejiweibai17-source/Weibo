@@ -14,132 +14,25 @@ import {
   useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
+import {
+  SIMA_BUTTON,
+  SIMA_CHROME_LID,
+  SIMA_SILVER_METAL,
+  SIMA_SPACE_GRAY,
+  SIMA_TRIM_RING,
+  finalizeSimaGlbModel,
+} from "@/lib/simaGlbMaterials";
 
 const MODEL_PATH = "/3d/sima.glb";
 
-/** iPhone 太空灰：高金屬、中高粗糙、微 clearcoat 絲綢消光 */
-const SPACE_GRAY = {
-  color: "#8e9399",
-  metalness: 0.97,
-  roughness: 0.66,
-  clearcoat: 0.22,
-  clearcoatRoughness: 0.42,
-  sheen: 0.18,
-  sheenRoughness: 0.75,
-  sheenColor: "#c8ccd2",
-  envMapIntensity: 1.35,
-};
-
 const MATERIALS = {
-  chromeLid: {
-    color: "#e2e6eb",
-    metalness: 1,
-    roughness: 0.12,
-    clearcoat: 0.7,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 2.2,
-  },
-  matteBody: SPACE_GRAY,
-  trimRing: {
-    color: "#a8adb4",
-    metalness: 1,
-    roughness: 0.28,
-    clearcoat: 0.45,
-    clearcoatRoughness: 0.18,
-    envMapIntensity: 1.6,
-  },
-  buttonFace: {
-    color: "#6d7278",
-    metalness: 0.72,
-    roughness: 0.74,
-    clearcoat: 0.1,
-    clearcoatRoughness: 0.5,
-    envMapIntensity: 1,
-  },
+  chromeLid: SIMA_CHROME_LID,
+  matteBody: SIMA_SPACE_GRAY,
+  trimRing: SIMA_TRIM_RING,
+  buttonFace: SIMA_BUTTON,
 };
 
 useGLTF.preload(MODEL_PATH);
-
-function createPBR(name, preset) {
-  const mat = new THREE.MeshPhysicalMaterial({
-    name,
-    color: new THREE.Color(preset.color),
-    metalness: preset.metalness,
-    roughness: preset.roughness,
-    clearcoat: preset.clearcoat ?? 0,
-    clearcoatRoughness: preset.clearcoatRoughness ?? 0.3,
-    envMapIntensity: preset.envMapIntensity ?? 1,
-    side: THREE.FrontSide,
-  });
-
-  if (preset.sheen != null) {
-    mat.sheen = preset.sheen;
-    mat.sheenRoughness = preset.sheenRoughness ?? 0.5;
-    mat.sheenColor = new THREE.Color(preset.sheenColor ?? "#ffffff");
-  }
-
-  return mat;
-}
-
-function fixTextureColorSpace(mat) {
-  if (!mat) return;
-  ["map", "emissiveMap", "normalMap", "roughnessMap", "metalnessMap", "aoMap"].forEach(
-    (key) => {
-      const tex = mat[key];
-      if (tex?.isTexture) {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.needsUpdate = true;
-      }
-    },
-  );
-}
-
-function resolveMaterial(meshName) {
-  if (meshName.includes("上蓋")) return createPBR("Chrome Lid", MATERIALS.chromeLid);
-  if (meshName.includes("中間層")) return createPBR("Trim Ring", MATERIALS.trimRing);
-  if (meshName.includes("立方體")) return createPBR("Button", MATERIALS.buttonFace);
-  return createPBR("Space Gray Body", MATERIALS.matteBody);
-}
-
-function applyGlbMaterials(root) {
-  root.traverse((child) => {
-    if (!child.isMesh) return;
-
-    const meshName = child.name ?? "";
-    const matName = child.material?.name ?? "";
-
-    if (matName === "背景" || meshName.includes("背景")) {
-      child.visible = false;
-      return;
-    }
-
-    child.castShadow = false;
-    child.receiveShadow = true;
-
-    if (child.geometry) {
-      child.geometry.computeVertexNormals();
-    }
-
-    if (matName.includes("logo") || meshName.includes("logo")) {
-      const mats = Array.isArray(child.material)
-        ? child.material
-        : [child.material];
-      mats.forEach((m) => {
-        if (!m) return;
-        fixTextureColorSpace(m);
-        if ("transmission" in m) {
-          m.transmission = 0;
-          m.transparent = false;
-        }
-        m.envMapIntensity = 1.1;
-        m.needsUpdate = true;
-      });
-      return;
-    }
-
-    child.material = resolveMaterial(meshName);
-  });
-}
 
 function EnvMapSync({ model }) {
   const { scene } = useThree();
@@ -150,9 +43,11 @@ function EnvMapSync({ model }) {
     model.traverse((child) => {
       if (!child.isMesh || !child.material) return;
       const m = child.material;
-      if (m.name === "Chrome Lid") m.envMapIntensity = MATERIALS.chromeLid.envMapIntensity;
+      if (m.name === "Silver Metal") {
+        m.envMapIntensity = SIMA_SILVER_METAL.envMapIntensity;
+      }
       else if (m.name === "Trim Ring") m.envMapIntensity = MATERIALS.trimRing.envMapIntensity;
-      else if (m.name === "Space Gray Body") {
+      else if (m.name === "Matte Titanium Body") {
         m.envMapIntensity = MATERIALS.matteBody.envMapIntensity;
       }
       m.needsUpdate = true;
@@ -178,7 +73,7 @@ function SimaModel() {
 
   const model = useMemo(() => {
     const clone = scene.clone(true);
-    applyGlbMaterials(clone);
+    finalizeSimaGlbModel(clone);
     return clone;
   }, [scene]);
 

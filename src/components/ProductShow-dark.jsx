@@ -180,13 +180,35 @@ export default function ProductShowcase() {
           下方：產品 Hover 卡片列 (加入 Tags 標籤系統)
           ================================================== */}
       <div className="w-full max-w-[1600px] mx-auto px-6 overflow-x-auto pb-8 custom-scrollbar z-10 mt-4 md:mt-0">
-        <div className="flex md:justify-center gap-4 min-w-max mx-auto">
+        <motion.div
+          className="flex md:justify-center gap-4 min-w-max mx-auto"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.35, margin: "-60px" }}
+          variants={{
+            hidden: {},
+            show: {
+              transition: { staggerChildren: 0.14, delayChildren: 0.06 },
+            },
+          }}
+        >
           {PRODUCTS.map((product, index) => {
             const isActive = activeIndex === index;
 
             return (
-              <div
+              <motion.div
                 key={product.id}
+                variants={{
+                  hidden: { opacity: 0, x: -56 },
+                  show: {
+                    opacity: 1,
+                    x: 0,
+                    transition: {
+                      duration: 0.72,
+                      ease: [0.16, 1, 0.3, 1],
+                    },
+                  },
+                }}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => setActiveIndex(index)}
                 className={`
@@ -239,10 +261,10 @@ export default function ProductShowcase() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
       <div className="grid grid-cols-1 max-w-[1420px] w-[95%] sm:w-[80%] xl:w-[70%] mx-auto">
         <div className="p-3">
