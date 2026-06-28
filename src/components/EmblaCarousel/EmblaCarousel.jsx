@@ -110,7 +110,7 @@ const EmblaCarousel = (props) => {
         </div>
 
         {/* 右側：兩段式描述內文 */}
-        <div className="w-full lg:w-[45%] flex flex-col gap-6 text-stone-800 text-[15px] md:text-[16px] leading-relaxed lg:pt-14 font-light">
+        <div className="w-full lg:w-[45%] flex flex-col gap-6 text-stone-900 text-[15px] md:text-[16px] leading-relaxed lg:pt-14 font-normal">
           <Copy>
             {" "}
             <p>
@@ -121,7 +121,7 @@ const EmblaCarousel = (props) => {
           <Copy>
             {" "}
             <p>
-              從獨具匠心的全合金壓鑄，到極致貼合的刮鬍體驗，這不僅僅是一把刮鬍刀，更是展現個人風格的質感配件。每一次的俐落刮除，都在詮釋著成熟男士對細節的極致追求。
+              從獨具匠心的鋅合金壓鑄，到極致貼合的刮鬍體驗，這不僅僅是一把刮鬍刀，更是展現個人風格的質感配件。每一次的俐落刮除，都在詮釋著成熟男士對細節的極致追求。
             </p>
           </Copy>
         </div>

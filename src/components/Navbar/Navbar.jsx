@@ -4,7 +4,6 @@ import { Link } from "next-view-transitions";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { User, ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "@/lib/cartStore";
-import Image from "next/image";
 import { SUPPORT_NAV } from "@/data/supportContent";
 // 🌟 引入 GSAP
 import gsap from "gsap";
@@ -103,7 +102,6 @@ export default function Navbar() {
     0,
   );
 
-  const [navState, setNavState] = useState("global");
   const [accessoryNavItems, setAccessoryNavItems] = useState([]);
 
   const { scrollYProgress } = useScroll();
@@ -164,26 +162,6 @@ export default function Navbar() {
   }, [menuOpen]);
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY <= 50) {
-        setNavState("global");
-      } else if (currentScrollY > lastScrollY + 5) {
-        setNavState("product");
-      } else if (currentScrollY < lastScrollY - 5) {
-        setNavState("global");
-      }
-      lastScrollY = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
 
     fetch("/api/accessories/nav")
@@ -239,10 +217,6 @@ export default function Navbar() {
       y: 0,
       transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
     },
-    hidden: {
-      y: "-100%",
-      transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
-    },
   };
 
   return (
@@ -251,7 +225,7 @@ export default function Navbar() {
       <motion.header
         variants={headerVariants}
         initial="visible"
-        animate={navState === "global" ? "visible" : "hidden"}
+        animate="visible"
         className="fixed top-0 left-0 w-full h-[72px] z-[1000] bg-black/50 backdrop-blur-md transition-colors duration-300"
       >
         <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
@@ -342,51 +316,6 @@ export default function Navbar() {
               <User size={20} strokeWidth={1.5} />
             </a>
             <CartButton count={cartCount} />
-            <div className="lg:hidden">
-              <MenuToggleButton
-                open={menuOpen}
-                onClick={toggleMenu}
-                buttonRef={openerRef}
-              />
-            </div>
-          </div>
-        </div>
-
-        <motion.div
-          className="absolute bottom-0 left-0 h-[1px] bg-gray-300 origin-left z-[2100] w-full"
-          style={{ scaleX: scrollYProgress }}
-        />
-      </motion.header>
-
-      {/* 2. 產品導覽列 (Product Sub-Navbar) */}
-      <motion.header
-        variants={headerVariants}
-        initial="hidden"
-        animate={navState === "product" ? "visible" : "hidden"}
-        className="fixed top-0 left-0 w-full h-[64px] bg-black/50 backdrop-blur-md z-[990]"
-      >
-        <div className="mx-auto flex w-full h-full max-w-[1600px] items-center justify-between px-4 md:px-6 lg:px-10">
-          <div className="flex items-center">
-            <a href="https://www.weiboltd.com" target="_blank" rel="noreferrer">
-              <Image
-                src="/images/logo-white.png"
-                width={300}
-                height={150}
-                className="w-[100px] md:w-[120px]"
-                priority
-                alt="昔馬 SMASMALL 電動刮鬍刀 威柏科技-昔馬電動刮鬍刀總代理"
-              />
-            </a>
-          </div>
-
-          <div className="flex items-center gap-4 md:gap-8">
-            <Link
-              href="https://www.weiz.com.tw"
-              className="bg-white text-black text-[12px] md:text-[13px] font-medium px-4 md:px-6 py-2 md:py-2.5 rounded-full hover:bg-gray-200 transition-colors tracking-wide"
-            >
-              購物商城
-            </Link>
-
             <div className="lg:hidden">
               <MenuToggleButton
                 open={menuOpen}

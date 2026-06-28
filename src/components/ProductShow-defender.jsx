@@ -39,7 +39,7 @@ const PRODUCTS = [
     id: 2,
     badge: "配件 2",
     name: "昔馬蛋收納倉",
-    tags: ["荷蘭進口刀片", "自研磨技術", "磁吸快拆"],
+    tags: ["德國進口刀片", "自研磨技術", "磁吸快拆"],
     thumbUrl: "/images/捍衛者/捍衛者-03.png",
     mainUrl: "/images/捍衛者/捍衛者-03.png",
     features: [

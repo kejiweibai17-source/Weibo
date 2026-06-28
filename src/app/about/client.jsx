@@ -11,7 +11,7 @@ const CORE_STATS = [
   { value: "100%", label: "全合金壓鑄機身" },
   { value: "1 秒", label: "磁吸刀頭快拆" },
   { value: "IPX7", label: "全機防水乾濕兩用" },
-  { value: "0.05mm", label: "荷蘭進口精鋼刀網" },
+  { value: "0.05mm", label: "德國進口精鋼刀網" },
   { value: "12 個月", label: "台灣總代理原廠保固" },
 ];
 
@@ -170,7 +170,7 @@ export default function SmasmallStory() {
             <Copy>
               {" "}
               <p className="text-stone-900 text-[16px] max-w-4xl leading-relaxed mb-8">
-                專注於全合金機身與磁吸快拆刀頭，結合荷蘭進口精鋼刀網與 Type-C
+                專注於全合金機身與磁吸快拆刀頭，結合德國進口精鋼刀網與 Type-C
                 快充，讓居家、差旅與商務場合都能輕鬆完成刮鬍。威柏科技於台灣提供原廠授權銷售與售後服務，讓每位用戶買得安心、用得長久。
               </p>
             </Copy>

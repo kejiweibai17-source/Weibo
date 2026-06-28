@@ -2,10 +2,7 @@ import { Metadata } from "next";
 import QaClient from "./client";
 import JsonLd from "@/components/seo/JsonLd";
 import { entityIds, getSiteUrl } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 import { PRODUCT02_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
@@ -19,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝｜限量黑色版本",
   description:
-    "昔馬 SMASMALL 黑夜騎士電動刮鬍刀套裝。限量黑色配色，全合金機身，搭載荷蘭進口自銳刀片，IPX7 防水設計，展現型男極致風格。",
+    "昔馬 SMASMALL 黑夜騎士電動刮鬍刀套裝。限量黑色配色，全合金機身，搭載德國進口自銳刀片，IPX7 防水設計，展現型男極致風格。",
   keywords: [
     "昔馬",
     "SMASMALL",
@@ -40,7 +37,7 @@ export const metadata: Metadata = {
     siteName: "SMASMALL 昔馬 by 威柏科技",
     title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝",
     description:
-      "限量黑色配色，全合金機身，搭載荷蘭進口刀片與一秒磁吸快拆技術，展現型男極致風格。",
+      "限量黑色配色，全合金機身，搭載德國進口刀片與一秒磁吸快拆技術，展現型男極致風格。",
     images: [
       {
         url: OG_IMAGE,
@@ -53,7 +50,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 黑夜騎士 電動刮鬍刀套裝",
-    description: "限量黑色配色，全合金機身，搭載荷蘭進口刀片與一秒磁吸快拆技術。",
+    description:
+      "限量黑色配色，全合金機身，搭載德國進口刀片與一秒磁吸快拆技術。",
     images: [OG_IMAGE],
   },
 };
@@ -73,7 +71,7 @@ export default function Product01Page() {
       `${SITE_URL}/images/捍衛者/捍衛者-03.png`,
     ],
     description:
-      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載荷蘭進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
+      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載德國進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
     brand: { "@id": ids.brand },
     sku: "SM-DEFENDER-PLUS",
     mpn: "SM-DEF-001",

@@ -31,12 +31,12 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
             </Copy>
             <Copy delay={0.08}>
               <h2 className="mb-6 text-3xl font-semibold leading-[1.12] tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
-                你的星座。你的風格
+                你的星座，你的圖騰
               </h2>
             </Copy>
             <Copy delay={0.16}>
               <p className="mx-auto max-w-xl text-base font-normal leading-relaxed text-gray-500 md:text-xl">
-                火、土、風、水四象主題配色，專屬星座圖騰與質感禮盒。
+                火、土、風、水四象主題專屬圖騰與主題禮盒。
                 <br className="hidden sm:inline" />
                 獻給懂品味的你。
               </p>
@@ -44,7 +44,7 @@ export default function Home({ carouselSlides = [], heroSlides = [] }) {
 
             <div className="mt-10 flex justify-center md:mt-12">
               <a
-                href="https://www.weiz.com.tw/products/h040137"
+                href="/product04"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-2.5 rounded-full border border-gray-900/10 bg-white/55 px-8 py-3.5 text-sm font-medium tracking-wide text-gray-900 shadow-[0_8px_32px_rgba(0,0,0,0.06)] backdrop-blur-xl backdrop-saturate-150 transition-all duration-300 hover:border-gray-900/20 hover:bg-white/75 hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] md:px-10 md:py-4 md:text-base"

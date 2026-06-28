@@ -1,38 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "next-view-transitions";
 
 const LINE_OFFICIAL_URL =
   "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
 const Icons = {
-  X: (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  ),
-  Facebook: (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  ),
-  // 🌟 新增 Instagram SVG 圖示
-  Instagram: (props) => (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-    </svg>
-  ),
   ArrowRight: (props) => (
     <svg
       width="24"
@@ -60,7 +33,6 @@ export default function Content() {
   return (
     <div className="relative w-full bg-white text-slate-800">
       <Section2 />
-      <ContactWidget />
     </div>
   );
 }
@@ -143,7 +115,7 @@ const Section2 = () => {
                   href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  荷蘭進口精鋼刀片
+                  德國進口精鋼刀片
                 </Link>
               </li>
               <li>
@@ -332,130 +304,3 @@ const Section2 = () => {
     </footer>
   );
 };
-
-// ============================================================================
-// Contact Widget (取代原本的 Share Widget)
-// ============================================================================
-function ContactWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (isOpen && !e.target.closest("#share-widget-container")) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
-  }, [isOpen]);
-
-  // 🌟 修改：點擊後直接跳轉對應社群連結
-  const handleLinkClick = (platform) => {
-    if (platform === "line") window.open(LINE_OFFICIAL_URL, "_blank");
-    if (platform === "facebook")
-      window.open("https://www.facebook.com/249wzrtv/", "_blank");
-    if (platform === "instagram")
-      window.open("https://www.instagram.com/weiz.3c/?hl=zh-tw", "_blank");
-
-    setIsOpen(false);
-  };
-
-  return (
-    <div
-      id="share-widget-container"
-      className="fixed bottom-0 left-0 w-full z-[9999999999999] flex flex-col items-center justify-end pointer-events-none"
-    >
-      <AnimatePresence mode="wait">
-        {!isOpen ? (
-          <motion.div
-            key="share-button"
-            className="pointer-events-auto pb-6"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsOpen(true);
-              }}
-              className="flex items-center gap-2 bg-black/60 border border-white/20 backdrop-blur-md px-6 py-2.5 rounded-full hover:bg-black/80 hover:scale-105 transition-all duration-300 group shadow-lg"
-            >
-              <span className="font-serif font-bold text-white tracking-wider text-sm">
-                CONTACT
-              </span>
-              <div className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center transition-colors group-hover:bg-white/40">
-                <span className="text-white text-xs font-bold leading-none mt-[1px]">
-                  +
-                </span>
-              </div>
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="share-bar"
-            className="pointer-events-auto w-full h-[60px] md:h-[70px] grid grid-cols-3 bg-black/80 backdrop-blur-md border-t border-white/10"
-            style={{ boxShadow: "0 -4px 30px rgba(0,0,0,0.3)" }}
-            initial={{ y: "100%" }}
-            animate={{ y: "0%" }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* 🌟 替換功能與點擊事件 */}
-            <ShareBlock
-              bg="bg-transparent"
-              icon={
-                <Image
-                  src="/images/line.png"
-                  alt="LINE"
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                />
-              }
-              ariaLabel="加入官方 LINE"
-              onClick={() => handleLinkClick("line")}
-              hoverColor="hover:bg-[#00B900]/80" /* LINE 綠色 */
-            />
-            <ShareBlock
-              bg="bg-transparent"
-              icon={
-                <Icons.Facebook width={28} height={28} className="text-white" />
-              }
-              ariaLabel="前往 Facebook 粉絲專頁"
-              onClick={() => handleLinkClick("facebook")}
-              hoverColor="hover:bg-[#3B5998]/80" /* Facebook 藍色 */
-            />
-            <ShareBlock
-              bg="bg-transparent"
-              icon={
-                <Icons.Instagram
-                  width={26}
-                  height={26}
-                  className="text-white"
-                />
-              }
-              ariaLabel="前往 Instagram"
-              onClick={() => handleLinkClick("instagram")}
-              hoverColor="hover:bg-[#E1306C]/80" /* Instagram 漸層主色代表 */
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function ShareBlock({ bg, icon, onClick, ariaLabel, hoverColor }) {
-  return (
-    <button
-      aria-label={ariaLabel}
-      className={`${bg} flex items-center justify-center cursor-pointer ${hoverColor} transition-all duration-300 active:brightness-95 w-full h-full border-none border-r border-white/10 last:border-r-0`}
-      onClick={onClick}
-    >
-      {icon}
-    </button>
-  );
-}

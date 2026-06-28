@@ -7,6 +7,9 @@ import { useGSAP } from "@gsap/react";
 import { markPreloaderPlayedThisSession } from "@/lib/preloaderSession";
 import PreloaderBackdrop from "./PreloaderBackdrop";
 
+/** 整體動畫時長保留 1/3（縮短 2/3） */
+const T = 1 / 3;
+
 export default function Preloader({ onComplete }) {
   const overlayRef = useRef(null);
   const introTextRef = useRef(null);
@@ -31,36 +34,36 @@ export default function Preloader({ onComplete }) {
 
     tl.to(introTextRef.current, {
       opacity: 0,
-      duration: 0.6,
+      duration: 0.6 * T,
       ease: "power2.inOut",
     })
       .to(
         brandTextRef.current,
         {
           opacity: 1,
-          duration: 0.75,
+          duration: 0.75 * T,
           ease: "power2.out",
         },
         "-=0.1",
       )
       .to(
         lineRef.current,
-        { opacity: 1, duration: 0.5, ease: "power2.out" },
+        { opacity: 1, duration: 0.5 * T, ease: "power2.out" },
         "<0.15",
       )
       .to(lineRef.current, {
         scaleX: 1,
-        duration: 2.5,
+        duration: 2.5 * T,
         ease: "power2.inOut",
       })
       .to(
         [brandTextRef.current, lineRef.current],
-        { opacity: 0, duration: 0.55, ease: "power2.inOut" },
+        { opacity: 0, duration: 0.55 * T, ease: "power2.inOut" },
         "+=0",
       )
       .to(overlayRef.current, {
         opacity: 0,
-        duration: 1.5,
+        duration: 1.5 * T,
         ease: "power2.inOut",
       });
   });

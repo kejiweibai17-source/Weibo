@@ -2,10 +2,7 @@ import { Metadata } from "next";
 import QaClient from "./client";
 import JsonLd from "@/components/seo/JsonLd";
 import { entityIds, getSiteUrl } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 import { PRODUCT01_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
@@ -19,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀｜戰損塗裝、磁吸快拆",
   description:
-    "探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與荷蘭進口自銳刀片。1小時快充，60天極致續航，展現男士極致理容美學。",
+    "探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與德國進口自銳刀片。1小時快充，60天極致續航，展現男士極致理容美學。",
   keywords: [
     "昔馬",
     "SMASMALL",
@@ -41,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "SMASMALL 昔馬 by 威柏科技",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
     description:
-      "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
+      "硬派美學，戰損塗裝。搭載德國進口刀片與一秒磁吸快拆技術，為亞洲男士打造的頂級理容體驗。",
     images: [
       {
         url: OG_IMAGE,
@@ -54,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀",
-    description: "硬派美學，戰損塗裝。搭載荷蘭進口刀片與一秒磁吸快拆技術。",
+    description: "硬派美學，戰損塗裝。搭載德國進口刀片與一秒磁吸快拆技術。",
     images: [OG_IMAGE],
   },
 };
@@ -74,7 +71,7 @@ export default function Product01Page() {
       `${SITE_URL}/images/捍衛者/捍衛者-03.png`,
     ],
     description:
-      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載荷蘭進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
+      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載德國進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
     brand: { "@id": ids.brand },
     sku: "SM-DEFENDER-PLUS",
     mpn: "SM-DEF-001",

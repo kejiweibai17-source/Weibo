@@ -14,7 +14,7 @@ const homeFAQs = [
   {
     question: "SMASMALL 昔馬刮鬍刀與市售產品有何不同？",
     answer:
-      "昔馬 SMASMALL 拋棄傳統塑膠，採用獨家全合金機身，質感扎實且耐用。並搭載業界首創的「磁吸式刀頭」設計，一秒拆卸清洗，搭配荷蘭進口精鋼刀片與 IPX7 全機防水，提供極致流暢的刮鬍體驗與頂級精品握感。",
+      "昔馬 SMASMALL 拋棄傳統塑膠，採用獨家全合金機身，質感扎實且耐用。並搭載業界首創的「磁吸式刀頭」設計，一秒拆卸清洗，搭配德國進口精鋼刀片與 IPX7 全機防水，提供極致流暢的刮鬍體驗與頂級精品握感。",
   },
   {
     question: "請問是在哪裡製造的？享有保固嗎？",
@@ -31,8 +31,7 @@ const homeFAQs = [
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    absolute:
-      "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
+    absolute: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
   },
   description:
     "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
@@ -92,7 +91,11 @@ export default async function Page() {
     <>
       <JsonLd data={schemas} />
       <HomeSiteLinksNav />
-      <Client faqs={homeFAQs} carouselSlides={carouselSlides} heroSlides={heroSlides} />
+      <Client
+        faqs={homeFAQs}
+        carouselSlides={carouselSlides}
+        heroSlides={heroSlides}
+      />
     </>
   );
 }

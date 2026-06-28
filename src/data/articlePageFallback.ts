@@ -74,7 +74,7 @@ export const ARTICLE_PAGE_FALLBACK = {
       {
         question: "昔馬電動刮鬍刀有哪些特色？",
         answer:
-          "昔馬 SMASMALL 採用全合金壓鑄機身、磁吸快拆刀頭、荷蘭進口精鋼刀網與 IPX7 防水設計，並支援 Type-C 充電，兼顧質感、便利與耐用性。",
+          "昔馬 SMASMALL 採用全合金壓鑄機身、磁吸快拆刀頭、德國進口精鋼刀網與 IPX7 防水設計，並支援 Type-C 充電，兼顧質感、便利與耐用性。",
       },
       {
         question: "可以乾濕兩用嗎？",

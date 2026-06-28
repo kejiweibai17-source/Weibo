@@ -18,6 +18,8 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const MODEL_PATH = "/3d/sima.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
+/** 完成整段動畫所需的滾動距離（以視窗高度為單位） */
+const SCROLL_VIEWPORT_HEIGHTS = 5;
 
 const CPS_TOOLTIPS = [
   {
@@ -28,8 +30,7 @@ const CPS_TOOLTIPS = [
   {
     eyebrow: "SMASMALL 昔馬",
     title: "為俐落而生",
-    description:
-      "磁吸快拆刀網 · 荷蘭進口鍍鋼刀片 · IPX7 全機防水",
+    description: "磁吸快拆刀網 · 德國進口鍍鋼刀片 · IPX7 全機防水",
   },
 ];
 
@@ -308,7 +309,7 @@ export default function ConstellationProductScroll() {
       const pinTrigger = ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: `+=${window.innerHeight * 10}px`,
+        end: `+=${window.innerHeight * SCROLL_VIEWPORT_HEIGHTS}px`,
         pin: true,
         pinSpacing: true,
         scrub: 1,
@@ -395,38 +396,38 @@ export default function ConstellationProductScroll() {
       className="cps-section product-overview"
       aria-label="昔馬電動刮鬍刀產品展示"
     >
-        <div
-          ref={maskBgRef}
-          className="circular-mask-bg"
-          style={{ backgroundImage: `url(${CPS_MASK_BG})` }}
-          aria-hidden
-        />
-        <div ref={maskGlassRef} className="circular-mask-glass" aria-hidden />
+      <div
+        ref={maskBgRef}
+        className="circular-mask-bg"
+        style={{ backgroundImage: `url(${CPS_MASK_BG})` }}
+        aria-hidden
+      />
+      <div ref={maskGlassRef} className="circular-mask-glass" aria-hidden />
 
-        <div ref={header1Ref} className="header-1">
-          <h1 ref={header1TitleRef}>Every Rep Starts With</h1>
-        </div>
+      <div ref={header1Ref} className="header-1">
+        <h1 ref={header1TitleRef}>Every Morning Starts With</h1>
+      </div>
 
-        <div ref={header2Ref} className="header-2">
-          <h1>SMASMALL Shaver</h1>
-        </div>
+      <div ref={header2Ref} className="header-2">
+        <h1>SMASMALL Shaver</h1>
+      </div>
 
-        <div className="tooltips">
-          {CPS_TOOLTIPS.map(({ eyebrow, title, description }) => (
-            <div key={title} className="tooltip">
-              <p className="eyebrow">{eyebrow}</p>
-              <div className="divider" />
-              <div className="title">
-                <h2>{title}</h2>
-              </div>
-              <div className="description">
-                <p>{description}</p>
-              </div>
+      <div className="tooltips">
+        {CPS_TOOLTIPS.map(({ eyebrow, title, description }) => (
+          <div key={title} className="tooltip">
+            <p className="eyebrow">{eyebrow}</p>
+            <div className="divider" />
+            <div className="title">
+              <h2>{title}</h2>
             </div>
-          ))}
-        </div>
+            <div className="description">
+              <p>{description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-        <div ref={modelContainerRef} className="model-container" aria-hidden />
-      </section>
+      <div ref={modelContainerRef} className="model-container" aria-hidden />
+    </section>
   );
 }

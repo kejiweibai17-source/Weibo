@@ -83,7 +83,7 @@ export function SlideFourElements() {
 }
 
 export function SlideBornSharp() {
-  const features = ["磁吸快拆刀網", "荷蘭進口鍍鋼刀片", "IPX7 全機防水"];
+  const features = ["磁吸快拆刀網", "德國進口鍍鋼刀片", "IPX7 全機防水"];
 
   return (
     <div className="flex w-full max-w-6xl flex-col items-center gap-8 px-4 md:flex-row md:items-center md:justify-between md:gap-10 lg:gap-16">

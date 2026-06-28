@@ -5,7 +5,7 @@ import Image from "next/image";
 const BG_IMAGE = "/images/24e6dbfc-0198-4061-8140-5e6519413cc8.png";
 
 /** 與 CSS --cycle-duration 同步（秒）— 一輪：緩慢放大 → 全黑 → 煙霧散去 → 再放大 */
-export const PRELOADER_CYCLE_SECONDS = 28;
+export const PRELOADER_CYCLE_SECONDS = 28 / 3;
 
 const SMOKE_LAYERS = [
   { y: "18%", scale: 1.8, peak: 0.72, phase: 0 },

@@ -2,10 +2,7 @@ import { Metadata } from "next";
 import QaClient from "./client";
 import JsonLd from "@/components/seo/JsonLd";
 import { entityIds, getSiteUrl } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 import { PRODUCT03_SLIDES } from "@/data/productSlides";
 
 const SITE_URL = getSiteUrl();
@@ -74,7 +71,7 @@ export default function Product01Page() {
       `${SITE_URL}/images/捍衛者/捍衛者-03.png`,
     ],
     description:
-      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載荷蘭進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
+      "高溫壓鑄全合金機身，手工打磨戰損塗裝。搭載德國進口自研磨刀片、雙環超薄刀網與毫秒級高速抗震低噪馬達，支援 IPX7 級防水。",
     brand: { "@id": ids.brand },
     sku: "SM-DEFENDER-PLUS",
     mpn: "SM-DEF-001",

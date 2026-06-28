@@ -65,7 +65,7 @@ const ParallaxPage = () => {
         </motion.h1>
         <Copy>
           <p className="mt-6 text-gray-400 text-center max-w-sm z-10 text-sm drop-shadow-md">
-            火、土、風、水四象主題配色，專屬星座圖騰與質感禮盒——你的星座，你的風格
+            火、土、風、水四象主題配色，專屬星座圖騰與質感禮盒——你的星座，你的圖騰
           </p>
         </Copy>
 

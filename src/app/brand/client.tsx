@@ -24,7 +24,7 @@ const CORE_STATS = [
   { end: 100, suffix: "%", decimals: 0, label: "全合金壓鑄機身" },
   { end: 1, suffix: " 秒", decimals: 0, label: "磁吸刀頭快拆" },
   { display: "IPX7", label: "全機防水乾濕兩用" },
-  { end: 0.05, suffix: "mm", decimals: 2, label: "荷蘭進口精鋼刀網" },
+  { end: 0.05, suffix: "mm", decimals: 2, label: "德國進口精鋼刀網" },
   { end: 12, suffix: " 個月", decimals: 0, label: "台灣總代理原廠保固" },
 ];
 
@@ -41,7 +41,10 @@ function BrandRevealImage() {
       if (!wrapRef.current || !innerRef.current) return;
 
       gsap.set(wrapRef.current, { width: "0%" });
-      gsap.set(innerRef.current, { scale: 1.18, transformOrigin: "left center" });
+      gsap.set(innerRef.current, {
+        scale: 1.18,
+        transformOrigin: "left center",
+      });
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -175,7 +178,7 @@ const PRODUCT_CATEGORIES = [
         name: "昔馬 S1 經典青春版",
         slogan: "重塑經典，品味隨行。",
         description:
-          "採用獨創高溫壓鑄全合金機身，手感沉穩冰冷。搭載荷蘭進口精鋼刀片與雙環超薄刀網，配合自研磨技術，越用越鋒利。支援 IPX7 全機防水，乾濕兩用，讓您隨時保持俐落清爽的面貌。",
+          "採用獨創高溫壓鑄全合金機身，手感沉穩冰冷。搭載德國進口精鋼刀片與雙環超薄刀網，配合自研磨技術，越用越鋒利。支援 IPX7 全機防水，乾濕兩用，讓您隨時保持俐落清爽的面貌。",
         imgUrl: "/images/accessories/青春版電動刮鬍刀禮盒-三色/情境圖/004.jpg", // 替換為 S1 產品圖
         reverse: false, // 圖片在左
       },
@@ -183,7 +186,7 @@ const PRODUCT_CATEGORIES = [
         name: "昔馬捍衛者",
         slogan: "小。很強大。",
         description:
-          "把刮鬍、修容、收納與快充，放進精巧而有份量的全合金設計。磁吸式快拆刀頭、荷蘭進口精鋼刀網與 IPX7 全機防水，兼顧硬派質感與日常便利。",
+          "把刮鬍、修容、收納與快充，放進精巧而有份量的全合金設計。磁吸式快拆刀頭、德國進口精鋼刀網與 IPX7 全機防水，兼顧硬派質感與日常便利。",
         imgUrl: "/images/61e0b64e-1f2c-465c-91e6-34dde2596b4e.png",
         reverse: true, // 圖片在右
       },
@@ -272,7 +275,7 @@ export default function SmasmallCollections() {
             <Copy>
               {" "}
               <p className="text-stone-900 text-[16px] max-w-4xl leading-relaxed mb-8">
-                專注於全合金機身與磁吸快拆刀頭，結合荷蘭進口精鋼刀網與 Type-C
+                專注於全合金機身與磁吸快拆刀頭，結合德國進口精鋼刀網與 Type-C
                 快充，讓居家、差旅與商務場合都能輕鬆完成刮鬍。威柏科技於台灣提供原廠授權銷售與售後服務，讓每位用戶買得安心、用得長久。
               </p>
             </Copy>

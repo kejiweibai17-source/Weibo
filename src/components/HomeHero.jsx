@@ -16,7 +16,6 @@ gsap.registerPlugin(ScrollTrigger);
 function revealHomeWithoutPreloader(pageContentRef) {
   gsap.set(".hero-title", { opacity: 1, scale: 1 });
   gsap.set(".hero-sub", { opacity: 1, y: 0 });
-  gsap.set(".scroll-ind", { opacity: 1 });
   if (pageContentRef?.current) {
     gsap.set(pageContentRef.current, { opacity: 1 });
   }
@@ -73,7 +72,6 @@ export default function HomeHero({ pageContentRef }) {
         { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
         "-=1",
       )
-      .to(".scroll-ind", { opacity: 1, duration: 1 }, "-=0.5")
       .to(
         pageContentRef.current,
         {
@@ -134,11 +132,6 @@ export default function HomeHero({ pageContentRef }) {
             <br className="md:hidden" />
             威柏科技代理
           </p>
-        </div>
-
-        <div className="scroll-ind absolute bottom-8 left-8 md:bottom-12 md:left-12 text-white/80 flex items-center gap-3 text-sm font-light tracking-widest uppercase opacity-0">
-          <span className="animate-bounce text-lg">↓</span>
-          Scroll to discover
         </div>
       </section>
     </>
