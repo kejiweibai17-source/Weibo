@@ -18,7 +18,6 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const MODEL_PATH = "/3d/星座.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
-/** 完成整段動畫所需的滾動距離（以視窗高度為單位） */
 const SCROLL_VIEWPORT_HEIGHTS = 5;
 
 const CPS_TOOLTIPS = [
@@ -38,6 +37,144 @@ function q(section, selector) {
   return section.querySelectorAll(selector);
 }
 
+let _threeInstance = null;
+
+function getOrCreateThreeScene(container) {
+  if (_threeInstance && _threeInstance.container === container) {
+    return _threeInstance;
+  }
+
+  if (_threeInstance) {
+    _threeInstance.dispose();
+  }
+
+  const w = container.clientWidth || window.innerWidth;
+  const h = container.clientHeight || window.innerHeight;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
+  camera.position.set(0, 0.1, 4.8);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  if ("outputColorSpace" in renderer) {
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+  } else if ("outputEncoding" in renderer) {
+    renderer.outputEncoding = THREE.sRGBEncoding;
+  }
+
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+
+  container.replaceChildren();
+  container.appendChild(renderer.domElement);
+  setupSimaScrollSceneEnvironment(renderer, scene);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+  const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  mainLight.position.set(1, 2, 3);
+  mainLight.castShadow = true;
+  mainLight.shadow.bias = -0.001;
+  mainLight.shadow.mapSize.width = 1024;
+  mainLight.shadow.mapSize.height = 1024;
+  scene.add(mainLight);
+
+  const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  fillLight.position.set(-2, 0, -2);
+  scene.add(fillLight);
+
+  const keyRim = new THREE.DirectionalLight(0xf4f6f8, 0.65);
+  keyRim.position.set(3, 4, 2);
+  scene.add(keyRim);
+
+  const pivot = new THREE.Group();
+  scene.add(pivot);
+
+  const state = {
+    modelSize: null,
+    lidPart: null,
+    lidRestPosition: new THREE.Vector3(),
+    lidRestQuaternion: new THREE.Quaternion(),
+    lidReady: false,
+    modelLoaded: false,
+  };
+
+  let rafId = 0;
+  function animate() {
+    rafId = requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  new GLTFLoader().load(MODEL_PATH, (gltf) => {
+    if (state.modelLoaded) return;
+
+    const model = gltf.scene;
+    finalizeSimaGlbModel(model);
+
+    const toRemove = [];
+    model.traverse((child) => {
+      const n = child.name ?? "";
+      const m = child.material?.name ?? "";
+      if (m === "背景" || n.includes("背景")) toRemove.push(child);
+    });
+    toRemove.forEach((obj) => obj.parent?.remove(obj));
+
+    model.updateMatrixWorld(true);
+
+    const box = new THREE.Box3().setFromObject(model);
+    state.modelSize = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    model.position.set(-center.x, -center.y, -center.z);
+
+    model.traverse((child) => {
+      if (child.name === "上蓋") state.lidPart = child;
+    });
+
+    if (state.lidPart) {
+      state.lidRestPosition.copy(state.lidPart.position);
+      state.lidRestQuaternion.copy(state.lidPart.quaternion);
+      state.lidReady = true;
+    }
+
+    pivot.add(model);
+    state.modelLoaded = true;
+  });
+
+  function handleResize() {
+    const rw = container.clientWidth || window.innerWidth;
+    const rh = container.clientHeight || window.innerHeight;
+    camera.aspect = rw / rh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(rw, rh);
+  }
+  window.addEventListener("resize", handleResize);
+
+  _threeInstance = {
+    container,
+    pivot,
+    state,
+    dispose() {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(rafId);
+      renderer.dispose();
+      if (scene.environment?.dispose) scene.environment.dispose();
+      container.replaceChildren();
+      _threeInstance = null;
+    },
+  };
+
+  return _threeInstance;
+}
+
 export default function ConstellationProductScroll() {
   const sectionRef = useRef(null);
   const header1Ref = useRef(null);
@@ -54,7 +191,10 @@ export default function ConstellationProductScroll() {
   useGSAP(
     () => {
       const section = sectionRef.current;
-      if (!section) return undefined;
+      const container = modelContainerRef.current;
+      if (!section || !container) return undefined;
+
+      const three = getOrCreateThreeScene(container);
 
       const splits = [];
 
@@ -147,98 +287,12 @@ export default function ConstellationProductScroll() {
           }),
       });
 
-      let model = null;
-      let modelPivot = null;
-      let modelSize = null;
-      let lidPart = null;
-      let bodyPart = null;
-      const lidRestPosition = new THREE.Vector3();
-      const lidRestQuaternion = new THREE.Quaternion();
-      const separationAxis = new THREE.Vector3(0, 1, 0);
-      let rafId = 0;
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000,
-      );
-      const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-      });
-
-      renderer.setClearColor(0x000000, 0);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-      if ("outputColorSpace" in renderer) {
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-      } else if ("outputEncoding" in renderer) {
-        renderer.outputEncoding = THREE.sRGBEncoding;
-      }
-
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.2;
-
-      modelContainerRef.current?.appendChild(renderer.domElement);
-      setupSimaScrollSceneEnvironment(renderer, scene);
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-
-      const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
-      mainLight.position.set(1, 2, 3);
-      mainLight.castShadow = true;
-      mainLight.shadow.bias = -0.001;
-      mainLight.shadow.mapSize.width = 1024;
-      mainLight.shadow.mapSize.height = 1024;
-      scene.add(mainLight);
-
-      const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-      fillLight.position.set(-2, 0, -2);
-      scene.add(fillLight);
-
-      const keyRim = new THREE.DirectionalLight(0xf4f6f8, 0.65);
-      keyRim.position.set(3, 4, 2);
-      scene.add(keyRim);
-
-      modelPivot = new THREE.Group();
-      scene.add(modelPivot);
-
-      function cacheLidRestPose() {
-        if (!model) return;
-        lidPart = null;
-        bodyPart = null;
-
-        model.traverse((child) => {
-          if (child.name === "上蓋") {
-            lidPart = child;
-            lidRestPosition.copy(child.position);
-            lidRestQuaternion.copy(child.quaternion);
-          }
-          if (child.name === "主體22222") {
-            bodyPart = child;
-          }
-        });
-
-        if (lidPart && bodyPart) {
-          separationAxis
-            .copy(lidRestPosition)
-            .sub(bodyPart.position)
-            .normalize();
-        } else {
-          separationAxis.set(0, 1, 0);
-        }
-      }
-
       function updateLidSeparation(progress) {
-        if (!lidPart || !modelSize) return;
+        const { state } = three;
+        if (!state.lidReady || !state.lidPart || !state.modelSize) return;
 
-        const liftStart = 0.35;
-        const liftEnd = 0.78;
+        const liftStart = 0.3;
+        const liftEnd = 0.7;
         const raw =
           progress < liftStart
             ? 0
@@ -247,64 +301,15 @@ export default function ConstellationProductScroll() {
               : (progress - liftStart) / (liftEnd - liftStart);
         const liftT = raw * raw * (3 - 2 * raw);
 
-        const liftAmount = modelSize.y * 3.2;
+        const liftAmount = state.modelSize.y * 4.0;
 
-        lidPart.position
-          .copy(lidRestPosition)
-          .addScaledVector(separationAxis, liftAmount * liftT);
-        lidPart.quaternion.copy(lidRestQuaternion);
+        state.lidPart.position.set(
+          state.lidRestPosition.x,
+          state.lidRestPosition.y + liftAmount * liftT,
+          state.lidRestPosition.z,
+        );
+        state.lidPart.quaternion.copy(state.lidRestQuaternion);
       }
-
-      function centerModelInPivot() {
-        if (!model || !modelPivot) return;
-
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        model.position.sub(center);
-        modelPivot.position.set(0, 0, 0);
-        modelPivot.rotation.set(0, 0, 0);
-      }
-
-      function setupModel() {
-        if (!model || !modelSize) return;
-
-        centerModelInPivot();
-        cacheLidRestPose();
-
-        const maxDim = Math.max(modelSize.x, modelSize.y, modelSize.z);
-        const isMobile = window.innerWidth < 1000;
-        const cameraDistance = isMobile ? 2.4 : 1.55;
-
-        camera.position.set(0, 0, maxDim * cameraDistance);
-        camera.lookAt(0, 0, 0);
-      }
-
-      new GLTFLoader().load(MODEL_PATH, (gltf) => {
-        model = gltf.scene;
-        finalizeSimaGlbModel(model);
-
-        const box = new THREE.Box3().setFromObject(model);
-        modelSize = box.getSize(new THREE.Vector3());
-
-        modelPivot.add(model);
-        cacheLidRestPose();
-        setupModel();
-      });
-
-      function animate() {
-        rafId = requestAnimationFrame(animate);
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      function handleResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        setupModel();
-      }
-
-      window.addEventListener("resize", handleResize);
 
       const pinTrigger = ScrollTrigger.create({
         trigger: section,
@@ -365,25 +370,18 @@ export default function ConstellationProductScroll() {
             applyReveal(q(section, elements.join(", ")), progress, start, end);
           });
 
-          if (modelPivot) {
-            const rotationProgress =
-              progress < 0.05 ? 0 : (progress - 0.05) / 0.95;
-            modelPivot.rotation.y = Math.PI * 3 * 4 * rotationProgress;
-            updateLidSeparation(progress);
-          }
+          const rotationProgress =
+            progress < 0.05 ? 0 : (progress - 0.05) / 0.95;
+          three.pivot.rotation.y = Math.PI * 3 * 4 * rotationProgress;
+          updateLidSeparation(progress);
         },
       });
 
       ScrollTrigger.refresh();
 
       return () => {
-        window.removeEventListener("resize", handleResize);
-        cancelAnimationFrame(rafId);
         headerEnterTrigger.kill();
         pinTrigger.kill();
-        renderer.dispose();
-        if (scene.environment?.dispose) scene.environment.dispose();
-        modelContainerRef.current?.replaceChildren();
         splits.forEach((split) => split.revert?.());
       };
     },

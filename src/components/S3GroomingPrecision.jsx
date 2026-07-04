@@ -1,235 +1,275 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import gsap from "gsap";
 
-// ============================================================================
-// 🛒 昔馬 S3 互動探索資料設定
-// ============================================================================
-const EXPLORER_DATA = [
+const MODEL_PATH = "/3d/特寫.glb";
+
+const SLIDES = [
   {
     id: 1,
-    image: "/images/61e0b64e-1f2c-465c-91e6-34dde2596b4e.png",
-    imageAlt:
-      "智慧散熱系統透視圖 昔馬電動刮鬍刀內部結構 威柏科技-昔馬電動刮鬍刀總代理",
-    bgScale: 2.2,
-    hotspot: { top: "35%", left: "50%" },
+    title: "磁吸防塵保護蓋",
+    subtitle: "上蓋特寫",
+    desc: "磁吸式上蓋一貼即合，隔絕灰塵、守護刀頭，收納潔淨衛生。",
     info: {
       target: "S3 旗艦版刮鬍刀",
+      feature: "磁吸防塵保護蓋",
+      structure: "一貼即合",
       material: "鋅合金壓鑄",
-      battery: "60天超長續航",
-      waterproof: "IPX7 全機防水",
-      blade: "雙環超薄刀網",
     },
-    detail: {
-      title: "磁吸式快拆刀頭",
-      desc: "打破傳統卡榫限制，採用高強度磁吸結構，一秒拆卸、無縫貼合。清潔保養毫不費力，展現極致俐落的機械工藝。",
-      frame: { top: "25%", left: "42%", width: "16%", height: "20%" },
-      lineStart: { x: "58%", y: "45%" },
-    },
+    camera: { x: 0.3, y: 1.2, z: 1.8 },
+    lookAt: { x: 0, y: 0.4, z: 0 },
+    modelRotation: { x: -Math.PI * 0.12, y: -Math.PI * 0.08, z: 0 },
   },
   {
     id: 2,
-    // 🌟 已經幫你替換成第二張圖的正確路徑
-    image: "/images/index/banner-04.png",
-    imageAlt:
-      "手持昔馬電動刮鬍刀 黑色質感機身展示 威柏科技-昔馬電動刮鬍刀總代理",
-    bgScale: 1.4,
-    hotspot: { top: "52%", left: "50%" },
+    title: "專利防水推式開關",
+    subtitle: "開關結構特寫",
+    desc: "獨家專利設計的防水推式開關，輕推即開、回彈即關，確保 IPX7 全機防水。每一次操作都是對工藝極致的體現。",
     info: {
-      target: "精密內部結構",
-      motor: "高速抗震馬達",
-      speed: "8000 RPM",
-      noise: "極低噪運行",
-      tech: "自研磨技術",
+      target: "S3 旗艦版刮鬍刀",
+      feature: "專利推式結構",
+      waterproof: "IPX7 全機防水",
+      operation: "輕推即開",
     },
-    detail: {
-      title: "毫秒級動力核心",
-      desc: "內建升級版毫秒級高速抗震低噪馬達，提供澎湃動力的同時，維持絕佳的穩定性與低噪音，帶來最純粹的理容享受。",
-      frame: { top: "40%", left: "35%", width: "30%", height: "25%" },
-      lineStart: { x: "65%", y: "65%" },
+    camera: { x: 1.8, y: 0.2, z: 1.5 },
+    lookAt: { x: 0, y: -0.1, z: 0 },
+    modelRotation: { x: 0.05, y: -Math.PI * 0.45, z: 0 },
+  },
+  {
+    id: 3,
+    title: "開放式雙環刀網",
+    subtitle: "素材2.0刀頭",
+    desc: "開放式雙環結構精準導入鬍鬚，捕鬚更全面、刮除更高效。",
+    info: {
+      target: "S3 旗艦版刮鬍刀",
+      feature: "開放式雙環刀網",
+      blade: "雙環超薄刀網",
+      design: "精準捕鬚",
     },
+    camera: { x: 0.3, y: 2.8, z: 1.2 },
+    lookAt: { x: 0, y: 0.5, z: 0 },
+    modelRotation: { x: -Math.PI * 0.35, y: Math.PI * 0.1, z: 0 },
+    lidOpen: true,
   },
 ];
 
 const INFO_LABELS = {
   target: "適用機型",
-  material: "機身材質",
-  battery: "續航能力",
+  feature: "核心功能",
   waterproof: "防水等級",
+  material: "機身材質",
+  structure: "磁吸結構",
+  operation: "操作方式",
   blade: "刀網規格",
-  motor: "動力馬達",
-  speed: "轉速",
-  noise: "運轉噪音",
-  tech: "核心技術",
+  design: "設計理念",
 };
 
 export default function InteractiveExplorer() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [viewMode, setViewMode] = useState("full"); // "full" | "detail"
-  const currentData = EXPLORER_DATA[currentIndex];
+  const containerRef = useRef(null);
+  const rendererRef = useRef(null);
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const modelRef = useRef(null);
+  const rafRef = useRef(null);
+  const lidRef = useRef(null);
+  const lidRestPosRef = useRef(new THREE.Vector3());
+  const modelSizeRef = useRef(null);
+
+  const currentData = SLIDES[currentIndex];
+
+  const animateCamera = useCallback(
+    (slide) => {
+      const camera = cameraRef.current;
+      const model = modelRef.current;
+      const lid = lidRef.current;
+      if (!camera || !model) return;
+
+      gsap.to(camera.position, {
+        x: slide.camera.x,
+        y: slide.camera.y,
+        z: slide.camera.z,
+        duration: 1.4,
+        ease: "power3.inOut",
+        onUpdate: () => {
+          camera.lookAt(slide.lookAt.x, slide.lookAt.y, slide.lookAt.z);
+        },
+      });
+
+      gsap.to(model.rotation, {
+        x: slide.modelRotation.x,
+        y: slide.modelRotation.y,
+        z: slide.modelRotation.z,
+        duration: 1.4,
+        ease: "power3.inOut",
+      });
+
+      if (lid && modelSizeRef.current) {
+        const liftAmount = modelSizeRef.current.y * 5;
+        if (slide.lidOpen) {
+          gsap.to(lid.position, {
+            y: lidRestPosRef.current.y + liftAmount,
+            duration: 1.6,
+            ease: "power2.in",
+          });
+        } else {
+          gsap.to(lid.position, {
+            y: lidRestPosRef.current.y,
+            duration: 1.2,
+            ease: "power3.out",
+          });
+        }
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0a0c);
+    sceneRef.current = scene;
+
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      containerRef.current.clientWidth / containerRef.current.clientHeight,
+      0.1,
+      100,
+    );
+    camera.position.set(
+      SLIDES[0].camera.x,
+      SLIDES[0].camera.y,
+      SLIDES[0].camera.z,
+    );
+    camera.lookAt(SLIDES[0].lookAt.x, SLIDES[0].lookAt.y, SLIDES[0].lookAt.z);
+    cameraRef.current = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(
+      containerRef.current.clientWidth,
+      containerRef.current.clientHeight,
+    );
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    if ("outputColorSpace" in renderer) {
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+    }
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    containerRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(2, 3, 4);
+    mainLight.castShadow = true;
+    scene.add(mainLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(-3, 1, -2);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xd4e0ff, 0.5);
+    rimLight.position.set(0, 4, -3);
+    scene.add(rimLight);
+
+    new GLTFLoader().load(MODEL_PATH, (gltf) => {
+      const model = gltf.scene;
+      modelRef.current = model;
+
+      model.traverse((child) => {
+        if (child.name === "上蓋" || child.name.includes("上蓋")) {
+          lidRef.current = child;
+          lidRestPosRef.current.copy(child.position);
+        }
+
+        if (!child.isMesh) return;
+        const meshName = child.name ?? "";
+        const matName = child.material?.name ?? "";
+
+        if (matName === "背景" || meshName.includes("背景")) {
+          child.visible = false;
+          return;
+        }
+        child.castShadow = true;
+        child.receiveShadow = true;
+
+        if (child.material) {
+          child.material.envMapIntensity = 1.5;
+          child.material.needsUpdate = true;
+        }
+      });
+
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      modelSizeRef.current = size;
+      model.position.sub(center);
+
+      scene.add(model);
+    });
+
+    function animate() {
+      rafRef.current = requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    function handleResize() {
+      if (!containerRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(rafRef.current);
+      renderer.dispose();
+      if (scene.environment?.dispose) scene.environment.dispose();
+      containerRef.current?.replaceChildren();
+    };
+  }, []);
+
+  useEffect(() => {
+    animateCamera(SLIDES[currentIndex]);
+  }, [currentIndex, animateCamera]);
 
   const nextSlide = () => {
-    setViewMode("full");
-    setCurrentIndex((prev) => (prev + 1) % EXPLORER_DATA.length);
+    setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
   };
 
   const prevSlide = () => {
-    setViewMode("full");
-    setCurrentIndex(
-      (prev) => (prev - 1 + EXPLORER_DATA.length) % EXPLORER_DATA.length,
-    );
+    setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
   };
 
   return (
     <div className="relative w-full h-screen bg-[#0a0a0c] overflow-hidden font-sans select-none flex items-center justify-center">
-      {/* =========================================================
-          1. 背景圖片層 (🌟 已拔除 16:9 限制，現在是真正的全螢幕滿版)
-          ========================================================= */}
-      <motion.div
-        className="absolute inset-0 w-full h-full pointer-events-none will-change-transform [backface-visibility:hidden] [transform:translateZ(0)]"
-        animate={{
-          scale: viewMode === "detail" ? currentData.bgScale : 1,
-          opacity: 1,
-          filter: "brightness(1)",
-          transformOrigin: `${currentData.hotspot.left} ${currentData.hotspot.top}`,
-        }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentData.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full"
-          >
-            {/* 🌟 確保使用 object-cover，這樣圖片才會完美撐滿整個畫面 */}
-            <Image
-              src={currentData.image}
-              alt={currentData.imageAlt}
-              fill
-              quality={100}
-              sizes={`${Math.ceil(currentData.bgScale * 100)}vw`}
-              className="object-cover [image-rendering:auto]"
-              priority
-            />
-          </motion.div>
-        </AnimatePresence>
-      </motion.div>
+      <div ref={containerRef} className="absolute inset-0 w-full h-full" />
 
-      <AnimatePresence>
-        {viewMode === "detail" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 z-[5] pointer-events-none bg-black/25"
-            aria-hidden
-          />
-        )}
-      </AnimatePresence>
-
-      {/* =========================================================
-          2. 全視角模式 - 閃爍點 (Hotspot)
-          ========================================================= */}
-      <AnimatePresence>
-        {viewMode === "full" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 z-10 pointer-events-none"
-          >
-            <button
-              className="absolute pointer-events-auto transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center group cursor-pointer"
-              style={{
-                top: currentData.hotspot.top,
-                left: currentData.hotspot.left,
-              }}
-              onClick={() => setViewMode("detail")}
-            >
-              <div className="w-2.5 h-2.5 bg-white rounded-full relative z-10 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-              <div className="absolute w-8 h-8 bg-white/30 rounded-full animate-ping" />
-              <div className="absolute w-10 h-10 border border-white/40 rounded-full group-hover:scale-125 transition-transform duration-300" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* =========================================================
-          3. 細節模式 (對焦框 + 虛線)
-          ========================================================= */}
-      <AnimatePresence>
-        {viewMode === "detail" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="absolute inset-0 pointer-events-none z-10"
-          >
-            <div
-              className="absolute rounded-xl border border-white/50 bg-transparent shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)] transition-all duration-700"
-              style={{
-                top: currentData.detail.frame.top,
-                left: currentData.detail.frame.left,
-                width: currentData.detail.frame.width,
-                height: currentData.detail.frame.height,
-              }}
-            >
-              <div className="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-white" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-white" />
-              <div className="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-white" />
-              <div className="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-white" />
-            </div>
-
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              <motion.line
-                x1={currentData.detail.lineStart.x}
-                y1={currentData.detail.lineStart.y}
-                x2="75%"
-                y2="70%"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-                className="opacity-50"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 1, ease: "easeOut" }}
-              />
-            </svg>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* =========================================================
-          4. UI 介面層
-          ========================================================= */}
-      <div className="absolute inset-0 z-20 p-8 md:p-12 top-20 flex flex-col justify-between pointer-events-none">
-        <div className="w-full flex justify-end">
-          <button
-            className="pointer-events-auto px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-sm font-medium rounded-full transition-colors border border-white/10"
-            onClick={() => setViewMode(viewMode === "full" ? "detail" : "full")}
-          >
-            {viewMode === "full" ? "深入細節" : "返回全視角"}
-          </button>
-        </div>
-
+      <div className="absolute inset-0 z-20 p-6 md:p-12 flex flex-col justify-end pointer-events-none">
         <div className="w-full flex justify-between items-end">
           <motion.div
-            animate={{
-              opacity: viewMode === "full" ? 1 : 0,
-              y: viewMode === "full" ? 0 : 20,
-              pointerEvents: viewMode === "full" ? "auto" : "none",
-            }}
-            transition={{ duration: 0.5 }}
-            className="w-[340px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+            className="pointer-events-auto w-[340px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
           >
             <div className="p-4 border-b border-white/10 bg-white/5">
               <h3 className="text-white text-sm font-bold tracking-widest">
@@ -238,27 +278,39 @@ export default function InteractiveExplorer() {
             </div>
 
             <div className="p-5">
-              <div className="mb-6">
-                <p className="text-gray-500 text-xs tracking-wider mb-1">
-                  {INFO_LABELS.target}
-                </p>
-                <p className="text-white text-lg">{currentData.info.target}</p>
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentData.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="mb-4">
+                    <p className="text-gray-500 text-xs tracking-wider mb-1">
+                      {INFO_LABELS.target}
+                    </p>
+                    <p className="text-white text-lg">
+                      {currentData.info.target}
+                    </p>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                {Object.entries(currentData.info)
-                  .slice(1)
-                  .map(([key, value]) => (
-                    <div key={key}>
-                      <p className="text-gray-500 text-[10px] tracking-wider mb-1">
-                        {INFO_LABELS[key] ?? key}
-                      </p>
-                      <p className="text-gray-200 text-sm font-medium">
-                        {value}
-                      </p>
-                    </div>
-                  ))}
-              </div>
+                  <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                    {Object.entries(currentData.info)
+                      .slice(1)
+                      .map(([key, value]) => (
+                        <div key={key}>
+                          <p className="text-gray-500 text-[10px] tracking-wider mb-1">
+                            {INFO_LABELS[key] ?? key}
+                          </p>
+                          <p className="text-gray-200 text-sm font-medium">
+                            {value}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             <div className="flex border-t border-white/10 bg-black/20">
@@ -266,51 +318,54 @@ export default function InteractiveExplorer() {
                 onClick={prevSlide}
                 className="flex-1 py-4 flex justify-center items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 transition-colors border-r border-white/10"
               >
-                <ChevronLeft size={16} />{" "}
-                <span className="text-sm font-medium">上一張</span>
+                <ChevronLeft size={16} />
+                <span className="text-sm font-medium">上一個</span>
               </button>
               <button
                 onClick={nextSlide}
                 className="flex-1 py-4 flex justify-center items-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
               >
-                <span className="text-sm font-medium">下一張</span>{" "}
+                <span className="text-sm font-medium">下一個</span>
                 <ChevronRight size={16} />
               </button>
             </div>
           </motion.div>
 
-          <AnimatePresence>
-            {viewMode === "detail" && (
-              <motion.div
-                initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: 50, filter: "blur(10px)" }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: 0.3,
-                }}
-                className="pointer-events-auto w-[320px] absolute right-12 bottom-12"
-              >
-                <div className="relative">
-                  <button
-                    onClick={() => setViewMode("full")}
-                    className="absolute -top-1 -right-2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-
-                  <h2 className="text-white text-2xl font-bold mb-2 tracking-wide">
-                    {currentData.detail.title}
-                  </h2>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    {currentData.detail.desc}
-                  </p>
-                </div>
-              </motion.div>
-            )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentData.id}
+              initial={{ opacity: 0, x: 30, filter: "blur(8px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, x: -30, filter: "blur(8px)" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="pointer-events-none w-[320px] text-right"
+            >
+              <p className="text-gray-500 text-xs tracking-widest mb-2 uppercase">
+                {currentData.subtitle}
+              </p>
+              <h2 className="text-white text-2xl font-bold mb-3 tracking-wide">
+                {currentData.title}
+              </h2>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                {currentData.desc}
+              </p>
+            </motion.div>
           </AnimatePresence>
         </div>
+      </div>
+
+      <div className="absolute top-6 right-6 md:top-12 md:right-12 z-20 flex gap-2">
+        {SLIDES.map((slide, i) => (
+          <button
+            key={slide.id}
+            onClick={() => setCurrentIndex(i)}
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+              i === currentIndex
+                ? "bg-white scale-110"
+                : "bg-white/30 hover:bg-white/50"
+            }`}
+          />
+        ))}
       </div>
     </div>
   );

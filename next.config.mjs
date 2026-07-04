@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // experimental: { ... }, // 如果有其他實驗性功能可以加在這裡
+  reactStrictMode: false,
 
   images: {
     remotePatterns: [
