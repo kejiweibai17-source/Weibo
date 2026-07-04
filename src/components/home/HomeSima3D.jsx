@@ -14,23 +14,9 @@ import {
   useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
-import {
-  SIMA_BUTTON,
-  SIMA_CHROME_LID,
-  SIMA_SILVER_METAL,
-  SIMA_SPACE_GRAY,
-  SIMA_TRIM_RING,
-  finalizeSimaGlbModel,
-} from "@/lib/simaGlbMaterials";
+import { finalizeSimaGlbModel } from "@/lib/simaGlbMaterials";
 
-const MODEL_PATH = "/3d/sima.glb";
-
-const MATERIALS = {
-  chromeLid: SIMA_CHROME_LID,
-  matteBody: SIMA_SPACE_GRAY,
-  trimRing: SIMA_TRIM_RING,
-  buttonFace: SIMA_BUTTON,
-};
+const MODEL_PATH = "/3d/星座.glb";
 
 useGLTF.preload(MODEL_PATH);
 
@@ -43,13 +29,7 @@ function EnvMapSync({ model }) {
     model.traverse((child) => {
       if (!child.isMesh || !child.material) return;
       const m = child.material;
-      if (m.name === "Silver Metal") {
-        m.envMapIntensity = SIMA_SILVER_METAL.envMapIntensity;
-      }
-      else if (m.name === "Trim Ring") m.envMapIntensity = MATERIALS.trimRing.envMapIntensity;
-      else if (m.name === "Matte Titanium Body") {
-        m.envMapIntensity = MATERIALS.matteBody.envMapIntensity;
-      }
+      m.envMapIntensity = m.envMapIntensity ?? 1.5;
       m.needsUpdate = true;
     });
   }, [model, scene.environment]);
@@ -123,9 +103,16 @@ function SceneLighting() {
       </Environment>
 
       <ambientLight intensity={0.65} color="#ffffff" />
-      <hemisphereLight args={["#ffffff", "#d8dce2", 0.55]} position={[0, 1, 0]} />
+      <hemisphereLight
+        args={["#ffffff", "#d8dce2", 0.55]}
+        position={[0, 1, 0]}
+      />
       <directionalLight position={[4, 8, 6]} intensity={0.42} color="#ffffff" />
-      <directionalLight position={[-5, 4, 3]} intensity={0.22} color="#eef1f5" />
+      <directionalLight
+        position={[-5, 4, 3]}
+        intensity={0.22}
+        color="#eef1f5"
+      />
     </>
   );
 }
@@ -164,8 +151,7 @@ export default function HomeSima3D() {
   useEffect(() => {
     try {
       const canvas = document.createElement("canvas");
-      const gl =
-        canvas.getContext("webgl2") || canvas.getContext("webgl");
+      const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
       if (!gl) setWebglOk(false);
     } catch {
       setWebglOk(false);
@@ -205,7 +191,12 @@ export default function HomeSima3D() {
                 toneMapping: THREE.ACESFilmicToneMapping,
                 toneMappingExposure: 1,
               }}
-              camera={{ position: [0, 0.15, 4.4], fov: 38, near: 0.1, far: 100 }}
+              camera={{
+                position: [0, 0.15, 4.4],
+                fov: 38,
+                near: 0.1,
+                far: 100,
+              }}
               className="h-full min-h-[70vh] w-full touch-none lg:min-h-screen"
             >
               <Suspense fallback={<Loader />}>

@@ -16,7 +16,7 @@ import "./ConstellationProductScroll.css";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-const MODEL_PATH = "/3d/sima.glb";
+const MODEL_PATH = "/3d/星座.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
 /** 完成整段動畫所需的滾動距離（以視窗高度為單位） */
 const SCROLL_VIEWPORT_HEIGHTS = 5;
@@ -175,14 +175,14 @@ export default function ConstellationProductScroll() {
       renderer.shadowMap.enabled = true;
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      if ("outputEncoding" in renderer) {
-        renderer.outputEncoding = THREE.LinearEncoding;
-      } else if ("outputColorSpace" in renderer) {
-        renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+      if ("outputColorSpace" in renderer) {
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+      } else if ("outputEncoding" in renderer) {
+        renderer.outputEncoding = THREE.sRGBEncoding;
       }
 
-      renderer.toneMapping = THREE.NoToneMapping;
-      renderer.toneMappingExposure = 1.0;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
 
       modelContainerRef.current?.appendChild(renderer.domElement);
       setupSimaScrollSceneEnvironment(renderer, scene);
