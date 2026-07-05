@@ -19,10 +19,6 @@ const STATIC_PAGES: Array<{
   { path: "/support/faq", changeFrequency: "monthly", priority: 0.7 },
   { path: "/support/policies", changeFrequency: "monthly", priority: 0.65 },
   { path: "/blog", changeFrequency: "daily", priority: 0.8 },
-  { path: "/product01", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/product02", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/product03", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/product04", changeFrequency: "weekly", priority: 0.85 },
 ];
 
 async function fetchAccessorySlugs(): Promise<string[]> {
@@ -41,6 +37,17 @@ async function fetchAccessorySlugs(): Promise<string[]> {
     } catch {
       return [];
     }
+  }
+}
+
+async function fetchSeriesSlugs(): Promise<string[]> {
+  try {
+    const { fetchSeriesSlugs: fetchSlugs } = await import(
+      "@/lib/seriesProducts.server"
+    );
+    return fetchSlugs();
+  } catch {
+    return [];
   }
 }
 
@@ -67,9 +74,10 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const [accessorySlugs, blogSlugs] = await Promise.all([
+  const [accessorySlugs, blogSlugs, seriesSlugs] = await Promise.all([
     fetchAccessorySlugs(),
     fetchBlogSlugs(),
+    fetchSeriesSlugs(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PAGES.map((p) => ({
@@ -93,5 +101,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...accessoryEntries, ...blogEntries];
+  const seriesEntries: MetadataRoute.Sitemap = seriesSlugs.map((slug) => ({
+    url: `${SITE_URL}/series/${encodeURIComponent(slug)}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
+
+  return [...staticEntries, ...accessoryEntries, ...blogEntries, ...seriesEntries];
 }

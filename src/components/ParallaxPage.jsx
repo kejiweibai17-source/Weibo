@@ -10,7 +10,7 @@ const HomeScrollSequence01 = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[340px] w-full items-center justify-center text-sm text-neutral-500 md:h-[min(72vh,680px)]">
+      <div className="flex h-screen w-full items-center justify-center bg-[#08001a] text-sm text-purple-400/60">
         載入 3D 展示…
       </div>
     ),
@@ -23,19 +23,20 @@ const S3GroomingPrecision = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0c] text-sm text-white/50">
-        載入產品探索…
+        載入產品介紹…
       </div>
     ),
   },
 );
 
-const ParallaxPage = () => {
+const ParallaxPage = ({ productIntroSection = null }) => {
   return (
     <div className="relative w-full bg-black font-sans">
-      {/* sticky 固定層：滾動時下方區塊會覆蓋其上（視差效果） */}
-      <div className="sticky top-0 z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
-        <S3GroomingPrecision />
-      </div>
+      {productIntroSection ? (
+        <div className="sticky top-0 z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+          <S3GroomingPrecision section={productIntroSection} />
+        </div>
+      ) : null}
 
       {/* 接續區塊：z-10 滑過 sticky 層 */}
       <div className="relative z-10 w-full bg-[#f5f5f5] text-black">
@@ -56,8 +57,11 @@ const ParallaxPage = () => {
             </p>
           </motion.div>
         </div>
+      </div>
 
-        <HomeScrollSequence01 embedded />
+      {/* 3D 刀頭互動區：獨立深紫色區塊 */}
+      <div className="relative z-10 w-full">
+        <HomeScrollSequence01 />
       </div>
     </div>
   );

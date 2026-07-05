@@ -4,7 +4,10 @@ import JsonLd from "@/components/seo/JsonLd";
 import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
 import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
+import { getHomeBladeIntroSection } from "@/lib/homeBladeIntro.server";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
+import { getHomeConstellationSection } from "@/lib/homeConstellation.server";
+import { getHomeProductIntroSection } from "@/lib/homeProductIntro.server";
 import { getHeroSliderSlides } from "@/lib/heroSlider.server";
 
 const SITE_URL = getSiteUrl();
@@ -78,9 +81,18 @@ export const metadata = {
 export const revalidate = 60;
 
 export default async function Page() {
-  const [carouselSlides, heroSlides] = await Promise.all([
+  const [
+    carouselSlides,
+    heroSlides,
+    constellationSection,
+    bladeIntroSection,
+    productIntroSection,
+  ] = await Promise.all([
     getHomeCarouselSlides(),
     getHeroSliderSlides(),
+    getHomeConstellationSection(),
+    getHomeBladeIntroSection(),
+    getHomeProductIntroSection(),
   ]);
   const schemas = buildHomePageSchemas({
     siteUrl: SITE_URL,
@@ -95,6 +107,9 @@ export default async function Page() {
         faqs={homeFAQs}
         carouselSlides={carouselSlides}
         heroSlides={heroSlides}
+        constellationSection={constellationSection}
+        bladeIntroSection={bladeIntroSection}
+        productIntroSection={productIntroSection}
       />
     </>
   );

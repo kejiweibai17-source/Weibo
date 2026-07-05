@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { User, ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "@/lib/cartStore";
 import { SUPPORT_NAV } from "@/data/supportContent";
+import { SERIES_NAV_FALLBACK } from "@/lib/seriesProducts.constants";
 // 🌟 引入 GSAP
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -103,6 +104,7 @@ export default function Navbar() {
   );
 
   const [accessoryNavItems, setAccessoryNavItems] = useState([]);
+  const [seriesNavItems, setSeriesNavItems] = useState([]);
 
   const { scrollYProgress } = useScroll();
 
@@ -180,21 +182,38 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/series/nav")
+      .then((res) => (res.ok ? res.json() : { items: [] }))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.items)) {
+          setSeriesNavItems(data.items);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSeriesNavItems([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const globalLinks = useMemo(
     () => [
       { label: "昔馬smasmall", href: "/brand" },
       {
         label: "系列商品",
-        href: "/product01",
-        dropdown: [
-          { label: "捍衛者套裝", href: "/product01" },
-          { label: "黑夜騎士電動刮鬍刀 (S1-DK)", href: "/product02" },
-          { label: "青春版電動刮鬍刀禮盒-三色", href: "/product03" },
-          { label: "星座系列 (CQ系列)", href: "/product04" },
-          { label: "小金剛旗艦三刀頭電動刮鬍刀", href: "/product05" },
-          { label: "電動鼻毛修剪器", href: "/product06" },
-          { label: "完美紳士 MATEBOX 3in1", href: "/product07" },
-        ],
+        href:
+          seriesNavItems[0]?.href ||
+          SERIES_NAV_FALLBACK[0]?.href ||
+          "/series/defender-set",
+        dropdown:
+          seriesNavItems.length > 0
+            ? seriesNavItems
+            : SERIES_NAV_FALLBACK,
       },
       {
         label: "產品列表",
@@ -209,7 +228,7 @@ export default function Navbar() {
       { label: "全台門市", href: "/stores" },
       { label: "聯絡我們", href: "/contact" },
     ],
-    [accessoryNavItems],
+    [accessoryNavItems, seriesNavItems],
   );
 
   const headerVariants = {
