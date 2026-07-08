@@ -1,0 +1,331 @@
+/**
+ * WordPress 核心區塊（Gutenberg）樣式，scoped 於 .wp-content。
+ * 目的：讓 Next.js 前端與 WordPress 後台編輯器「所見即所得」。
+ * 涵蓋：基礎排版 + 欄/欄位、圖片、圖庫、群組、對齊、按鈕、引言、間距、字級、顏色。
+ */
+
+/* ---------- 基礎排版（取代 Tailwind prose，避免衝突） ---------- */
+.wp-content {
+  color: #1d1d1f;
+  font-size: 17px;
+  line-height: 1.75;
+  word-break: break-word;
+}
+.wp-content > *:first-child {
+  margin-top: 0;
+}
+.wp-content p {
+  margin: 0 0 1.25em;
+}
+.wp-content h1,
+.wp-content h2,
+.wp-content h3,
+.wp-content h4,
+.wp-content h5,
+.wp-content h6 {
+  color: #1d1d1f;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.6em 0 0.6em;
+}
+.wp-content h1 { font-size: 2em; }
+.wp-content h2 { font-size: 1.6em; }
+.wp-content h3 { font-size: 1.3em; }
+.wp-content h4 { font-size: 1.1em; }
+.wp-content a {
+  color: #0071e3;
+  text-decoration: underline;
+}
+.wp-content a:hover {
+  opacity: 0.8;
+}
+.wp-content ul,
+.wp-content ol {
+  margin: 0 0 1.25em;
+  padding-left: 1.6em;
+}
+.wp-content ul { list-style: disc; }
+.wp-content ol { list-style: decimal; }
+.wp-content li {
+  margin-bottom: 0.4em;
+}
+.wp-content strong { font-weight: 700; }
+.wp-content em { font-style: italic; }
+.wp-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- 版面對齊（alignwide / alignfull） ---------- */
+.wp-content .alignwide {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  max-width: 1100px;
+  margin-inline: auto;
+}
+.wp-content .alignfull {
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  max-width: 100vw;
+  width: 100vw;
+}
+.wp-content .aligncenter {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.wp-content .alignleft {
+  float: left;
+  margin-right: 1.5em;
+  margin-bottom: 1em;
+}
+.wp-content .alignright {
+  float: right;
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+.wp-content .has-text-align-center {
+  text-align: center;
+}
+.wp-content .has-text-align-left {
+  text-align: left;
+}
+.wp-content .has-text-align-right {
+  text-align: right;
+}
+
+/* ---------- 欄 Columns（並排關鍵） ---------- */
+.wp-content .wp-block-columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2em;
+  margin-bottom: 1.75em;
+}
+.wp-content .wp-block-columns.is-layout-flex {
+  flex-wrap: wrap;
+}
+.wp-content .wp-block-column {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 0;
+  word-break: break-word;
+}
+/* 欄位內圖片填滿欄寬，讓並排圖等寬對齊 */
+.wp-content .wp-block-column .wp-block-image,
+.wp-content .wp-block-column figure {
+  margin: 0;
+}
+.wp-content .wp-block-column .wp-block-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* 指定寬度的欄（後台拖曳寬度時 WP 會輸出 flex-basis inline style，此處只補預設） */
+.wp-content .wp-block-column[style*="flex-basis"] {
+  flex-grow: 0;
+}
+/* 不在手機堆疊時保持並排 */
+.wp-content .wp-block-columns.is-not-stacked-on-mobile {
+  flex-wrap: nowrap;
+}
+
+/* 手機（WP 預設 781px 以下堆疊） */
+@media (max-width: 781px) {
+  .wp-content .wp-block-columns:not(.is-not-stacked-on-mobile) {
+    flex-direction: column;
+    gap: 1.25em;
+  }
+  .wp-content .wp-block-columns:not(.is-not-stacked-on-mobile) > .wp-block-column {
+    flex-basis: 100% !important;
+  }
+}
+
+/* ---------- 群組 Group ---------- */
+.wp-content .wp-block-group {
+  margin-bottom: 1.5em;
+}
+.wp-content .wp-block-group.has-background {
+  padding: 1.5em;
+  border-radius: 8px;
+}
+
+/* ---------- 圖片 Image ---------- */
+.wp-content figure {
+  margin: 0 0 1.5em;
+}
+.wp-content .wp-block-image {
+  margin-bottom: 1.5em;
+}
+.wp-content .wp-block-image img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: bottom;
+  border-radius: 4px;
+}
+.wp-content .wp-block-image.is-style-rounded img,
+.wp-content .wp-block-image .is-style-rounded {
+  border-radius: 9999px;
+}
+.wp-content .wp-block-image.aligncenter {
+  text-align: center;
+}
+.wp-content .wp-block-image figcaption,
+.wp-content figcaption {
+  margin-top: 0.6em;
+  text-align: center;
+  font-size: 0.85em;
+  color: #6e6e73;
+  line-height: 1.5;
+}
+/* 圖片尺寸類別 */
+.wp-content .size-thumbnail img { max-width: 150px; }
+.wp-content .size-medium img { max-width: 300px; }
+.wp-content .size-large img { max-width: 1024px; }
+
+/* ---------- 圖庫 Gallery ---------- */
+.wp-content .wp-block-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-bottom: 1.5em;
+  list-style: none;
+  padding: 0;
+}
+.wp-content .wp-block-gallery.is-layout-flex {
+  flex-wrap: wrap;
+}
+.wp-content .wp-block-gallery .wp-block-image {
+  flex-grow: 1;
+  flex-basis: 0;
+  min-width: 0;
+  margin: 0;
+}
+.wp-content .wp-block-gallery.columns-2 .wp-block-image {
+  flex-basis: calc(50% - 0.5em);
+}
+.wp-content .wp-block-gallery.columns-3 .wp-block-image {
+  flex-basis: calc(33.333% - 0.67em);
+}
+.wp-content .wp-block-gallery.columns-4 .wp-block-image {
+  flex-basis: calc(25% - 0.75em);
+}
+.wp-content .wp-block-gallery .wp-block-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 599px) {
+  .wp-content .wp-block-gallery .wp-block-image {
+    flex-basis: calc(50% - 0.5em) !important;
+  }
+}
+
+/* ---------- 按鈕 Buttons ---------- */
+.wp-content .wp-block-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin-bottom: 1.5em;
+}
+.wp-content .wp-block-buttons.is-content-justification-center {
+  justify-content: center;
+}
+.wp-content .wp-block-button__link {
+  display: inline-block;
+  padding: 0.7em 1.5em;
+  background-color: #0071e3;
+  color: #fff;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-size: 0.95em;
+  transition: opacity 0.2s;
+}
+.wp-content .wp-block-button__link:hover {
+  opacity: 0.85;
+}
+.wp-content .wp-block-button.is-style-outline .wp-block-button__link {
+  background-color: transparent;
+  border: 1px solid currentColor;
+  color: #1d1d1f;
+}
+
+/* ---------- 引言 Quote / Pullquote ---------- */
+.wp-content .wp-block-quote {
+  border-left: 4px solid #d2d2d7;
+  padding-left: 1.25em;
+  margin: 1.5em 0;
+  font-style: italic;
+  color: #333;
+}
+.wp-content .wp-block-pullquote {
+  border-top: 3px solid #1d1d1f;
+  border-bottom: 3px solid #1d1d1f;
+  padding: 1.5em 0;
+  margin: 2em 0;
+  text-align: center;
+}
+.wp-content .wp-block-pullquote blockquote {
+  margin: 0;
+  font-size: 1.4em;
+}
+
+/* ---------- 分隔線 / 影音嵌入 ---------- */
+.wp-content .wp-block-separator {
+  border: none;
+  border-top: 1px solid #d2d2d7;
+  margin: 2em auto;
+  max-width: 100px;
+}
+.wp-content .wp-block-separator.is-style-wide {
+  max-width: 100%;
+}
+.wp-content .wp-block-embed {
+  margin-bottom: 1.5em;
+}
+.wp-content .wp-block-embed__wrapper {
+  position: relative;
+}
+.wp-content .wp-block-embed.is-type-video .wp-block-embed__wrapper {
+  padding-top: 56.25%;
+}
+.wp-content .wp-block-embed.is-type-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- 字級 preset ---------- */
+.wp-content .has-small-font-size { font-size: 0.85em; }
+.wp-content .has-medium-font-size { font-size: 1.15em; }
+.wp-content .has-large-font-size { font-size: 1.5em; }
+.wp-content .has-x-large-font-size { font-size: 2em; }
+.wp-content .has-xx-large-font-size { font-size: 2.6em; }
+
+/* ---------- 內距/間距（WP spacing preset 會用 inline style，這裡補預設保險） ---------- */
+.wp-content .wp-block-spacer {
+  display: block;
+}
+
+/* ---------- 表格 ---------- */
+.wp-content .wp-block-table {
+  overflow-x: auto;
+  margin-bottom: 1.5em;
+}
+.wp-content .wp-block-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.wp-content .wp-block-table td,
+.wp-content .wp-block-table th {
+  border: 1px solid #d2d2d7;
+  padding: 0.6em 0.9em;
+}
+
+/* ---------- 清除浮動 ---------- */
+.wp-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}

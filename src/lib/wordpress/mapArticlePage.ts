@@ -4,7 +4,25 @@ import {
 } from "@/data/articlePageFallback";
 
 function stripHtml(html: string) {
-  return html.replace(/<[^>]+>/g, "").trim();
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&hellip;/gi, "…")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#0?39;|&apos;/gi, "'")
+    .replace(/\[\s*(?:…|\.\.\.)\s*\]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/** 清理文章主體 HTML：移除 &nbsp; 等特殊符號，但保留 HTML 標籤 */
+function cleanBodyHtml(html: string) {
+  return html
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\u00a0/g, " ");
 }
 
 function getPostImage(post: {
@@ -72,7 +90,9 @@ export function mapWordPressPostToArticlePage(
     ...fallback,
     wpTitle,
     wpExcerpt,
-    wpBodyHtml: post.content?.rendered,
+    wpBodyHtml: post.content?.rendered
+      ? cleanBodyHtml(post.content.rendered)
+      : undefined,
     featuredImage,
     slug: post.slug,
     date: post.date,

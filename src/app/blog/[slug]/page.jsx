@@ -1,4 +1,4 @@
-import { getAllPostSlugs } from "@/lib/wordpress";
+import { getAllPostSlugs, getAllPosts } from "@/lib/wordpress";
 import { mapWordPressPostToArticlePage } from "@/lib/wordpress/mapArticlePage";
 import { notFound } from "next/navigation";
 import ArticleJsonLd from "./ArticleJsonLd";
@@ -84,6 +84,35 @@ export async function generateMetadata({ params }) {
   };
 }
 
+function getRelatedPostImage(post) {
+  const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
+  const rawUrl =
+    post.jetpack_featured_media_url ||
+    featuredMedia?.media_details?.sizes?.medium?.source_url ||
+    featuredMedia?.media_details?.sizes?.large?.source_url ||
+    featuredMedia?.source_url ||
+    "";
+  return rawUrl ? rawUrl.split("?")[0] : "";
+}
+
+async function getRelatedPosts(currentSlug) {
+  try {
+    const posts = await getAllPosts();
+    if (!Array.isArray(posts)) return [];
+    return posts
+      .filter((p) => p.slug !== currentSlug)
+      .slice(0, 5)
+      .map((p) => ({
+        slug: p.slug,
+        title: p.title?.rendered?.replace(/<[^>]+>/g, "") ?? "",
+        image: getRelatedPostImage(p),
+        date: p.date,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function BlogPostPage({ params }) {
   const post = await getPostBySlugWithDebug(params.slug);
 
@@ -93,12 +122,13 @@ export default async function BlogPostPage({ params }) {
 
   const articleData = mapWordPressPostToArticlePage(post);
   const mainImageUrl = getPostImage(post);
+  const relatedPosts = await getRelatedPosts(params.slug);
 
   return (
     <>
       <ArticleJsonLd post={post} siteUrl={SITE_URL} imageUrl={mainImageUrl} />
       <div className="mt-[60px] min-h-screen bg-white">
-        <ArticlePageView data={articleData} />
+        <ArticlePageView data={articleData} relatedPosts={relatedPosts} />
       </div>
     </>
   );

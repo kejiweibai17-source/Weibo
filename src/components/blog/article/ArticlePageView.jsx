@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
+import "./wp-content.css";
 
 const ACTION_BLUE = "#0071e3";
 
@@ -68,30 +69,186 @@ function StickyBar({ data, title }) {
   );
 }
 
-function HeroSection({ hero }) {
+/** 從文章 HTML 內容抓取圖片 URL（給縮圖列用） */
+function extractImages(html, limit = 6) {
+  if (!html) return [];
+  const urls = [];
+  const seen = new Set();
+  const re = /<img[^>]+src="([^">]+)"/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const url = m[1].split("?")[0];
+    if (!seen.has(url)) {
+      seen.add(url);
+      urls.push(m[1]);
+    }
+    if (urls.length >= limit) break;
+  }
+  return urls;
+}
+
+function ProductGallery({ images, title }) {
+  const [index, setIndex] = useState(0);
+  const total = images.length;
+  const activeImage = images[index] || images[0];
+
+  const goPrev = () => setIndex((i) => (i - 1 + total) % total);
+  const goNext = () => setIndex((i) => (i + 1) % total);
+
   return (
-    <section className="relative h-[min(100vh,900px)] w-full overflow-hidden bg-[#111]">
-      <Image
-        src={hero.image}
-        alt={hero.title}
-        fill
-        priority
-        className="object-cover"
-        sizes="100vw"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 mx-auto max-w-[1200px] px-5 pb-16 pt-24 md:px-8 md:pb-24">
-        <h1 className="max-w-[640px] text-[32px] font-bold leading-tight text-white md:text-[48px] lg:text-[56px]">
-          {hero.title}
-        </h1>
-        <p className="mt-4 max-w-[560px] text-[16px] leading-relaxed text-white/90 md:text-[19px]">
-          {hero.description}
-        </p>
-        {hero.footnote && (
-          <p className="mt-6 text-[12px] text-white/60 md:text-[13px]">
-            {hero.footnote}
-          </p>
+    <div>
+      <div className="relative aspect-square w-full overflow-hidden rounded-[20px] md:rounded-[28px]">
+        <Image
+          src={activeImage}
+          alt={title}
+          fill
+          priority
+          className="object-contain"
+          sizes="(max-width: 1024px) 100vw, 60vw"
+        />
+
+        {total > 1 && (
+          <>
+            {/* 頁數計數 */}
+            <div className="absolute left-4 top-4 rounded-full bg-black/55 px-3 py-1 text-[12px] font-medium text-white backdrop-blur-sm">
+              {index + 1} / {total}
+            </div>
+
+            {/* 左右切換箭頭 */}
+            <button
+              type="button"
+              onClick={goPrev}
+              aria-label="上一張"
+              className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#1d1d1f] shadow-md transition-all hover:bg-white hover:scale-105"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              aria-label="下一張"
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#1d1d1f] shadow-md transition-all hover:bg-white hover:scale-105"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </>
         )}
+      </div>
+
+      {total > 1 && (
+        <div className="mt-4 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {images.map((img, i) => {
+            const isActive = i === index;
+            return (
+              <button
+                key={`${img}-${i}`}
+                type="button"
+                onClick={() => setIndex(i)}
+                aria-label={`檢視圖片 ${i + 1}`}
+                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-colors md:h-[72px] md:w-[72px] ${
+                  isActive
+                    ? "border-[#0071e3]"
+                    : "border-transparent hover:border-[#d2d2d7]"
+                }`}
+              >
+                <Image
+                  src={img}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  sizes="72px"
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductHeroSection({ hero, stickyBar, bodyHtml, title }) {
+  const gallery = [hero.image, ...extractImages(bodyHtml)].filter(Boolean);
+  const uniqueGallery = Array.from(new Set(gallery)).slice(0, 8);
+
+  const badges = ["全館免運", "原廠 12 個月保固", "7 天鑑賞期"];
+
+  return (
+    <section className="bg-white px-5 pb-12 pt-8 md:px-8 md:pt-10">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
+        {/* 左：圖庫 */}
+        <ProductGallery images={uniqueGallery} title={title || hero.title} />
+
+        {/* 右：資訊欄 */}
+        <div className="lg:sticky lg:top-[88px] lg:self-start">
+          <p className="text-[13px] font-medium text-[#6e6e73]">
+            {stickyBar.productLine}
+          </p>
+          <h1 className="mt-2 text-[26px] font-bold leading-tight text-[#1d1d1f] md:text-[32px]">
+            {title || hero.title}
+          </h1>
+          <p className="mt-4 text-[15px] leading-relaxed text-[#6e6e73] md:text-[16px]">
+            {hero.description}
+          </p>
+
+          <p className="mt-6 text-[22px] font-semibold text-[#1d1d1f] md:text-[26px]">
+            {stickyBar.priceLabel}
+          </p>
+
+          <div className="mt-3 flex items-center gap-2 text-[14px] text-[#6e6e73]">
+            <span
+              className="inline-block h-2 w-2 rounded-full bg-[#34c759]"
+              aria-hidden
+            />
+            現貨供應・快速出貨
+          </div>
+
+          <Link
+            href={stickyBar.ctaHref}
+            className="mt-6 flex w-full items-center justify-center rounded-full px-6 py-3.5 text-[16px] font-medium text-white transition-opacity hover:opacity-90"
+            style={{ backgroundColor: ACTION_BLUE }}
+          >
+            {stickyBar.ctaLabel}
+          </Link>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-[#6e6e73]">
+            {badges.map((b) => (
+              <span key={b} className="inline-flex items-center gap-1.5">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M20 6 9 17l-5-5"
+                    stroke="#34c759"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {b}
+              </span>
+            ))}
+          </div>
+
+          {hero.footnote && (
+            <div className="mt-8 border-t border-[#d2d2d7] pt-6">
+              <h2 className="text-[15px] font-semibold text-[#1d1d1f]">
+                購買前須知
+              </h2>
+              <p className="mt-3 text-[14px] leading-relaxed text-[#6e6e73]">
+                {hero.footnote}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -260,28 +417,80 @@ function NewsletterSection({ newsletter }) {
   );
 }
 
-function WpBodySection({ html }) {
+function RelatedArticlesSidebar({ posts }) {
+  if (!posts || posts.length === 0) return null;
+
+  return (
+    <aside className="lg:sticky lg:top-[88px] lg:self-start">
+      <h2 className="text-[15px] font-semibold tracking-wide text-[#1d1d1f]">
+        其他文章
+      </h2>
+      <div className="mt-5 flex flex-col gap-5">
+        {posts.map((post) => (
+          <Link
+            key={post.slug}
+            href={`/blog/${post.slug}`}
+            className="group flex gap-4"
+          >
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f5f5f7]">
+              {post.image ? (
+                <Image
+                  src={post.image}
+                  alt={post.title}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="64px"
+                />
+              ) : null}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="line-clamp-3 text-[14px] font-medium leading-snug text-[#1d1d1f] group-hover:text-[#0071e3]">
+                {post.title}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <Link
+        href="/blog"
+        className="mt-6 inline-block text-[13px] font-medium text-[#0071e3] hover:underline"
+      >
+        查看全部文章 →
+      </Link>
+    </aside>
+  );
+}
+
+function WpBodySection({ html, relatedPosts }) {
   if (!html) return null;
 
   return (
     <section className="bg-white px-5 py-16 md:px-8">
-      <div
-        className="prose prose-base mx-auto max-w-[800px] prose-headings:text-[#1d1d1f] prose-p:text-[#333] prose-a:text-[#0071e3]"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+        <div
+          className="wp-content min-w-0"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+        <RelatedArticlesSidebar posts={relatedPosts} />
+      </div>
     </section>
   );
 }
 
-export default function ArticlePageView({ data }) {
+export default function ArticlePageView({ data, relatedPosts = [] }) {
   const displayTitle = data.wpTitle || data.hero.title;
 
   return (
     <article className="bg-white font-sans text-[#1d1d1f]">
       <StickyBar data={data.stickyBar} title={displayTitle} />
-      <HeroSection hero={data.hero} />
+      <ProductHeroSection
+        hero={data.hero}
+        stickyBar={data.stickyBar}
+        bodyHtml={data.wpBodyHtml}
+        title={displayTitle}
+      />
 
-      <WpBodySection html={data.wpBodyHtml} />
+      <WpBodySection html={data.wpBodyHtml} relatedPosts={relatedPosts} />
       <FaqSection faq={data.faq} />
       <NewsletterSection newsletter={data.newsletter} />
       <TrioFeaturesSection features={data.trioFeatures} />
