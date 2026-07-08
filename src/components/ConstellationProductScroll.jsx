@@ -70,7 +70,7 @@ function getOrCreateThreeScene(container) {
   }
 
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.1;
 
   container.replaceChildren();
   container.appendChild(renderer.domElement);
@@ -135,9 +135,46 @@ function getOrCreateThreeScene(container) {
 
     model.position.set(-center.x, -center.y, -center.z);
 
-    model.traverse((child) => {
-      if (child.name === "上蓋") state.lidPart = child;
-    });
+    /* 自動偵測蓋子節點 */
+    const LID_EXACT_NAMES = new Set([
+      "盖子",
+      "蓋子",
+      "蓋子.001",
+      "盖子.001",
+      "上蓋",
+      "上盖",
+    ]);
+    const LID_EXCLUDE = ["封顶", "平滑", "按钮", "刀", "支架", "底托", "链接", "logo", "icon", "object_"];
+
+    function isExcludedName(name) {
+      return LID_EXCLUDE.some((hint) => name.includes(hint));
+    }
+
+    function findLidPart(root) {
+      let exact = null;
+      let fuzzy = null;
+
+      root.traverse((child) => {
+        const name = child.name ?? "";
+        if (!name || child.type === "Scene") return;
+
+        if (LID_EXACT_NAMES.has(name)) {
+          exact = child;
+        }
+
+        if (!fuzzy && !isExcludedName(name)) {
+          if (/盖|蓋/i.test(name) && !name.includes("封顶")) {
+            fuzzy = child;
+          } else if (/^lid$/i.test(name) || /^cover$/i.test(name)) {
+            fuzzy = child;
+          }
+        }
+      });
+
+      return exact || fuzzy || null;
+    }
+
+    state.lidPart = findLidPart(model);
 
     if (state.lidPart) {
       state.lidRestPosition.copy(state.lidPart.position);

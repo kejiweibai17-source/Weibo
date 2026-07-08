@@ -1,7 +1,10 @@
 import * as THREE from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 const ICON_TEXTURE_PATH = "/3d/icon.png";
+const HDR_PATH = "/hdr/studio.hdr";
+
+let _cachedEnvTexture = null;
 
 function applyIconTexture(mesh) {
   const loader = new THREE.TextureLoader();
@@ -32,14 +35,15 @@ function applyIconTexture(mesh) {
 
 /**
  * 100% 使用 GLB 自帶材質，不覆蓋任何顏色。
- * 只處理：隱藏背景、Icon 貼圖、envMapIntensity。
+ * 只處理：隱藏背景、Icon 貼圖、金屬環境反射強度。
  */
 export function finalizeSimaGlbModel(root) {
   root.traverse((child) => {
     if (!child.isMesh) return;
 
     const meshName = child.name ?? "";
-    const matName = child.material?.name ?? "";
+    const material = child.material;
+    const matName = material?.name ?? "";
 
     if (matName === "背景" || meshName.includes("背景")) {
       child.visible = false;
@@ -54,16 +58,54 @@ export function finalizeSimaGlbModel(root) {
       return;
     }
 
-    if (child.material) {
-      child.material.envMapIntensity = 1.5;
-      child.material.needsUpdate = true;
-    }
+    const mats = Array.isArray(material) ? material : material ? [material] : [];
+    mats.forEach((mat) => {
+      if (!mat) return;
+
+      const metalness = typeof mat.metalness === "number" ? mat.metalness : 0;
+      const nameLc = (mat.name ?? "").toLowerCase();
+      const looksMetal =
+        metalness >= 0.5 ||
+        /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(nameLc);
+
+      if (looksMetal) {
+        // 金屬（銀色蓋子/刀頭）：用真實 HDRI 環境反射
+        mat.metalness = Math.max(metalness, 0.85);
+        if (typeof mat.roughness === "number") {
+          mat.roughness = THREE.MathUtils.clamp(mat.roughness, 0.15, 0.35);
+        } else {
+          mat.roughness = 0.22;
+        }
+        mat.envMapIntensity = 1.15;
+      } else {
+        mat.envMapIntensity = 1.0;
+      }
+
+      mat.needsUpdate = true;
+    });
   });
 }
 
 export function setupSimaScrollSceneEnvironment(renderer, scene) {
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  pmrem.dispose();
+  // 整體環境反射亮度（three r163+ 支援；舊版忽略不影響）
+  if ("environmentIntensity" in scene) {
+    scene.environmentIntensity = 1.0;
+  }
+
+  const applyEnv = (texture) => {
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    _cachedEnvTexture = pmrem.fromEquirectangular(texture).texture;
+    scene.environment = _cachedEnvTexture;
+    texture.dispose();
+    pmrem.dispose();
+  };
+
+  if (_cachedEnvTexture) {
+    scene.environment = _cachedEnvTexture;
+    return;
+  }
+
+  new RGBELoader().load(HDR_PATH, applyEnv);
 }
