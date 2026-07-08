@@ -52,7 +52,7 @@ function StickyBar({ data, title }) {
           <span className="mx-2 text-[#d2d2d7]">|</span>
           <span>{title || data.productLine}</span>
         </p>
-        <div className="flex shrink-0 items-center gap-3 md:gap-5">
+        <div className="flex shrink-0 items-center gap-3 md:gap-5 mt-3">
           <span className="hidden text-[12px] text-[#6e6e73] sm:inline md:text-[13px]">
             {data.priceLabel}
           </span>
@@ -121,8 +121,20 @@ function ProductGallery({ images, title }) {
               aria-label="上一張"
               className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#1d1d1f] shadow-md transition-all hover:bg-white hover:scale-105"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="m15 18-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
             <button
@@ -131,8 +143,20 @@ function ProductGallery({ images, title }) {
               aria-label="下一張"
               className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#1d1d1f] shadow-md transition-all hover:bg-white hover:scale-105"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden
+              >
+                <path
+                  d="m9 18 6-6-6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </>
