@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import gsap from "gsap";
 
-const MODEL_PATH = "/3d/特寫.glb";
+const MODEL_PATH = "/3d/機身細節26.glb";
 
 /** 與原版 S3GroomingPrecision SLIDES 完全一致的參數 */
 const VIEWS = {
@@ -68,7 +68,8 @@ export default function HomeScrollSequence01() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    if ("outputColorSpace" in renderer) renderer.outputColorSpace = THREE.SRGBColorSpace;
+    if ("outputColorSpace" in renderer)
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     el.appendChild(renderer.domElement);
@@ -176,7 +177,8 @@ export default function HomeScrollSequence01() {
       z: view.camera.z,
       duration: 1.4,
       ease: "power3.inOut",
-      onUpdate: () => camera.lookAt(view.lookAt.x, view.lookAt.y, view.lookAt.z),
+      onUpdate: () =>
+        camera.lookAt(view.lookAt.x, view.lookAt.y, view.lookAt.z),
     });
     gsap.to(model.rotation, {
       x: view.modelRot.x,
@@ -216,7 +218,8 @@ export default function HomeScrollSequence01() {
     <section
       className="relative h-screen w-full overflow-hidden"
       style={{
-        background: "linear-gradient(160deg, #0d0020 0%, #08001a 50%, #0a0015 100%)",
+        background:
+          "linear-gradient(160deg, #0d0020 0%, #08001a 50%, #0a0015 100%)",
       }}
       aria-label="產品 3D 特寫互動展示"
     >

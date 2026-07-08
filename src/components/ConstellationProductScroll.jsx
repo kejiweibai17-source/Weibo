@@ -16,7 +16,7 @@ import "./ConstellationProductScroll.css";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
-const MODEL_PATH = "/3d/星座.glb";
+const MODEL_PATH = "/3d/機身細節26.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
 const SCROLL_VIEWPORT_HEIGHTS = 5;
 
