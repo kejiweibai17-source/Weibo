@@ -23,6 +23,30 @@ function unique(items: string[]): string[] {
   return Array.from(new Set(items.filter(Boolean)));
 }
 
+/** 避免中文 slug 已被 percent-encode 時再 encode 一次（變成 %25e9...） */
+function pathSegment(slug: string): string {
+  if (!slug) return "";
+  if (/%[0-9A-Fa-f]{2}/.test(slug)) return slug;
+  return encodeURIComponent(slug);
+}
+
+function blogPathCandidates(slug: string): string[] {
+  if (!slug) return [];
+  const paths = [`/blog/${pathSegment(slug)}`];
+  try {
+    if (/%[0-9A-Fa-f]{2}/.test(slug)) {
+      const decoded = decodeURIComponent(slug);
+      if (decoded && decoded !== slug) {
+        paths.push(`/blog/${encodeURIComponent(decoded)}`);
+        paths.push(`/blog/${decoded}`);
+      }
+    }
+  } catch {
+    // ignore malformed URI
+  }
+  return paths;
+}
+
 export function revalidateSitemapCache(): { tags: string[]; paths: string[] } {
   const tags = [SITEMAP_CACHE_TAG];
   const paths = ["/sitemap.xml"];
@@ -37,7 +61,7 @@ export function revalidateProductCache(slug = ""): RevalidateResult {
 
   if (slug) {
     tags.push(`product-${slug}`);
-    paths.push(`/accessories/${encodeURIComponent(slug)}`);
+    paths.push(`/accessories/${pathSegment(slug)}`);
   }
 
   for (const tag of unique(tags)) revalidateTag(tag);
@@ -52,7 +76,7 @@ export function revalidateSeriesCache(slug = ""): RevalidateResult {
 
   if (slug) {
     tags.push(`series-${slug}`);
-    paths.push(`/series/${encodeURIComponent(slug)}`);
+    paths.push(`/series/${pathSegment(slug)}`);
 
     for (const [legacyPath, legacySlug] of Object.entries(LEGACY_PRODUCT_SLUGS)) {
       if (legacySlug === slug) {
@@ -73,7 +97,7 @@ export function revalidateBlogCache(slug = ""): RevalidateResult {
 
   if (slug) {
     tags.push(`blog-${slug}`);
-    paths.push(`/blog/${encodeURIComponent(slug)}`);
+    paths.push(...blogPathCandidates(slug));
   }
 
   for (const tag of unique(tags)) revalidateTag(tag);
