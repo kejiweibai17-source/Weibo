@@ -2,7 +2,8 @@ import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 const ICON_TEXTURE_PATH = "/3d/icon.png";
-const HDR_PATH = "/hdr/studio.hdr";
+/** Poly Haven — studio_small_03 (CC0) */
+const HDR_PATH = "/hdr/polyhaven-studio_small_03_1k.hdr";
 
 let _cachedEnvTexture = null;
 
@@ -69,14 +70,12 @@ export function finalizeSimaGlbModel(root) {
         /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(nameLc);
 
       if (looksMetal) {
-        // 金屬（銀色蓋子/刀頭）：用真實 HDRI 環境反射
-        mat.metalness = Math.max(metalness, 0.85);
-        if (typeof mat.roughness === "number") {
-          mat.roughness = THREE.MathUtils.clamp(mat.roughness, 0.15, 0.35);
-        } else {
-          mat.roughness = 0.22;
-        }
-        mat.envMapIntensity = 1.15;
+        // 金屬（銀色蓋子/刀頭）：乾淨反射，避免霧面
+        mat.metalness = 1;
+        mat.roughness = 0.08;
+        if (mat.roughnessMap) mat.roughnessMap = null;
+        if (mat.metalnessMap) mat.metalnessMap = null;
+        mat.envMapIntensity = 1.6;
       } else {
         mat.envMapIntensity = 1.0;
       }

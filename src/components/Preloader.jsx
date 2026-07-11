@@ -127,8 +127,15 @@ export default function Preloader({ onComplete }) {
         ref={introTextRef}
         className="relative z-10 flex flex-col items-center px-6"
       >
-        <h1 className="mb-4 text-3xl font-light uppercase tracking-[0.3em] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)] md:text-5xl">
-          SMASMALL
+        <h1 className="mb-4 drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)]">
+          <img
+            src="/images/SMASMALL-logo-white.png"
+            alt="SMASMALL"
+            width={775}
+            height={195}
+            className="h-auto w-[240px] md:w-[360px]"
+            draggable={false}
+          />
         </h1>
         <p className="mb-10 text-sm font-light tracking-wide text-gray-300 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] md:text-base">
           修容，也可以很講究。
@@ -146,12 +153,19 @@ export default function Preloader({ onComplete }) {
       </div>
 
       <div className="absolute z-10 flex flex-col items-center">
-        <p
+        <div
           ref={brandTextRef}
-          className="mb-5 text-lg font-light uppercase tracking-[0.35em] text-white opacity-0 drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)] will-change-opacity md:text-2xl"
+          className="mb-5 opacity-0 drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)] will-change-opacity"
         >
-          昔馬smasmall
-        </p>
+          <img
+            src="/images/SMASMALL-logo-white.png"
+            alt="昔馬 SMASMALL"
+            width={775}
+            height={195}
+            className="h-auto w-[180px] md:w-[260px]"
+            draggable={false}
+          />
+        </div>
         <div
           ref={lineRef}
           className="h-[1px] w-[250px] origin-left scale-x-0 bg-white opacity-0 md:w-[320px]"

@@ -1,13 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 import { HERO_SLIDER_FALLBACK_SLIDES } from "@/data/hero-slider-fallback";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 function escapeHtml(text = "") {
   return String(text)
@@ -17,9 +16,20 @@ function escapeHtml(text = "") {
     .replace(/"/g, "&quot;");
 }
 
+function slideKey(slides) {
+  return slides.map((s) => `${s.image}|${s.title}`).join("||");
+}
+
 export default function Slider({ slides: slidesProp }) {
-  const slides =
-    slidesProp?.length > 0 ? slidesProp : [...HERO_SLIDER_FALLBACK_SLIDES];
+  const resolvedSlides =
+    slidesProp?.length > 0 ? slidesProp : HERO_SLIDER_FALLBACK_SLIDES;
+  const slidesIdentity = slideKey(resolvedSlides);
+  const slides = useMemo(
+    () => [...resolvedSlides],
+    // content identity — avoid re-init when parent passes a new array ref
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [slidesIdentity],
+  );
 
   const sliderRef = useRef(null);
   const sliderImagesRef = useRef(null);
@@ -31,125 +41,92 @@ export default function Slider({ slides: slidesProp }) {
     () => {
       if (!slides.length) return undefined;
 
-      let activeSlide = 0;
-      let currentSplits = [];
+      let activeSlide = -1;
 
       const pinDistance = window.innerHeight * slides.length;
+      const imageEls = sliderImagesRef.current
+        ? Array.from(sliderImagesRef.current.querySelectorAll("img"))
+        : [];
 
-      function createIndices() {
-        if (sliderIndicesRef.current) {
-          sliderIndicesRef.current.innerHTML = "";
-
-          slides.forEach((_, index) => {
-            const indexNum = (index + 1).toString().padStart(2, "0");
-            const indicatorElement = document.createElement("p");
-            indicatorElement.dataset.index = index;
-            indicatorElement.innerHTML = `<span class="marker"></span><span class="index">${indexNum}</span>`;
-            sliderIndicesRef.current.appendChild(indicatorElement);
-
-            if (index === 0) {
-              gsap.set(indicatorElement.querySelector(".index"), {
-                opacity: 1,
-              });
-              gsap.set(indicatorElement.querySelector(".marker"), {
-                scaleX: 1,
-              });
-            } else {
-              gsap.set(indicatorElement.querySelector(".index"), {
-                opacity: 0.35,
-              });
-              gsap.set(indicatorElement.querySelector(".marker"), {
-                scaleX: 0,
-              });
-            }
-          });
-        }
+      gsap.set(imageEls, { opacity: 0, scale: 1.05 });
+      if (imageEls[0]) {
+        gsap.set(imageEls[0], { opacity: 1, scale: 1 });
+      }
+      if (progressBarRef.current) {
+        gsap.set(progressBarRef.current, { scaleY: 0 });
       }
 
-      function animateNewSlide(index) {
-        if (!sliderImagesRef.current || !sliderTitleRef.current) return;
+      function createIndices() {
+        if (!sliderIndicesRef.current) return;
+        sliderIndicesRef.current.innerHTML = "";
 
-        const newSliderImage = document.createElement("img");
-        newSliderImage.src = slides[index].image;
-        newSliderImage.alt = slides[index].title || `Slide ${index + 1}`;
+        slides.forEach((_, index) => {
+          const indexNum = (index + 1).toString().padStart(2, "0");
+          const indicatorElement = document.createElement("p");
+          indicatorElement.dataset.index = String(index);
+          indicatorElement.innerHTML = `<span class="marker"></span><span class="index">${indexNum}</span>`;
+          sliderIndicesRef.current.appendChild(indicatorElement);
 
-        gsap.set(newSliderImage, {
-          opacity: 0,
-          scale: 1.1,
+          gsap.set(indicatorElement.querySelector(".index"), {
+            opacity: index === 0 ? 1 : 0.35,
+          });
+          gsap.set(indicatorElement.querySelector(".marker"), {
+            scaleX: index === 0 ? 1 : 0,
+          });
         });
-
-        sliderImagesRef.current.appendChild(newSliderImage);
-
-        gsap.to(newSliderImage, {
-          opacity: 1,
-          duration: 0.5,
-          ease: "power2.out",
-        });
-
-        gsap.to(newSliderImage, {
-          scale: 1,
-          duration: 1,
-          ease: "power2.out",
-        });
-
-        const allImages = sliderImagesRef.current.querySelectorAll("img");
-        if (allImages.length > 3) {
-          const removeCount = allImages.length - 3;
-          for (let i = 0; i < removeCount; i++) {
-            sliderImagesRef.current.removeChild(allImages[i]);
-          }
-        }
-
-        animateNewTitle(index);
-        animateIndicators(index);
       }
 
       function animateIndicators(index) {
         if (!sliderIndicesRef.current) return;
 
-        const indicators = sliderIndicesRef.current.querySelectorAll("p");
-
-        indicators.forEach((indicator, i) => {
+        sliderIndicesRef.current.querySelectorAll("p").forEach((indicator, i) => {
           const markerElement = indicator.querySelector(".marker");
           const indexElement = indicator.querySelector(".index");
+          const active = i === index;
 
-          if (i === index) {
-            gsap.to(indexElement, {
-              opacity: 1,
-              duration: 0.3,
-              ease: "power2.out",
-            });
+          gsap.to(indexElement, {
+            opacity: active ? 1 : 0.35,
+            duration: 0.3,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+          gsap.to(markerElement, {
+            scaleX: active ? 1 : 0,
+            duration: 0.3,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+        });
+      }
 
-            gsap.to(markerElement, {
-              scaleX: 1,
-              duration: 0.3,
-              ease: "power2.out",
-            });
-          } else {
-            gsap.to(indexElement, {
-              opacity: 0.5,
-              duration: 0.3,
-              ease: "power2.out",
-            });
+      function showImage(index) {
+        imageEls.forEach((img, i) => {
+          const active = i === index;
+          gsap.to(img, {
+            opacity: active ? 1 : 0,
+            scale: active ? 1 : 1.05,
+            duration: active ? 0.55 : 0.4,
+            ease: "power2.out",
+            overwrite: "auto",
+          });
+        });
+      }
 
-            gsap.to(markerElement, {
-              scaleX: 0,
-              duration: 0.3,
-              ease: "power2.out",
-            });
-          }
+      function syncImageInstant(index) {
+        imageEls.forEach((img, i) => {
+          gsap.set(img, {
+            opacity: i === index ? 1 : 0,
+            scale: i === index ? 1 : 1.05,
+          });
         });
       }
 
       function animateNewTitle(index) {
         if (!sliderTitleRef.current) return;
 
-        if (currentSplits.length > 0) {
-          currentSplits.forEach((split) => split.revert());
-          currentSplits = [];
-        }
-
         const slide = slides[index];
+        if (!slide) return;
+
         sliderTitleRef.current.innerHTML = `
           <h1 class="text-4xl md:text-5xl font-bold tracking-wider mb-5">${escapeHtml(slide.title)}</h1>
           <p class="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">${escapeHtml(slide.description)}</p>
@@ -159,40 +136,38 @@ export default function Slider({ slides: slidesProp }) {
         const descEl = sliderTitleRef.current.querySelector("p.description");
         if (!titleEl || !descEl) return;
 
-        const titleSplit = new SplitText(titleEl, {
-          type: "lines",
-          linesClass: "line",
-        });
+        gsap.fromTo(
+          [titleEl, descEl],
+          { opacity: 0, y: 18 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            stagger: 0.08,
+            ease: "power2.out",
+            overwrite: "auto",
+          },
+        );
+      }
 
-        const descSplit = new SplitText(descEl, {
-          type: "lines",
-          linesClass: "line",
-        });
+      function goToSlide(index) {
+        if (index < 0 || index >= slides.length || index === activeSlide) return;
 
-        currentSplits.push(titleSplit, descSplit);
+        activeSlide = index;
+        showImage(index);
+        animateIndicators(index);
+        animateNewTitle(index);
+      }
 
-        gsap.set(titleSplit.lines, { yPercent: 100, opacity: 0 });
-        gsap.set(descSplit.lines, { yPercent: 100, opacity: 0 });
-
-        gsap.to(titleSplit.lines, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.75,
-          stagger: 0.05,
-          ease: "power3.out",
-        });
-
-        gsap.to(descSplit.lines, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.75,
-          delay: 0.2,
-          stagger: 0.05,
-          ease: "power3.out",
-        });
+      function slideFromProgress(progress) {
+        if (slides.length <= 1) return 0;
+        const raw = progress * slides.length;
+        return Math.min(slides.length - 1, Math.max(0, Math.floor(raw)));
       }
 
       createIndices();
+      activeSlide = 0;
+      animateIndicators(0);
 
       const st = ScrollTrigger.create({
         trigger: sliderRef.current,
@@ -201,42 +176,51 @@ export default function Slider({ slides: slidesProp }) {
         scrub: 1,
         pin: true,
         pinSpacing: true,
+        anticipatePin: 1,
         onUpdate: (self) => {
           if (progressBarRef.current) {
             gsap.set(progressBarRef.current, {
               scaleY: self.progress,
             });
           }
-
-          const currentSlide = Math.min(
-            slides.length - 1,
-            Math.floor(self.progress * slides.length),
-          );
-
-          if (activeSlide !== currentSlide) {
-            activeSlide = currentSlide;
-            animateNewSlide(activeSlide);
+          goToSlide(slideFromProgress(self.progress));
+        },
+        onRefresh: (self) => {
+          if (progressBarRef.current) {
+            gsap.set(progressBarRef.current, { scaleY: self.progress });
           }
+          // 只同步圖片透明度，不要在 refresh 裡改標題 DOM
+          const next = slideFromProgress(self.progress);
+          activeSlide = next;
+          syncImageInstant(next);
+          animateIndicators(next);
         },
       });
 
       return () => {
-        if (currentSplits.length > 0) {
-          currentSplits.forEach((split) => split.revert());
+        if (sliderTitleRef.current) {
+          gsap.killTweensOf(sliderTitleRef.current.querySelectorAll("h1, p"));
         }
+        gsap.killTweensOf(imageEls);
         st.kill();
       };
     },
     { scope: sliderRef, dependencies: [slides] },
   );
 
-  const first = slides[0];
-
   return (
     <>
       <section className="slider section-slider" ref={sliderRef}>
         <div className="slider-images" ref={sliderImagesRef}>
-          <img src={first.image} alt={first.title} />
+          {slides.map((slide, index) => (
+            <img
+              key={`${slide.image}-${index}`}
+              src={slide.image}
+              alt={slide.title || `Slide ${index + 1}`}
+              decoding="async"
+              style={{ opacity: index === 0 ? 1 : 0 }}
+            />
+          ))}
         </div>
 
         <div
@@ -244,10 +228,10 @@ export default function Slider({ slides: slidesProp }) {
           ref={sliderTitleRef}
         >
           <h1 className="text-4xl md:text-5xl font-bold tracking-wider mb-5">
-            {first.title}
+            {slides[0]?.title}
           </h1>
           <p className="description leading-10 text-[16px] md:text-[18.5px] text-gray-300">
-            {first.description}
+            {slides[0]?.description}
           </p>
         </div>
 
@@ -306,6 +290,11 @@ export default function Slider({ slides: slidesProp }) {
           color: white;
         }
 
+        .slider-title .line {
+          display: block;
+          overflow: hidden;
+        }
+
         .slider-indicator {
           position: absolute;
           top: 50%;
@@ -349,6 +338,7 @@ export default function Slider({ slides: slidesProp }) {
           width: 100%;
           height: 100%;
           background-color: white;
+          transform: scaleY(0);
           transform-origin: top;
         }
       `,

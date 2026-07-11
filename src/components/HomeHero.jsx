@@ -86,21 +86,35 @@ export default function HomeHero({ pageContentRef }) {
       );
   }, [introFinished, skipIntroAnimations]);
 
-  // 監聽 DOM 高度與圖片載入，確保 ScrollTrigger 計算正確
+  // 圖片載入後再算一次 ScrollTrigger（避免監聽 body 造成 refresh 迴圈卡死）
   useEffect(() => {
     if (!introFinished || !pageContentRef.current) return;
 
-    const ro = new ResizeObserver(() => ScrollTrigger.refresh());
-    ro.observe(pageContentRef.current);
-    ro.observe(document.body);
+    let raf = 0;
+    let timer = 0;
+    const scheduleRefresh = () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+      }, 200);
+    };
 
-    pageContentRef.current.querySelectorAll("img").forEach((img) => {
-      if (!img.complete) {
-        img.addEventListener("load", () => ScrollTrigger.refresh());
-      }
+    const ro = new ResizeObserver(scheduleRefresh);
+    ro.observe(pageContentRef.current);
+
+    const onImgLoad = () => scheduleRefresh();
+    const images = pageContentRef.current.querySelectorAll("img");
+    images.forEach((img) => {
+      if (!img.complete) img.addEventListener("load", onImgLoad, { once: true });
     });
 
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      images.forEach((img) => img.removeEventListener("load", onImgLoad));
+    };
   }, [introFinished, pageContentRef]);
 
   const handlePreloaderComplete = () => {
@@ -123,8 +137,15 @@ export default function HomeHero({ pageContentRef }) {
         />
 
         <div className="absolute inset-0 z-10 flex flex-col pl-[13%] items-start justify-center text-center pointer-events-none px-4">
-          <h1 className="hero-title text-white text-5xl md:text-7xl lg:text-[˙vmin] font-light tracking-[0.2em] opacity-0 uppercase drop-shadow-xl">
-            SMASMALL
+          <h1 className="hero-title opacity-0 drop-shadow-xl">
+            <img
+              src="/images/SMASMALL-logo-white.png"
+              alt="SMASMALL"
+              width={775}
+              height={195}
+              className="h-auto w-[280px] md:w-[420px] lg:w-[min(520px,48vw)]"
+              draggable={false}
+            />
           </h1>
 
           <p className="hero-sub mt-6 text-xl md:text-3xl text-gray-200 font-extralight opacity-0 drop-shadow-md">

@@ -19,6 +19,15 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 const MODEL_PATH = "/3d/機身細節26.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
 const SCROLL_VIEWPORT_HEIGHTS = 5;
+const MOBILE_MQ = "(max-width: 768px)";
+const MOBILE_MODEL_SCALE = 0.58;
+const DESKTOP_MODEL_SCALE = 1;
+const MOBILE_CAMERA_Z = 5.6;
+const DESKTOP_CAMERA_Z = 4.8;
+
+function isMobileViewport() {
+  return typeof window !== "undefined" && window.matchMedia(MOBILE_MQ).matches;
+}
 
 const CPS_TOOLTIPS = [
   {
@@ -39,6 +48,13 @@ function q(section, selector) {
 
 let _threeInstance = null;
 
+function applyViewportLayout(camera, pivot, mobile) {
+  const scale = mobile ? MOBILE_MODEL_SCALE : DESKTOP_MODEL_SCALE;
+  pivot.scale.setScalar(scale);
+  camera.position.set(0, 0.1, mobile ? MOBILE_CAMERA_Z : DESKTOP_CAMERA_Z);
+  camera.lookAt(0, 0, 0);
+}
+
 function getOrCreateThreeScene(container) {
   if (_threeInstance && _threeInstance.container === container) {
     return _threeInstance;
@@ -48,20 +64,27 @@ function getOrCreateThreeScene(container) {
     _threeInstance.dispose();
   }
 
+  const mobile = isMobileViewport();
   const w = container.clientWidth || window.innerWidth;
   const h = container.clientHeight || window.innerHeight;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
-  camera.position.set(0, 0.1, 4.8);
-  camera.lookAt(0, 0, 0);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({
+    antialias: !mobile,
+    alpha: true,
+    powerPreference: mobile ? "low-power" : "high-performance",
+  });
   renderer.setClearColor(0x000000, 0);
   renderer.setSize(w, h);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 2),
+  );
+  renderer.shadowMap.enabled = !mobile;
+  if (!mobile) {
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  }
 
   if ("outputColorSpace" in renderer) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -76,42 +99,62 @@ function getOrCreateThreeScene(container) {
   container.appendChild(renderer.domElement);
   setupSimaScrollSceneEnvironment(renderer, scene);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  scene.add(new THREE.AmbientLight(0xffffff, mobile ? 0.95 : 0.7));
 
-  const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  const mainLight = new THREE.DirectionalLight(0xffffff, mobile ? 1.15 : 1.0);
   mainLight.position.set(1, 2, 3);
-  mainLight.castShadow = true;
-  mainLight.shadow.bias = -0.001;
-  mainLight.shadow.mapSize.width = 1024;
-  mainLight.shadow.mapSize.height = 1024;
+  mainLight.castShadow = !mobile;
+  if (!mobile) {
+    mainLight.shadow.bias = -0.001;
+    mainLight.shadow.mapSize.width = 1024;
+    mainLight.shadow.mapSize.height = 1024;
+  }
   scene.add(mainLight);
 
-  const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  fillLight.position.set(-2, 0, -2);
-  scene.add(fillLight);
+  if (!mobile) {
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight.position.set(-2, 0, -2);
+    scene.add(fillLight);
 
-  const keyRim = new THREE.DirectionalLight(0xf4f6f8, 0.65);
-  keyRim.position.set(3, 4, 2);
-  scene.add(keyRim);
+    const keyRim = new THREE.DirectionalLight(0xf4f6f8, 0.65);
+    keyRim.position.set(3, 4, 2);
+    scene.add(keyRim);
+  } else {
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.55);
+    fillLight.position.set(-2, 0, -2);
+    scene.add(fillLight);
+  }
 
   const pivot = new THREE.Group();
   scene.add(pivot);
+  applyViewportLayout(camera, pivot, mobile);
 
   const state = {
     modelSize: null,
     lidPart: null,
+    lidParts: [],
     lidRestPosition: new THREE.Vector3(),
     lidRestQuaternion: new THREE.Quaternion(),
+    lidRestPositions: [],
+    lidRestQuaternions: [],
     lidReady: false,
     modelLoaded: false,
+    needsRender: true,
+    isVisible: true,
   };
 
   let rafId = 0;
   function animate() {
     rafId = requestAnimationFrame(animate);
+    if (!state.isVisible || !state.needsRender) return;
     renderer.render(scene, camera);
+    state.needsRender = false;
   }
   animate();
+
+  function requestRender() {
+    state.needsRender = true;
+  }
 
   new GLTFLoader().load(MODEL_PATH, (gltf) => {
     if (state.modelLoaded) return;
@@ -124,6 +167,10 @@ function getOrCreateThreeScene(container) {
       const n = child.name ?? "";
       const m = child.material?.name ?? "";
       if (m === "背景" || n.includes("背景")) toRemove.push(child);
+      if (mobile && child.isMesh) {
+        child.castShadow = false;
+        child.receiveShadow = false;
+      }
     });
     toRemove.forEach((obj) => obj.parent?.remove(obj));
 
@@ -135,7 +182,7 @@ function getOrCreateThreeScene(container) {
 
     model.position.set(-center.x, -center.y, -center.z);
 
-    /* 自動偵測蓋子節點 */
+    /* 自動偵測外蓋節點（GLB 為簡體「盖子」；不要移動「盖子内部」刀頭組） */
     const LID_EXACT_NAMES = new Set([
       "盖子",
       "蓋子",
@@ -144,14 +191,27 @@ function getOrCreateThreeScene(container) {
       "上蓋",
       "上盖",
     ]);
-    const LID_EXCLUDE = ["封顶", "平滑", "按钮", "刀", "支架", "底托", "链接", "logo", "icon", "object_"];
+    const LID_EXCLUDE = [
+      "封顶",
+      "平滑",
+      "按钮",
+      "刀",
+      "支架",
+      "底托",
+      "链接",
+      "logo",
+      "icon",
+      "object_",
+      "内部",
+      "內部",
+    ];
 
     function isExcludedName(name) {
       return LID_EXCLUDE.some((hint) => name.includes(hint));
     }
 
-    function findLidPart(root) {
-      let exact = null;
+    function findLidParts(root) {
+      const parts = [];
       let fuzzy = null;
 
       root.traverse((child) => {
@@ -159,11 +219,12 @@ function getOrCreateThreeScene(container) {
         if (!name || child.type === "Scene") return;
 
         if (LID_EXACT_NAMES.has(name)) {
-          exact = child;
+          parts.push(child);
+          return;
         }
 
         if (!fuzzy && !isExcludedName(name)) {
-          if (/盖|蓋/i.test(name) && !name.includes("封顶")) {
+          if (/^盖子$|^蓋子$/i.test(name)) {
             fuzzy = child;
           } else if (/^lid$/i.test(name) || /^cover$/i.test(name)) {
             fuzzy = child;
@@ -171,34 +232,46 @@ function getOrCreateThreeScene(container) {
         }
       });
 
-      return exact || fuzzy || null;
+      if (parts.length) return parts;
+      return fuzzy ? [fuzzy] : [];
     }
 
-    state.lidPart = findLidPart(model);
-
-    if (state.lidPart) {
-      state.lidRestPosition.copy(state.lidPart.position);
-      state.lidRestQuaternion.copy(state.lidPart.quaternion);
-      state.lidReady = true;
-    }
+    const lidParts = findLidParts(model);
+    state.lidParts = lidParts;
+    state.lidRestPositions = lidParts.map((part) => part.position.clone());
+    state.lidRestQuaternions = lidParts.map((part) => part.quaternion.clone());
+    state.lidReady = lidParts.length > 0;
+    state.lidPart = lidParts[0] || null;
 
     pivot.add(model);
     state.modelLoaded = true;
+    requestRender();
   });
 
   function handleResize() {
     const rw = container.clientWidth || window.innerWidth;
     const rh = container.clientHeight || window.innerHeight;
+    const nextMobile = isMobileViewport();
     camera.aspect = rw / rh;
     camera.updateProjectionMatrix();
     renderer.setSize(rw, rh);
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio || 1, nextMobile ? 1.25 : 2),
+    );
+    applyViewportLayout(camera, pivot, nextMobile);
+    requestRender();
   }
-  window.addEventListener("resize", handleResize);
+  window.addEventListener("resize", handleResize, { passive: true });
 
   _threeInstance = {
     container,
     pivot,
     state,
+    requestRender,
+    setVisible(visible) {
+      state.isVisible = visible;
+      if (visible) requestRender();
+    },
     dispose() {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafId);
@@ -232,7 +305,7 @@ export default function ConstellationProductScroll() {
       if (!section || !container) return undefined;
 
       const three = getOrCreateThreeScene(container);
-
+      const mobile = isMobileViewport();
       const splits = [];
 
       const headerSplit = SplitText.create(header1TitleRef.current, {
@@ -245,7 +318,8 @@ export default function ConstellationProductScroll() {
         (char) => (char.innerHTML = `<span>${char.innerHTML}</span>`),
       );
 
-      gsap.set(q(section, ".header-1 h1 .char > span"), { y: "100%" });
+      const headerChars = q(section, ".header-1 h1 .char > span");
+      gsap.set(headerChars, { y: "100%" });
 
       const titleSplits = SplitText.create(".tooltip .title h2", {
         type: "lines",
@@ -261,26 +335,29 @@ export default function ConstellationProductScroll() {
         (line) => (line.innerHTML = `<span>${line.innerHTML}</span>`),
       );
 
-      const tooltipTextReveals = [
+      const tooltipRevealSets = [
         {
           start: 0.65,
           end: 0.72,
           elements: [
-            ".tooltip:nth-child(1) .eyebrow",
-            ".tooltip:nth-child(1) .title .line > span",
-            ".tooltip:nth-child(1) .description .line > span",
+            ...q(section, ".tooltip:nth-child(1) .eyebrow"),
+            ...q(section, ".tooltip:nth-child(1) .title .line > span"),
+            ...q(section, ".tooltip:nth-child(1) .description .line > span"),
           ],
         },
         {
           start: 0.85,
           end: 0.9,
           elements: [
-            ".tooltip:nth-child(2) .eyebrow",
-            ".tooltip:nth-child(2) .title .line > span",
-            ".tooltip:nth-child(2) .description .line > span",
+            ...q(section, ".tooltip:nth-child(2) .eyebrow"),
+            ...q(section, ".tooltip:nth-child(2) .title .line > span"),
+            ...q(section, ".tooltip:nth-child(2) .description .line > span"),
           ],
         },
       ];
+
+      const dividerEls = q(section, ".tooltip .divider");
+      const allTooltipRevealEls = tooltipRevealSets.flatMap((s) => s.elements);
 
       function revealProgress(progress, start, end) {
         const t = gsap.utils.clamp(0, 1, (progress - start) / (end - start));
@@ -288,6 +365,7 @@ export default function ConstellationProductScroll() {
       }
 
       function applyReveal(elements, progress, start, end) {
+        if (!elements.length) return;
         const eased = revealProgress(progress, start, end);
         gsap.set(elements, {
           y: `${(1 - eased) * 125}%`,
@@ -296,27 +374,24 @@ export default function ConstellationProductScroll() {
         });
       }
 
-      gsap.set(
-        [
-          ...q(section, ".tooltip .eyebrow"),
-          ...q(section, ".tooltip .title .line > span"),
-          ...q(section, ".tooltip .description .line > span"),
-        ],
-        { y: "125%", opacity: 0, visibility: "hidden" },
-      );
+      gsap.set(allTooltipRevealEls, {
+        y: "125%",
+        opacity: 0,
+        visibility: "hidden",
+      });
 
       const headerEnterTrigger = ScrollTrigger.create({
         trigger: section,
         start: "75% bottom",
         onEnter: () =>
-          gsap.to(q(section, ".header-1 h1 .char > span"), {
+          gsap.to(headerChars, {
             y: "0%",
             duration: 1,
             ease: "power3.out",
             stagger: 0.025,
           }),
         onLeaveBack: () =>
-          gsap.to(q(section, ".header-1 h1 .char > span"), {
+          gsap.to(headerChars, {
             y: "100%",
             duration: 1,
             ease: "power3.out",
@@ -326,7 +401,7 @@ export default function ConstellationProductScroll() {
 
       function updateLidSeparation(progress) {
         const { state } = three;
-        if (!state.lidReady || !state.lidPart || !state.modelSize) return;
+        if (!state.lidReady || !state.lidParts?.length || !state.modelSize) return;
 
         const liftStart = 0.3;
         const liftEnd = 0.7;
@@ -337,16 +412,22 @@ export default function ConstellationProductScroll() {
               ? 1
               : (progress - liftStart) / (liftEnd - liftStart);
         const liftT = raw * raw * (3 - 2 * raw);
-
         const liftAmount = state.modelSize.y * 4.0;
 
-        state.lidPart.position.set(
-          state.lidRestPosition.x,
-          state.lidRestPosition.y + liftAmount * liftT,
-          state.lidRestPosition.z,
-        );
-        state.lidPart.quaternion.copy(state.lidRestQuaternion);
+        state.lidParts.forEach((lidPart, i) => {
+          const restPos = state.lidRestPositions[i];
+          const restQuat = state.lidRestQuaternions[i];
+          if (!restPos || !restQuat) return;
+          lidPart.position.set(
+            restPos.x,
+            restPos.y + liftAmount * liftT,
+            restPos.z,
+          );
+          lidPart.quaternion.copy(restQuat);
+        });
       }
+
+      let lastProgress = -1;
 
       const pinTrigger = ScrollTrigger.create({
         trigger: section,
@@ -354,8 +435,13 @@ export default function ConstellationProductScroll() {
         end: `+=${window.innerHeight * SCROLL_VIEWPORT_HEIGHTS}px`,
         pin: true,
         pinSpacing: true,
-        scrub: 1,
+        // 手機用同步 scrub，避免 scrub:1 的追趕延遲造成卡頓感
+        scrub: mobile ? true : 0.35,
+        anticipatePin: 1,
         onUpdate: ({ progress }) => {
+          if (Math.abs(progress - lastProgress) < 0.0005) return;
+          lastProgress = progress;
+
           const headerProgress = Math.max(
             0,
             Math.min(1, (progress - 0.05) / 0.3),
@@ -378,10 +464,10 @@ export default function ConstellationProductScroll() {
           const clipPath = `circle(${maskSize}% at 50% 50%)`;
 
           if (maskBgRef.current) {
-            gsap.set(maskBgRef.current, { clipPath });
+            maskBgRef.current.style.clipPath = clipPath;
           }
           if (maskGlassRef.current) {
-            gsap.set(maskGlassRef.current, { clipPath });
+            maskGlassRef.current.style.clipPath = clipPath;
           }
 
           const header2Progress = (progress - 0.15) / 0.35;
@@ -399,24 +485,32 @@ export default function ConstellationProductScroll() {
               : progress > 0.65
                 ? 100
                 : 100 * ((progress - 0.45) / 0.2);
-          gsap.set(q(section, ".tooltip .divider"), {
-            scaleX: `${scaleX}%`,
-          });
+          gsap.set(dividerEls, { scaleX: `${scaleX}%` });
 
-          tooltipTextReveals.forEach(({ start, end, elements }) => {
-            applyReveal(q(section, elements.join(", ")), progress, start, end);
+          tooltipRevealSets.forEach(({ start, end, elements }) => {
+            applyReveal(elements, progress, start, end);
           });
 
           const rotationProgress =
             progress < 0.05 ? 0 : (progress - 0.05) / 0.95;
-          three.pivot.rotation.y = Math.PI * 3 * 4 * rotationProgress;
+          three.pivot.rotation.y = Math.PI * 12 * rotationProgress;
           updateLidSeparation(progress);
+          three.requestRender();
         },
       });
+
+      const visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          three.setVisible(entry.isIntersecting);
+        },
+        { rootMargin: "20% 0px", threshold: 0 },
+      );
+      visibilityObserver.observe(section);
 
       ScrollTrigger.refresh();
 
       return () => {
+        visibilityObserver.disconnect();
         headerEnterTrigger.kill();
         pinTrigger.kill();
         splits.forEach((split) => split.revert?.());

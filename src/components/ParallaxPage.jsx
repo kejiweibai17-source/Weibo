@@ -40,7 +40,7 @@ const ParallaxPage = ({ productIntroSection = null }) => {
 
       {/* 接續區塊：z-10 滑過 sticky 層 */}
       <div className="relative z-10 w-full bg-[#f5f5f5] text-black">
-        <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-8 text-center md:px-8 md:pt-28 md:pb-10">
+        {/* <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-8 text-center md:px-8 md:pt-28 md:pb-10">
           <Copy>
             <h2 className="text-[4.8vmin]">小。很強大。</h2>
           </Copy>
@@ -56,7 +56,7 @@ const ParallaxPage = ({ productIntroSection = null }) => {
               昔馬捍衛者，把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
             </p>
           </motion.div>
-        </div>
+        </div> */}
       </div>
 
       {/* 3D 刀頭互動區：獨立深紫色區塊 */}
