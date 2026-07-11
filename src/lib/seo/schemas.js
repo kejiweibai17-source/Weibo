@@ -117,14 +117,6 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     /** 搜尋結果站點圖示應與 favicon / 品牌 logo 一致（昔馬），勿沿用舊威柏橫幅圖 */
     thumbnailUrl: absoluteUrl(siteUrl, brand.logoPath),
     image: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteUrl}/accessories?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
   };
 
   return {
@@ -245,17 +237,31 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
     "@type": "CollectionPage",
     "@id": `${collectionUrl}#webpage`,
     url: collectionUrl,
-    name: "昔馬 SMASMALL 配件與禮盒",
+    name: "昔馬 SMASMALL 產品列表｜鋅合金電動刮鬍刀・鼻毛修剪器",
     description:
-      "探索昔馬 SMASMALL 電動刮鬍刀禮盒、替換刀頭、收納配件與理容周邊。由威柏科技台灣總代理。",
+      "探索昔馬 SMASMALL 全系列電動刮鬍刀禮盒、替換刀頭、收納配件與理容周邊。台灣總代理威柏科技（嘉義縣太保市）原廠授權，享 12 個月保固。",
     inLanguage: SEO_CONFIG.inLanguage,
     isPartOf: { "@id": ids.website },
-    about: { "@id": ids.brand },
+    about: [{ "@id": ids.brand }, { "@id": ids.localBusiness }],
     publisher: { "@id": ids.organization },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteUrl(siteUrl, ogImageUrl("/images/og-2.jpg")),
+      width: 1200,
+      height: 630,
+    },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+    },
+    spatialCoverage: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
     mainEntity: {
       "@type": "ItemList",
       "@id": `${collectionUrl}#itemlist`,
-      name: "昔馬 SMASMALL 配件商品列表",
+      name: "昔馬 SMASMALL 產品列表",
       numberOfItems: products.length,
       itemListElement: products.map((product, index) => ({
         "@type": "ListItem",
@@ -265,11 +271,16 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
         item: { "@id": `${siteUrl}/accessories/${product.id}#product` },
       })),
     },
+    significantLink: [
+      absoluteUrl(siteUrl, "/series"),
+      absoluteUrl(siteUrl, "/support"),
+      absoluteUrl(siteUrl, "/contact"),
+    ],
   };
 
   const breadcrumb = buildBreadcrumbList(siteUrl, [
     { name: "首頁", path: "/" },
-    { name: "配件專區", path: "/accessories" },
+    { name: "產品列表", path: "/accessories" },
   ]);
 
   const faq = buildAccessoriesFaqSchema(siteUrl);
@@ -294,7 +305,7 @@ function buildAccessoriesFaqSchema(siteUrl) {
         name: "昔馬 SMASMALL 配件在哪裡購買？",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "可透過威柏科技官方網站與授權通路選購，台灣本島由總代理提供原廠保固與售後服務。",
+          text: "可透過威柏科技官方網站「產品列表」與授權通路選購，台灣本島由總代理提供原廠保固與售後服務。營運據點位於嘉義縣太保市。",
         },
       },
       {
@@ -302,7 +313,7 @@ function buildAccessoriesFaqSchema(siteUrl) {
         name: "配件是否適用所有昔馬刮鬍刀？",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "各配件頁面標示適用系列（如青春版、捍衛者、星座系列等），購買前請確認 Product compatibility 篩選條件。",
+          text: "各商品頁面標示適用系列（如青春版、捍衛者、星座系列等），購買前請確認產品相容性篩選條件，或先至「系列商品」了解各產品線。",
         },
       },
       {
@@ -311,6 +322,14 @@ function buildAccessoriesFaqSchema(siteUrl) {
         acceptedAnswer: {
           "@type": "Answer",
           text: `營運據點位於${SEO_CONFIG.geo.addressRegion}${SEO_CONFIG.geo.addressLocality}${SEO_CONFIG.geo.streetAddress}，客服專線 ${SEO_CONFIG.organization.telephone}，服務時間週一至週五 09:00–18:00。`,
+        },
+      },
+      {
+        "@type": "Question",
+        name: "系列商品與產品列表有什麼不同？",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "「系列商品」以產品線介紹規格與故事；「產品列表」可一次瀏覽、篩選並選購全系列商品與配件。",
         },
       },
     ],
@@ -348,8 +367,9 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
     sku: item.id,
     mpn: item.id,
     brand: { "@id": ids.brand },
-    category: item.category,
+    category: item.category || accessorySeriesLabel(item.series),
     manufacturer: { "@id": ids.brand },
+    areaServed: SEO_CONFIG.areaServed,
     offers: {
       "@type": "Offer",
       url: pageUrl,
@@ -362,6 +382,7 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
       ).toISOString().slice(0, 10),
       seller: { "@id": ids.organization },
       availableAtOrFrom: { "@id": ids.localBusiness },
+      areaServed: SEO_CONFIG.areaServed,
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
         applicableCountry: "TW",
@@ -418,11 +439,19 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
     about: { "@id": `${pageUrl}#product` },
     mainEntity: { "@id": `${pageUrl}#product` },
     publisher: { "@id": ids.organization },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+    },
+    spatialCoverage: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
   };
 
   const breadcrumb = buildBreadcrumbList(siteUrl, [
     { name: "首頁", path: "/" },
-    { name: "配件專區", path: "/accessories" },
+    { name: "產品列表", path: "/accessories" },
     { name: item.title, path: `/accessories/${item.id}` },
   ]);
 
@@ -430,6 +459,13 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
     detail.features?.map((f) => `${f.title}：${f.content}`).join(" ") ?? "";
 
   const additionalProperty = [];
+  if (item.series) {
+    additionalProperty.push({
+      "@type": "PropertyValue",
+      name: "適用系列",
+      value: accessorySeriesLabel(item.series),
+    });
+  }
   if (featureList) {
     additionalProperty.push({
       "@type": "PropertyValue",
@@ -451,7 +487,7 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   return [core, itemPage, productNode, breadcrumb];
 }
 
-/** 首頁擴充：單一 @graph 整合 WebSite / WebPage / 導覽 / FAQ（Sitelinks 訊號） */
+/** 首頁擴充：單一 @graph 整合 WebSite / WebPage / 導覽 / FAQ（Sitelinks + GEO） */
 export function buildHomePageSchemas({
   siteUrl = getSiteUrl(),
   faqs = [],
@@ -467,7 +503,7 @@ export function buildHomePageSchemas({
   const homepageTitle =
     "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO";
   const homepageDescription =
-    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。";
+    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。台灣總代理威柏科技，營運據點嘉義縣太保市。";
 
   const webPage = {
     "@type": "WebPage",
@@ -477,7 +513,7 @@ export function buildHomePageSchemas({
     description: homepageDescription,
     inLanguage: SEO_CONFIG.inLanguage,
     isPartOf: { "@id": ids.website },
-    about: { "@id": ids.brand },
+    about: [{ "@id": ids.brand }, { "@id": ids.localBusiness }],
     publisher: { "@id": ids.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
@@ -485,9 +521,29 @@ export function buildHomePageSchemas({
       width: 1200,
       height: 630,
     },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+    },
+    spatialCoverage: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
     relatedLink: navUrls,
-    significantLink: navigationElements.map((el) => ({ "@id": el["@id"] })),
+    significantLink: [
+      absoluteUrl(siteUrl, "/series"),
+      absoluteUrl(siteUrl, "/accessories"),
+      absoluteUrl(siteUrl, "/brand"),
+      absoluteUrl(siteUrl, "/support"),
+      absoluteUrl(siteUrl, "/contact"),
+      ...navigationElements.map((el) => ({ "@id": el["@id"] })),
+    ],
+    hasPart: { "@id": ids.siteNavigation },
   };
+
+  const breadcrumb = buildBreadcrumbList(siteUrl, [
+    { name: "首頁", path: "/" },
+  ]);
 
   const enhancedGraph = core["@graph"].map((node) => {
     if (node["@type"] === "WebSite") {
@@ -505,6 +561,7 @@ export function buildHomePageSchemas({
     navigationList,
     ...navigationElements,
     webPage,
+    breadcrumb,
   ];
 
   if (faqs.length) {
@@ -519,6 +576,7 @@ export function buildHomePageSchemas({
         acceptedAnswer: { "@type": "Answer", text: faq.answer },
       })),
     });
+    webPage.mainEntity = { "@id": `${siteUrl}/#faq` };
   }
 
   return {
@@ -527,13 +585,17 @@ export function buildHomePageSchemas({
   };
 }
 
-/** 支援頁 WebPage / FAQPage 結構化資料 */
+/** 支援頁 WebPage 基礎（含 GEO Speakable） */
 export function buildSupportWebPageSchema({
   siteUrl = getSiteUrl(),
   path,
   name,
   description,
   pageType = "WebPage",
+  dateModified = "2026-06-01",
+  imagePath = SEO_CONFIG.defaultOgImage,
+  speakableCssSelectors = ["h1", "h2", "article p", ".faq-answer"],
+  extra = {},
 }) {
   const ids = entityIds(siteUrl);
   const url = absoluteUrl(siteUrl, path);
@@ -546,22 +608,42 @@ export function buildSupportWebPageSchema({
     name,
     description,
     inLanguage: SEO_CONFIG.inLanguage,
+    dateModified,
     isPartOf: { "@id": ids.website },
     about: { "@id": ids.brand },
     publisher: { "@id": ids.organization },
+    author: { "@id": ids.organization },
+    copyrightHolder: { "@id": ids.organization },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteUrl(siteUrl, ogImageUrl(imagePath)),
+    },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: speakableCssSelectors,
+    },
+    ...extra,
   };
 }
 
-/** FAQ 頁 mainEntity 結構化資料 */
+/** FAQ 頁：FAQPage + Question/Answer（Google 官方 FAQ 結構化資料） */
 export function buildFaqPageSchema(faqs, pageUrl, pageId) {
+  const siteUrl = getSiteUrl();
+  const ids = entityIds(siteUrl);
+
   return {
     "@context": SCHEMA_CONTEXT,
     "@type": "FAQPage",
     "@id": pageId ?? `${pageUrl}#faq`,
     url: pageUrl,
-    mainEntity: faqs.map((faq) => ({
+    inLanguage: SEO_CONFIG.inLanguage,
+    isPartOf: { "@id": ids.website },
+    about: { "@id": ids.brand },
+    mainEntity: faqs.map((faq, index) => ({
       "@type": "Question",
+      "@id": `${pageUrl}#q-${index + 1}`,
       name: faq.question,
+      position: index + 1,
       acceptedAnswer: {
         "@type": "Answer",
         text: faq.answer,
@@ -570,7 +652,7 @@ export function buildFaqPageSchema(faqs, pageUrl, pageId) {
   };
 }
 
-/** 保固政策結構化資料 */
+/** 保固政策：WarrantyPromise */
 export function buildWarrantyPolicySchema(siteUrl = getSiteUrl()) {
   const ids = entityIds(siteUrl);
   const warrantyUrl = `${siteUrl}/support/warranty`;
@@ -582,13 +664,410 @@ export function buildWarrantyPolicySchema(siteUrl = getSiteUrl()) {
     url: warrantyUrl,
     name: "SMASMALL 昔馬 12 個月原廠保固",
     description:
-      "凡透過台灣授權通路購買的 SMASMALL 昔馬主機，享有 12 個月原廠保固，由威柏科技台灣總代理提供售後服務。",
+      "凡透過台灣授權通路購買的 SMASMALL 昔馬主機，享有 12 個月原廠保固，由威柏科技台灣總代理提供售後服務。保固以購買憑證為準，無需額外線上註冊。",
     durationOfWarranty: {
       "@type": "QuantitativeValue",
       value: 12,
       unitCode: "MON",
     },
-    warrantyScope: "https://schema.org/RepairOrReplace",
+    warrantyScope: "https://schema.org/WarrantyScope",
     seller: { "@id": ids.organization },
   };
+}
+
+/** 保固售後服務 Service */
+export function buildWarrantyServiceSchema(siteUrl = getSiteUrl()) {
+  const ids = entityIds(siteUrl);
+  const warrantyUrl = `${siteUrl}/support/warranty`;
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "Service",
+    "@id": `${warrantyUrl}#service`,
+    name: "SMASMALL 昔馬原廠保固與售後服務",
+    description:
+      "威柏科技台灣總代理提供 12 個月原廠保固、瑕疵退換貨與維修換貨協助。",
+    serviceType: "Product warranty and after-sales support",
+    provider: { "@id": ids.organization },
+    brand: { "@id": ids.brand },
+    areaServed: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
+    availableChannel: {
+      "@type": "ServiceChannel",
+      serviceUrl: warrantyUrl,
+      servicePhone: {
+        "@type": "ContactPoint",
+        telephone: SEO_CONFIG.organization.telephone,
+        contactType: "customer service",
+        email: SEO_CONFIG.organization.email,
+        areaServed: SEO_CONFIG.areaServed,
+        availableLanguage: [SEO_CONFIG.inLanguage, "en"],
+        hoursAvailable: {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+          ],
+          opens: "09:00",
+          closes: "18:00",
+        },
+      },
+    },
+  };
+}
+
+/**
+ * HowTo：保養指南各章節
+ * @param {Array<{ id: string, title: string, summary: string, steps: string[] }>} sections
+ */
+export function buildCareGuideHowToSchemas(
+  sections,
+  siteUrl = getSiteUrl(),
+) {
+  const manualsUrl = `${siteUrl}/support/manuals`;
+
+  return sections.map((section, index) => ({
+    "@context": SCHEMA_CONTEXT,
+    "@type": "HowTo",
+    "@id": `${manualsUrl}#howto-${section.id}`,
+    url: `${manualsUrl}#section-${section.id}`,
+    name: `STEP ${String(index + 1).padStart(2, "0")} ${section.title}`,
+    description: section.summary,
+    inLanguage: SEO_CONFIG.inLanguage,
+    totalTime: "PT5M",
+    tool: [
+      {
+        "@type": "HowToTool",
+        name: "清水、軟布、附贈清潔刷",
+      },
+    ],
+    step: section.steps.map((text, stepIndex) => ({
+      "@type": "HowToStep",
+      position: stepIndex + 1,
+      name: `步驟 ${stepIndex + 1}`,
+      text,
+      url: `${manualsUrl}#section-${section.id}`,
+    })),
+  }));
+}
+
+/** HowTo：保固申請流程 */
+export function buildWarrantyHowToSchema(steps, siteUrl = getSiteUrl()) {
+  const warrantyUrl = `${siteUrl}/support/warranty`;
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "HowTo",
+    "@id": `${warrantyUrl}#howto-apply`,
+    url: warrantyUrl,
+    name: "SMASMALL 昔馬保固申請流程",
+    description:
+      "保留購買憑證、記錄產品序號、聯繫威柏科技客服、寄送維修或換貨。",
+    inLanguage: SEO_CONFIG.inLanguage,
+    totalTime: "PT15M",
+    step: steps.map((step) => ({
+      "@type": "HowToStep",
+      position: Number(step.step),
+      name: `STEP ${step.step} ${step.title}`,
+      text: String(step.description).replace(/\*\*/g, ""),
+      url: `${warrantyUrl}#step-${step.step}`,
+    })),
+  };
+}
+
+/**
+ * 政策頁：TermsOfService / PrivacyPolicy / ItemList
+ * @param {Array<{ id: string, title: string, summary: string, paragraphs: string[] }>} sections
+ */
+export function buildPoliciesPageSchemas(
+  sections,
+  siteUrl = getSiteUrl(),
+) {
+  const ids = entityIds(siteUrl);
+  const policiesUrl = `${siteUrl}/support/policies`;
+
+  const typeById = {
+    terms: "TermsOfService",
+    privacy: "PrivacyPolicy",
+    shipping: "WebPage",
+    fraud: "WebPage",
+  };
+
+  const partNodes = sections.map((section) => {
+    const text = section.paragraphs.join("\n\n");
+    return {
+      "@context": SCHEMA_CONTEXT,
+      "@type": typeById[section.id] || "WebPageElement",
+      "@id": `${policiesUrl}#${section.id}`,
+      url: `${policiesUrl}#${section.id}`,
+      name: section.title,
+      description: section.summary,
+      inLanguage: SEO_CONFIG.inLanguage,
+      dateModified: "2026-06-01",
+      isPartOf: { "@id": `${policiesUrl}#webpage` },
+      about: { "@id": ids.brand },
+      publisher: { "@id": ids.organization },
+      text,
+    };
+  });
+
+  const itemList = {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "ItemList",
+    "@id": `${policiesUrl}#policy-list`,
+    name: "使用條款與政策目錄",
+    numberOfItems: sections.length,
+    itemListElement: sections.map((section, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: section.title,
+      url: `${policiesUrl}#${section.id}`,
+      item: { "@id": `${policiesUrl}#${section.id}` },
+    })),
+  };
+
+  return [...partNodes, itemList];
+}
+
+/** 客戶支援中心 CollectionPage + ItemList */
+export function buildSupportCollectionSchema(siteUrl = getSiteUrl()) {
+  const ids = entityIds(siteUrl);
+  const supportUrl = `${siteUrl}/support`;
+  const pages = [
+    {
+      name: "常見問題 FAQ",
+      path: "/support/faq",
+      description: "產品、購買、保固與保養常見問答",
+    },
+    {
+      name: "使用與保養指南",
+      path: "/support/manuals",
+      description: "日常清潔、刀頭保養、防水與收納充電",
+    },
+    {
+      name: "產品保固與註冊",
+      path: "/support/warranty",
+      description: "12 個月原廠保固與申請流程",
+    },
+    {
+      name: "使用條款與政策",
+      path: "/support/policies",
+      description: "服務條款、隱私權、運送退換貨與防詐騙",
+    },
+  ];
+
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "CollectionPage",
+    "@id": `${supportUrl}#webpage`,
+    url: supportUrl,
+    name: "SMASMALL 昔馬客戶支援中心",
+    description:
+      "昔馬 SMASMALL 客戶支援：常見問題、保養指南、產品保固與使用條款政策。",
+    inLanguage: SEO_CONFIG.inLanguage,
+    isPartOf: { "@id": ids.website },
+    about: { "@id": ids.brand },
+    publisher: { "@id": ids.organization },
+    mainEntity: {
+      "@type": "ItemList",
+      "@id": `${supportUrl}#support-list`,
+      numberOfItems: pages.length,
+      itemListElement: pages.map((page, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: page.name,
+        description: page.description,
+        url: absoluteUrl(siteUrl, page.path),
+        item: absoluteUrl(siteUrl, page.path),
+      })),
+    },
+  };
+}
+
+/** 系列商品總覽 CollectionPage（/series） */
+export function buildSeriesHubSchemas(seriesItems = [], siteUrl = getSiteUrl()) {
+  const ids = entityIds(siteUrl);
+  const hubUrl = `${siteUrl}/series`;
+  const core = buildCoreEntityGraph(siteUrl);
+
+  const collectionPage = {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "CollectionPage",
+    "@id": `${hubUrl}#webpage`,
+    url: hubUrl,
+    name: "昔馬 SMASMALL 系列商品｜鋅合金電動刮鬍刀系列總覽",
+    description:
+      "瀏覽昔馬 SMASMALL 全系列商品：星座系列、捍衛者、黑夜騎士、青春版、小金剛與理容配件。台灣總代理威柏科技原廠授權。",
+    inLanguage: SEO_CONFIG.inLanguage,
+    isPartOf: { "@id": ids.website },
+    about: [{ "@id": ids.brand }, { "@id": ids.localBusiness }],
+    publisher: { "@id": ids.organization },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+    },
+    spatialCoverage: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
+      width: 1200,
+      height: 630,
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      "@id": `${hubUrl}#itemlist`,
+      name: "昔馬 SMASMALL 系列商品列表",
+      numberOfItems: seriesItems.length,
+      itemListElement: seriesItems.map((item, index) => {
+        const path =
+          typeof item.href === "string" && item.href.startsWith("/")
+            ? item.href
+            : `/series/${encodeURIComponent(item.slug)}`;
+        return {
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.label || item.title,
+          url: absoluteUrl(siteUrl, path),
+          item: absoluteUrl(siteUrl, path),
+        };
+      }),
+    },
+    significantLink: [
+      absoluteUrl(siteUrl, "/accessories"),
+      absoluteUrl(siteUrl, "/brand"),
+      absoluteUrl(siteUrl, "/support"),
+    ],
+  };
+
+  const breadcrumb = buildBreadcrumbList(siteUrl, [
+    { name: "首頁", path: "/" },
+    { name: "系列商品", path: "/series" },
+  ]);
+
+  return [core, collectionPage, breadcrumb];
+}
+
+function extractSeriesShowcaseItems(page) {
+  const items = [];
+  for (const block of page?.blocks || []) {
+    if (block?.type === "product_showcase" && Array.isArray(block.items)) {
+      items.push(...block.items);
+    }
+  }
+  return items;
+}
+
+/** 單一系列頁：CollectionPage / Product + Breadcrumb + 核心實體 + Speakable */
+export function buildSeriesPageSchemas(page, siteUrl = getSiteUrl()) {
+  if (!page) return [buildCoreEntityGraph(siteUrl)];
+
+  const ids = entityIds(siteUrl);
+  const canonical = `/series/${encodeURIComponent(page.slug)}`;
+  const pageUrl = absoluteUrl(siteUrl, canonical);
+  const core = buildCoreEntityGraph(siteUrl);
+  const imageSrc = page.ogImage || page.featuredImage;
+  const imageUrl = imageSrc
+    ? imageSrc.startsWith("http")
+      ? imageSrc
+      : absoluteUrl(siteUrl, imageSrc)
+    : absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage);
+
+  const showcaseItems = extractSeriesShowcaseItems(page);
+
+  const productNode = {
+    "@type": "Product",
+    "@id": `${pageUrl}#product`,
+    name: page.title,
+    description: page.seoDescription,
+    image: [imageUrl],
+    url: pageUrl,
+    brand: { "@id": ids.brand },
+    manufacturer: { "@id": ids.brand },
+    category: "電動刮鬍刀系列",
+    areaServed: SEO_CONFIG.areaServed,
+    ...(page.wcProductId
+      ? {
+          sku: String(page.wcProductId),
+          offers: {
+            "@type": "Offer",
+            url: absoluteUrl(siteUrl, `/accessories/${page.wcProductId}`),
+            availability: `${SCHEMA_CONTEXT}/InStock`,
+            itemCondition: `${SCHEMA_CONTEXT}/NewCondition`,
+            priceCurrency: "TWD",
+            seller: { "@id": ids.organization },
+            availableAtOrFrom: { "@id": ids.localBusiness },
+            areaServed: SEO_CONFIG.areaServed,
+          },
+        }
+      : {}),
+  };
+
+  const collectionPage = {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name: page.seoTitle || page.title,
+    description: page.seoDescription,
+    inLanguage: SEO_CONFIG.inLanguage,
+    isPartOf: { "@id": ids.website },
+    about: [{ "@id": ids.brand }, { "@id": `${pageUrl}#product` }],
+    mainEntity: { "@id": `${pageUrl}#product` },
+    publisher: { "@id": ids.organization },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: imageUrl,
+      width: 1200,
+      height: 630,
+    },
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+    },
+    spatialCoverage: {
+      "@type": "Country",
+      name: "Taiwan",
+    },
+    ...(page.updatedAt ? { dateModified: page.updatedAt } : {}),
+    significantLink: [
+      absoluteUrl(siteUrl, "/series"),
+      absoluteUrl(siteUrl, "/accessories"),
+      absoluteUrl(siteUrl, "/support"),
+    ],
+  };
+
+  if (showcaseItems.length) {
+    collectionPage.hasPart = {
+      "@type": "ItemList",
+      "@id": `${pageUrl}#showcase`,
+      name: `${page.title} 系列亮點`,
+      numberOfItems: showcaseItems.length,
+      itemListElement: showcaseItems.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name || item.badge || `亮點 ${index + 1}`,
+      })),
+    };
+  }
+
+  const breadcrumb = buildBreadcrumbList(siteUrl, [
+    { name: "首頁", path: "/" },
+    { name: "系列商品", path: "/series" },
+    { name: page.title, path: canonical },
+  ]);
+
+  return [
+    {
+      "@context": SCHEMA_CONTEXT,
+      "@graph": [...core["@graph"], collectionPage, productNode],
+    },
+    breadcrumb,
+  ];
 }

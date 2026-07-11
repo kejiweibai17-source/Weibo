@@ -62,7 +62,10 @@ async function getPosts() {
 
   try {
     const res = await fetch(fetchUrl, {
-      next: { revalidate: 60 },
+      next: {
+        revalidate: 60,
+        tags: ["blog-all", "sitemap"],
+      },
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",

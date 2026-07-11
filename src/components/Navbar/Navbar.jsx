@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Link } from "next-view-transitions";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { User, ShoppingBag, Menu, X } from "lucide-react";
@@ -203,17 +209,12 @@ export default function Navbar() {
 
   const globalLinks = useMemo(
     () => [
-      { label: "昔馬smasmall", href: "/brand" },
+      { label: "品牌介紹", href: "/brand" },
       {
         label: "系列商品",
-        href:
-          seriesNavItems[0]?.href ||
-          SERIES_NAV_FALLBACK[0]?.href ||
-          "/series/defender-set",
+        href: "/series",
         dropdown:
-          seriesNavItems.length > 0
-            ? seriesNavItems
-            : SERIES_NAV_FALLBACK,
+          seriesNavItems.length > 0 ? seriesNavItems : SERIES_NAV_FALLBACK,
       },
       {
         label: "產品列表",

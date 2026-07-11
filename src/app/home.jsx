@@ -8,7 +8,6 @@ import TextParallaxContentExample02 from "../components/TextParallaxContent02/pa
 import Slider from "../components/Slider/Slider";
 import ConstellationProductScroll from "../components/ConstellationProductScroll";
 import HomeConstellationSection from "@/components/home/HomeConstellationSection";
-import ContactSection from "../components/ContactSection";
 
 export default function Home({
   carouselSlides = [],
@@ -34,7 +33,6 @@ export default function Home({
 
         <Parallax productIntroSection={productIntroSection} />
         <TextParallaxContentExample02 section={bladeIntroSection} />
-        <ContactSection />
       </div>
     </main>
   );

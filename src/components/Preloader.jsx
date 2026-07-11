@@ -34,7 +34,9 @@ export default function Preloader({ onComplete }) {
           document.removeEventListener("touchstart", resumeOnInteraction);
         };
         document.addEventListener("click", resumeOnInteraction, { once: true });
-        document.addEventListener("touchstart", resumeOnInteraction, { once: true });
+        document.addEventListener("touchstart", resumeOnInteraction, {
+          once: true,
+        });
       });
     };
     tryPlay();
@@ -137,8 +139,8 @@ export default function Preloader({ onComplete }) {
             draggable={false}
           />
         </h1>
-        <p className="mb-10 text-sm font-light tracking-wide text-gray-300 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] md:text-base">
-          修容，也可以很講究。
+        <p className="mb-10 text-sm font-normal tracking-wide text-gray-300 drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)] md:text-base">
+          秒懂，男仕的禮物。
         </p>
 
         <button

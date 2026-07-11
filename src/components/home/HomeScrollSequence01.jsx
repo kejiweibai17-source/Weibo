@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import gsap from "gsap";
 
 const MODEL_PATH = "/3d/機身細節26.glb";
 /** Poly Haven — studio_small_03 (CC0) */
 const HDR_PATH = "/hdr/polyhaven-studio_small_03_1k.hdr";
 
-/** GLB 外蓋節點為簡體「盖子」；不要移動「盖子内部」（刀頭／刀網） */
 const LID_EXACT_NAMES = new Set([
   "盖子",
   "蓋子",
@@ -23,22 +23,19 @@ const LID_EXACT_NAMES = new Set([
 const METAL_MESH_HINT =
   /盖子|蓋子|上蓋|上盖|^刀$|刀网|刀網|德国刀|德國刀|机身链接|機身連結/i;
 
-/**
- * 特寫：只取產品上半部，往前傾以看清刀頭／上蓋
- */
-const VIEWS = {
-  lid: {
-    camera: { x: 0.32, y: 0.48, z: 0.98 },
-    lookAt: { x: 0.2, y: 0.4, z: 0 },
-    modelRot: { x: -0.58, y: -0.38, z: 0.03 },
-    lidOpen: false,
-  },
-  blade: {
-    camera: { x: 0.26, y: 0.42, z: 0.88 },
-    lookAt: { x: 0.18, y: 0.44, z: 0 },
-    modelRot: { x: -0.72, y: -0.28, z: 0.02 },
-    lidOpen: true,
-  },
+/** 預設載入／上蓋／刀頭共用：略小、螢幕正中；刀頭僅多上蓋飛離 */
+const DEFAULT_POSE = {
+  modelRot: { x: 0.18, y: -0.22, z: 0 },
+  focusY: 0,
+  /** 越小＝主體越小 */
+  fill: 0.58,
+  yaw: 0.1,
+  pitch: 0.05,
+};
+
+const VIEW_POSE = {
+  lid: { ...DEFAULT_POSE, lidOpen: false },
+  blade: { ...DEFAULT_POSE, lidOpen: true },
 };
 
 const BUTTONS = [
@@ -50,98 +47,116 @@ function collectLidParts(root) {
   const parts = [];
   root.traverse((child) => {
     const name = child.name ?? "";
-    if (!name) return;
-    if (LID_EXACT_NAMES.has(name)) {
-      parts.push(child);
-    }
+    if (LID_EXACT_NAMES.has(name)) parts.push(child);
   });
   return parts;
 }
 
 function shouldBeMetal(mesh) {
   const name = mesh.name ?? "";
-  if (LID_EXACT_NAMES.has(name)) return true;
-  if (METAL_MESH_HINT.test(name)) return true;
-  const matName = mesh.material?.name ?? "";
-  return /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(matName);
+  if (LID_EXACT_NAMES.has(name) || METAL_MESH_HINT.test(name)) return true;
+  return /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(
+    mesh.material?.name ?? "",
+  );
 }
 
-function applyChromeMetal(mesh) {
-  const mats = Array.isArray(mesh.material)
+/** 參照產品圖上方拋光銀部材質 */
+function applyPolyHavenMetal(mesh, envMap = null) {
+  const sources = Array.isArray(mesh.material)
     ? mesh.material
     : mesh.material
       ? [mesh.material]
       : [];
 
-  mats.forEach((src) => {
-    if (!src) return;
-
-    // 換成乾淨金屬，避免原 roughnessMap／霧面貼圖把質感洗成霧灰
-    const metal = new THREE.MeshStandardMaterial({
-      name: `${src.name || mesh.name || "metal"}-chrome`,
-      color: new THREE.Color("#d8dce2"),
+  const next = sources.map((src) => {
+    return new THREE.MeshStandardMaterial({
+      name: `${src?.name || mesh.name || "part"}-chrome`,
+      color: new THREE.Color("#c8d0da"),
       metalness: 1,
-      roughness: 0.08,
-      envMapIntensity: 1.75,
-      map: src.map || null,
-      normalMap: src.normalMap || null,
-      normalScale: src.normalScale
-        ? src.normalScale.clone()
-        : new THREE.Vector2(1, 1),
-      side: src.side ?? THREE.FrontSide,
+      roughness: 0.07,
+      envMapIntensity: 2.0,
+      envMap: envMap || src?.envMap || null,
+      map: null,
+      roughnessMap: null,
+      metalnessMap: null,
+      normalMap: src?.normalMap || null,
+      normalScale: src?.normalScale?.clone?.() || new THREE.Vector2(0.6, 0.6),
+      side: src?.side ?? THREE.FrontSide,
     });
+  });
 
-    // 有漫反射貼圖時略提亮，避免貼圖把金屬壓成霧面
-    if (metal.map) {
-      metal.color.set("#f0f2f5");
-      metal.roughness = 0.12;
-    }
+  mesh.material = next.length === 1 ? next[0] : next;
+}
 
-    if (Array.isArray(mesh.material)) {
-      const idx = mesh.material.indexOf(src);
-      if (idx >= 0) mesh.material[idx] = metal;
-    } else {
-      mesh.material = metal;
-    }
+function bindEnvMapToMetals(root, envMap) {
+  if (!root || !envMap) return;
+  root.traverse((child) => {
+    if (!child.isMesh || !shouldBeMetal(child)) return;
+    const mats = Array.isArray(child.material)
+      ? child.material
+      : [child.material];
+    mats.forEach((mat) => {
+      if (!mat) return;
+      mat.envMap = envMap;
+      mat.color?.set("#c8d0da");
+      mat.metalness = 1;
+      mat.roughness = 0.07;
+      mat.envMapIntensity = 2.0;
+      mat.needsUpdate = true;
+    });
   });
 }
 
-function loadPolyHavenEnvironment(renderer, scene, onReady) {
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  pmrem.compileEquirectangularShader();
+function frameCentered(camera, model, pose) {
+  model.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
 
-  new RGBELoader().load(
-    HDR_PATH,
-    (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      const envMap = pmrem.fromEquirectangular(texture).texture;
-      scene.environment = envMap;
-      if ("environmentIntensity" in scene) {
-        scene.environmentIntensity = 1.15;
-      }
-      texture.dispose();
-      pmrem.dispose();
-      onReady?.();
-    },
-    undefined,
-    () => {
-      pmrem.dispose();
-      onReady?.();
-    },
+  // 螢幕正中：對準模型中心
+  const focus = new THREE.Vector3(
+    center.x,
+    center.y + size.y * pose.focusY,
+    center.z,
   );
+
+  const half = Math.max(size.x, size.y, size.z) * 0.5;
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  const distance = (half / Math.tan(fov / 2)) / pose.fill;
+
+  const cam = new THREE.Vector3(
+    focus.x + distance * pose.yaw,
+    focus.y + distance * pose.pitch,
+    focus.z + distance,
+  );
+
+  return { camera: cam, lookAt: focus };
+}
+
+function applyPoseInstant(camera, model, pose) {
+  model.rotation.set(pose.modelRot.x, pose.modelRot.y, pose.modelRot.z);
+  model.updateMatrixWorld(true);
+  const framed = frameCentered(camera, model, pose);
+  camera.position.copy(framed.camera);
+  camera.lookAt(framed.lookAt);
+  return framed;
 }
 
 export default function HomeScrollSequence01() {
   const containerRef = useRef(null);
-
   const cameraRef = useRef(null);
   const modelRef = useRef(null);
   const lidPartsRef = useRef([]);
-  const lidRestYRef = useRef([]);
+  const lidRestPosRef = useRef([]);
+  const lidRestRotRef = useRef([]);
   const modelSizeRef = useRef(null);
+  const lookAtRef = useRef(new THREE.Vector3(0, 0.3, 0));
+  const lockedCamPosRef = useRef(null);
+  const lockedLookAtRef = useRef(null);
   const rafRef = useRef(null);
-
-  const [active, setActive] = useState(null);
+  const [active, setActive] = useState("lid");
+  const activeRef = useRef(active);
+  activeRef.current = active;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -149,89 +164,139 @@ export default function HomeScrollSequence01() {
 
     let destroyed = false;
 
-    const w = el.clientWidth || window.innerWidth;
-    const h = el.clientHeight || window.innerHeight;
+    const resizeToContainer = (renderer, camera) => {
+      const rw = Math.max(el.clientWidth || 0, window.innerWidth);
+      const rh = Math.max(el.clientHeight || 0, window.innerHeight);
+      camera.aspect = rw / rh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(rw, rh, false);
+      renderer.domElement.style.width = "100%";
+      renderer.domElement.style.height = "100%";
+      return { rw, rh };
+    };
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x080012);
 
-    const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
-    const iv = VIEWS.lid;
-    camera.position.set(iv.camera.x, iv.camera.y, iv.camera.z);
-    camera.lookAt(iv.lookAt.x, iv.lookAt.y, iv.lookAt.z);
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+    camera.position.set(0.4, 1.0, 2.2);
+    camera.lookAt(0.15, 0.25, 0);
     cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    if ("outputColorSpace" in renderer) {
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+    }
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    if ("outputColorSpace" in renderer)
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
     el.appendChild(renderer.domElement);
+    resizeToContainer(renderer, camera);
 
-    loadPolyHavenEnvironment(renderer, scene);
+    // 先同步 RoomEnvironment，再換成 Poly Haven HDR 並綁到金屬材質
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    if ("environmentIntensity" in scene) scene.environmentIntensity = 1.1;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const mainLight = new THREE.DirectionalLight(0xfff6ee, 1.05);
-    mainLight.position.set(2.2, 3.2, 3.5);
-    mainLight.castShadow = true;
-    scene.add(mainLight);
-    const fill = new THREE.DirectionalLight(0xdde8ff, 0.35);
-    fill.position.set(-2.5, 1.2, -1.5);
-    scene.add(fill);
-    const rim = new THREE.DirectionalLight(0xe8ddff, 0.45);
-    rim.position.set(0.5, 2.5, -3);
-    scene.add(rim);
-
-    new GLTFLoader().load(MODEL_PATH, (gltf) => {
-      if (destroyed) return;
-
-      const model = gltf.scene;
-
-      model.traverse((child) => {
-        const name = child.name ?? "";
-        const mat = child.material?.name ?? "";
-        if (mat === "背景" || name.includes("背景")) {
-          child.visible = false;
+    new RGBELoader().load(
+      HDR_PATH,
+      (texture) => {
+        if (destroyed) {
+          texture.dispose();
           return;
         }
-        if (!child.isMesh) return;
-        child.castShadow = true;
-        child.receiveShadow = true;
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        const envMap = pmrem.fromEquirectangular(texture).texture;
+        scene.environment = envMap;
+        if ("environmentIntensity" in scene) scene.environmentIntensity = 1.35;
+        texture.dispose();
+        if (modelRef.current) bindEnvMapToMetals(modelRef.current, envMap);
+      },
+      undefined,
+      (err) => {
+        console.error("[HomeScrollSequence01] HDR load failed", err);
+      },
+    );
 
-        if (shouldBeMetal(child)) {
-          applyChromeMetal(child);
-        } else if (child.material) {
-          const mats = Array.isArray(child.material)
-            ? child.material
-            : [child.material];
-          mats.forEach((m) => {
-            if (!m) return;
-            if ("envMapIntensity" in m) m.envMapIntensity = 0.85;
-            m.needsUpdate = true;
-          });
-        }
-      });
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+    const mainLight = new THREE.DirectionalLight(0xfff4e8, 1.25);
+    mainLight.position.set(2.4, 3.5, 3.2);
+    mainLight.castShadow = true;
+    scene.add(mainLight);
+    const fillLight = new THREE.DirectionalLight(0xdde8ff, 0.4);
+    fillLight.position.set(-3, 1.2, -2);
+    scene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.55);
+    rimLight.position.set(0.2, 2.8, -3.2);
+    scene.add(rimLight);
 
-      const box = new THREE.Box3().setFromObject(model);
-      modelSizeRef.current = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
-      model.position.sub(center);
-      // 產品略偏右，對齊紅框構圖
-      model.position.x += 0.18;
-      model.position.y -= 0.06;
+    new GLTFLoader().load(
+      MODEL_PATH,
+      (gltf) => {
+        if (destroyed) return;
 
-      const lidParts = collectLidParts(model);
-      lidPartsRef.current = lidParts;
-      lidRestYRef.current = lidParts.map((part) => part.position.y);
+        const model = gltf.scene;
+        const envMap = scene.environment;
 
-      model.rotation.set(iv.modelRot.x, iv.modelRot.y, iv.modelRot.z);
-      modelRef.current = model;
-      scene.add(model);
-    });
+        model.traverse((child) => {
+          const name = child.name ?? "";
+          const mat = child.material?.name ?? "";
+          if (mat === "背景" || name.includes("背景")) {
+            child.visible = false;
+            return;
+          }
+          if (!child.isMesh) return;
+          child.castShadow = true;
+          child.receiveShadow = true;
+          if (shouldBeMetal(child)) {
+            applyPolyHavenMetal(child, envMap);
+          } else if (child.material) {
+            const mats = Array.isArray(child.material)
+              ? child.material
+              : [child.material];
+            mats.forEach((m) => {
+              if (m && "envMapIntensity" in m) {
+                m.envMapIntensity = 0.75;
+                m.needsUpdate = true;
+              }
+            });
+          }
+        });
+
+        const box = new THREE.Box3().setFromObject(model);
+        modelSizeRef.current = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
+        // 螢幕正中，不額外偏移
+
+        lidPartsRef.current = collectLidParts(model);
+        lidRestPosRef.current = lidPartsRef.current.map((p) =>
+          p.position.clone(),
+        );
+        lidRestRotRef.current = lidPartsRef.current.map((p) =>
+          p.rotation.clone(),
+        );
+
+        modelRef.current = model;
+        scene.add(model);
+
+        const framed = applyPoseInstant(camera, model, VIEW_POSE.lid);
+        lookAtRef.current.copy(framed.lookAt);
+        lockedCamPosRef.current = framed.camera.clone();
+        lockedLookAtRef.current = framed.lookAt.clone();
+      },
+      undefined,
+      (err) => {
+        console.error("[HomeScrollSequence01] GLB load failed", err);
+      },
+    );
 
     function animate() {
       rafRef.current = requestAnimationFrame(animate);
@@ -240,69 +305,115 @@ export default function HomeScrollSequence01() {
     animate();
 
     function onResize() {
-      const rw = el.clientWidth || window.innerWidth;
-      const rh = el.clientHeight || window.innerHeight;
-      camera.aspect = rw / rh;
-      camera.updateProjectionMatrix();
-      renderer.setSize(rw, rh);
+      resizeToContainer(renderer, camera);
+      if (modelRef.current) {
+        const framed = applyPoseInstant(
+          camera,
+          modelRef.current,
+          VIEW_POSE.lid,
+        );
+        lockedCamPosRef.current = framed.camera.clone();
+        lockedLookAtRef.current = framed.lookAt.clone();
+        lookAtRef.current.copy(framed.lookAt);
+        camera.position.copy(lockedCamPosRef.current);
+        camera.lookAt(lockedLookAtRef.current);
+
+        if (activeRef.current === "blade") {
+          modelRef.current.rotation.set(
+            VIEW_POSE.blade.modelRot.x,
+            VIEW_POSE.blade.modelRot.y,
+            VIEW_POSE.blade.modelRot.z,
+          );
+        }
+      }
     }
     window.addEventListener("resize", onResize);
+
+    // 若初次 mount 尺寸為 0，下一幀再量一次
+    requestAnimationFrame(() => {
+      if (!destroyed) onResize();
+    });
 
     return () => {
       destroyed = true;
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(rafRef.current);
+      pmrem.dispose();
       renderer.dispose();
       if (scene.environment?.dispose) scene.environment.dispose();
       el.replaceChildren();
       cameraRef.current = null;
       modelRef.current = null;
       lidPartsRef.current = [];
-      lidRestYRef.current = [];
+      lidRestPosRef.current = [];
+      lidRestRotRef.current = [];
     };
   }, []);
 
   const goToView = useCallback((viewKey) => {
-    const view = VIEWS[viewKey];
-    if (!view) return;
+    const pose = VIEW_POSE[viewKey];
     const camera = cameraRef.current;
     const model = modelRef.current;
+    if (!pose || !camera || !model) return;
+
     const lidParts = lidPartsRef.current;
-    const lidRestYs = lidRestYRef.current;
+    const lidRestPos = lidRestPosRef.current;
+    const lidRestRot = lidRestRotRef.current;
     const modelSize = modelSizeRef.current;
-    if (!camera || !model) return;
 
-    gsap.to(camera.position, {
-      x: view.camera.x,
-      y: view.camera.y,
-      z: view.camera.z,
-      duration: 1.4,
-      ease: "power3.inOut",
-      overwrite: "auto",
-      onUpdate: () =>
-        camera.lookAt(view.lookAt.x, view.lookAt.y, view.lookAt.z),
-    });
-    gsap.to(model.rotation, {
-      x: view.modelRot.x,
-      y: view.modelRot.y,
-      z: view.modelRot.z,
-      duration: 1.4,
-      ease: "power3.inOut",
-      overwrite: "auto",
-    });
+    // 上蓋／刀頭都用預設載入構圖（正中、略小）
+    model.rotation.set(pose.modelRot.x, pose.modelRot.y, pose.modelRot.z);
+    const framed = applyPoseInstant(camera, model, VIEW_POSE.lid);
+    lockedCamPosRef.current = framed.camera.clone();
+    lockedLookAtRef.current = framed.lookAt.clone();
+    lookAtRef.current.copy(framed.lookAt);
 
-    if (lidParts.length && modelSize) {
-      const liftAmount = modelSize.y * 0.55;
-      lidParts.forEach((lid, i) => {
-        const restY = lidRestYs[i] ?? lid.position.y;
+    if (!lidParts.length || !modelSize) return;
+
+    const flyY = modelSize.y * 1.2;
+    const flyX = modelSize.x * 0.45;
+    const flyZ = modelSize.z * -0.25;
+
+    lidParts.forEach((lid, i) => {
+      const restPos = lidRestPos[i] || lid.position;
+      const restRot = lidRestRot[i] || lid.rotation;
+
+      if (pose.lidOpen) {
         gsap.to(lid.position, {
-          y: view.lidOpen ? restY + liftAmount : restY,
-          duration: view.lidOpen ? 1.4 : 1.1,
-          ease: view.lidOpen ? "power2.inOut" : "power3.out",
+          x: restPos.x + flyX,
+          y: restPos.y + flyY,
+          z: restPos.z + flyZ,
+          duration: 1.55,
+          ease: "power4.in",
           overwrite: "auto",
         });
-      });
-    }
+        gsap.to(lid.rotation, {
+          x: restRot.x - 0.65,
+          y: restRot.y + 0.25,
+          z: restRot.z + 0.4,
+          duration: 1.55,
+          ease: "power4.in",
+          overwrite: "auto",
+        });
+      } else {
+        gsap.to(lid.position, {
+          x: restPos.x,
+          y: restPos.y,
+          z: restPos.z,
+          duration: 1.15,
+          ease: "power3.out",
+          overwrite: "auto",
+        });
+        gsap.to(lid.rotation, {
+          x: restRot.x,
+          y: restRot.y,
+          z: restRot.z,
+          duration: 1.15,
+          ease: "power3.out",
+          overwrite: "auto",
+        });
+      }
+    });
   }, []);
 
   const handleView = useCallback(
@@ -331,7 +442,7 @@ export default function HomeScrollSequence01() {
         }}
       />
 
-      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+      <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full" />
 
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center">
         <div className="max-w-[20rem] px-6 md:ml-[6%] md:max-w-[26rem] md:px-0 lg:ml-[8%]">

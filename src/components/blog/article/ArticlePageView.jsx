@@ -212,10 +212,16 @@ function ProductHeroSection({ hero, stickyBar, bodyHtml, title }) {
           <p className="text-[13px] font-medium text-[#6e6e73]">
             {stickyBar.productLine}
           </p>
-          <h1 className="mt-2 text-[26px] font-bold leading-tight text-[#1d1d1f] md:text-[32px]">
+          <h1
+            className="mt-2 text-[26px] font-bold leading-tight text-[#1d1d1f] md:text-[32px]"
+            data-seo-speakable
+          >
             {title || hero.title}
           </h1>
-          <p className="mt-4 text-[15px] leading-relaxed text-[#6e6e73] md:text-[16px]">
+          <p
+            className="mt-4 text-[15px] leading-relaxed text-[#6e6e73] md:text-[16px]"
+            data-seo-speakable
+          >
             {hero.description}
           </p>
 

@@ -1,112 +1,18 @@
 import { MetadataRoute } from "next";
-import { getSiteUrl } from "@/lib/seo/config";
+import {
+  getCachedSitemapEntries,
+  toMetadataSitemap,
+} from "@/lib/seo/sitemap.server";
+import { SITEMAP_REVALIDATE_SECONDS } from "@/lib/seo/revalidate.server";
 
-const SITE_URL = getSiteUrl();
-
-const STATIC_PAGES: Array<{
-  path: string;
-  changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
-  priority: number;
-}> = [
-  { path: "/", changeFrequency: "weekly", priority: 1.0 },
-  { path: "/accessories", changeFrequency: "daily", priority: 0.9 },
-  { path: "/brand", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/about", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/stores", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/support/manuals", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/support/warranty", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/support/faq", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/support/policies", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/blog", changeFrequency: "daily", priority: 0.8 },
-];
-
-async function fetchAccessorySlugs(): Promise<string[]> {
-  try {
-    const { fetchAccessoriesFromWoo } = await import(
-      "@/lib/accessoriesWoo.server"
-    );
-    const products = await fetchAccessoriesFromWoo();
-    return products.map((p) => p.id);
-  } catch {
-    try {
-      const { buildAccessoryCatalog } = await import(
-        "@/data/accessories.server"
-      );
-      return buildAccessoryCatalog().map((p) => p.id);
-    } catch {
-      return [];
-    }
-  }
-}
-
-async function fetchSeriesSlugs(): Promise<string[]> {
-  try {
-    const { fetchSeriesSlugs: fetchSlugs } = await import(
-      "@/lib/seriesProducts.server"
-    );
-    return fetchSlugs();
-  } catch {
-    return [];
-  }
-}
-
-async function fetchBlogSlugs(): Promise<string[]> {
-  try {
-    const rawBase =
-      process.env.WORDPRESS_API_URL ||
-      "https://inf.fjg.mybluehost.me/website_b45d1e40";
-    const cleanBase = rawBase.split("/wp-json")[0].replace(/\/$/, "");
-    const res = await fetch(
-      `${cleanBase}/wp-json/wp/v2/posts?per_page=100&_fields=slug`,
-      { next: { revalidate: 3600 } },
-    );
-    if (!res.ok) return [];
-    const posts = await res.json();
-    return Array.isArray(posts) ? posts.map((p: { slug: string }) => p.slug) : [];
-  } catch {
-    return [];
-  }
-}
-
-export const revalidate = 3600;
+/**
+ * 動態 Sitemap（SSG + ISR）
+ * - 預設每小時背景更新
+ * - 後台新增／更新產品、系列、文章時，透過 /api/revalidate 立刻刷新
+ */
+export const revalidate = SITEMAP_REVALIDATE_SECONDS;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
-  const [accessorySlugs, blogSlugs, seriesSlugs] = await Promise.all([
-    fetchAccessorySlugs(),
-    fetchBlogSlugs(),
-    fetchSeriesSlugs(),
-  ]);
-
-  const staticEntries: MetadataRoute.Sitemap = STATIC_PAGES.map((p) => ({
-    url: `${SITE_URL}${p.path}`,
-    lastModified: now,
-    changeFrequency: p.changeFrequency,
-    priority: p.priority,
-  }));
-
-  const accessoryEntries: MetadataRoute.Sitemap = accessorySlugs.map((id) => ({
-    url: `${SITE_URL}/accessories/${id}`,
-    lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
-
-  const blogEntries: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url: `${SITE_URL}/blog/${slug}`,
-    lastModified: now,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
-
-  const seriesEntries: MetadataRoute.Sitemap = seriesSlugs.map((slug) => ({
-    url: `${SITE_URL}/series/${encodeURIComponent(slug)}`,
-    lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: 0.85,
-  }));
-
-  return [...staticEntries, ...accessoryEntries, ...blogEntries, ...seriesEntries];
+  const entries = await getCachedSitemapEntries();
+  return toMetadataSitemap(entries);
 }

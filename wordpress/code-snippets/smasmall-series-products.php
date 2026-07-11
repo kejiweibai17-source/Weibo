@@ -1553,7 +1553,7 @@ function smasmall_series_render_timeline_row(string $prefix, int $iidx, array $i
 }
 
 /**
- * 儲存系列產品後，通知 Next.js 重新產生靜態頁（ISR on-demand）。
+ * 儲存系列產品後，通知 Next.js 重新產生靜態頁與 sitemap（ISR on-demand）。
  * 需在 wp-config.php 或主機環境設定：
  *   define('SMASMALL_FRONTEND_URL', 'https://www.smasmall.com.tw');
  *   define('SMASMALL_REVALIDATE_SECRET', 'your-secret');
@@ -1575,6 +1575,7 @@ function smasmall_series_revalidate_frontend(int $post_id): void
         return;
     }
 
+    // 系列頁 + /series 總覽 + /sitemap.xml
     wp_remote_post(
         $frontend . '/api/revalidate/series',
         [

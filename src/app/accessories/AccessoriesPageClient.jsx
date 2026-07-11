@@ -73,11 +73,22 @@ export default function AccessoriesPageClient({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
           <Copy>
             {" "}
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight max-w-2xl leading-tight text-gray-900">
-              探索專屬配件，
-              <br className="hidden md:block" />
-              將您的昔馬理容體驗提升至全新境界。
-            </h1>
+            <div>
+              <p
+                className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00B4D8] mb-3"
+                data-seo-speakable
+              >
+                產品列表
+              </p>
+              <h1
+                className="text-3xl md:text-5xl font-bold tracking-tight max-w-2xl leading-tight text-gray-900"
+                data-seo-speakable
+              >
+                探索專屬配件，
+                <br className="hidden md:block" />
+                將您的昔馬理容體驗提升至全新境界。
+              </h1>
+            </div>
           </Copy>
 
           <button className="md:hidden flex items-center gap-2 text-sm font-medium border border-gray-300 px-4 py-2 rounded-full">

@@ -7,7 +7,25 @@ import {
   WARRANTY_STEPS,
   WARRANTY_COVERAGE,
 } from "@/data/supportContent";
-import { SEO_CONFIG } from "@/lib/seo/config";
+
+/** 將 **強調** 轉成粗體紅字 */
+function EmphasisText({ text, className = "" }) {
+  const parts = String(text).split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <span className={className}>
+      {parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={i} className="font-bold text-[#c0392b]">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </span>
+  );
+}
 
 export default function WarrantyClient() {
   return (
@@ -36,7 +54,6 @@ export default function WarrantyClient() {
         </ol>
       </nav>
 
-      {/* 頁首 */}
       <header className="mx-auto max-w-[960px] px-6 pt-6 pb-12 md:pb-16">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00B4D8] mb-4">
           Warranty &amp; Registration
@@ -50,7 +67,6 @@ export default function WarrantyClient() {
         </p>
       </header>
 
-      {/* 重點數字 — 無框，僅分隔線 */}
       <section className="mx-auto max-w-[960px] px-6 pb-14 md:pb-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-6 border-t border-gray-300 pt-10">
           {WARRANTY_HIGHLIGHTS.map((item, idx) => (
@@ -77,64 +93,75 @@ export default function WarrantyClient() {
         </div>
       </section>
 
-      {/* 保固流程 — 垂直時間軸，無卡片 */}
+      {/* 保固申請流程 */}
       <section className="mx-auto max-w-[960px] px-6 pb-16 md:pb-24">
-        <h2 className="text-center text-2xl md:text-[2rem] font-bold text-gray-900 tracking-tight mb-12 md:mb-14">
+        <h2 className="text-center text-[1.15rem] md:text-[1.35rem] font-bold text-gray-900 tracking-tight mb-12 md:mb-14">
+          <span className="text-[#00B4D8]">──</span>
+          {" "}
           保固申請流程
+          {" "}
+          <span className="text-[#00B4D8]">──</span>
         </h2>
-        <ol className="relative border-l border-gray-300 ml-3 md:ml-4 space-y-10 md:space-y-12">
+        <ol className="space-y-10 md:space-y-12">
           {WARRANTY_STEPS.map((step) => (
-            <li key={step.step} className="relative pl-8 md:pl-10">
-              <span
-                className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#00B4D8]"
-                aria-hidden
-              />
-              <p className="text-[11px] font-mono font-bold text-[#00B4D8] tracking-widest mb-1">
-                STEP {step.step}
-              </p>
-              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+            <li key={step.step} className="max-w-2xl">
+              <h3 className="text-[1.05rem] md:text-[1.2rem] font-bold text-gray-900 tracking-tight mb-3">
+                <span className="text-[#00B4D8]">──</span>
+                {" "}
+                <span className="font-mono tracking-[0.1em] text-[#00B4D8]">
+                  STEP {step.step}
+                </span>
+                <span className="mx-1.5 text-gray-300">　</span>
                 {step.title}
+                {" "}
+                <span className="text-[#00B4D8]">──</span>
               </h3>
-              <p className="text-[14px] md:text-[15px] text-gray-600 leading-relaxed max-w-xl">
-                {step.description}
+              <p className="text-[14px] md:text-[15px] text-gray-600 leading-relaxed">
+                <EmphasisText text={step.description} />
               </p>
             </li>
           ))}
         </ol>
       </section>
 
-      {/* 保固範圍 — 雙欄列表，細線分隔 */}
+      {/* 保固範圍說明 */}
       <section className="mx-auto max-w-[960px] px-6 pb-16 md:pb-24">
-        <h2 className="text-center text-2xl md:text-[2rem] font-bold text-gray-900 tracking-tight mb-10 md:mb-12">
+        <h2 className="text-center text-[1.15rem] md:text-[1.35rem] font-bold text-gray-900 tracking-tight mb-10 md:mb-12">
+          <span className="text-[#00B4D8]">──</span>
+          {" "}
           保固範圍說明
+          {" "}
+          <span className="text-[#00B4D8]">──</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
           <div>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-5 pb-3 border-b border-gray-300">
-              保固涵蓋
+            <h3 className="text-[15px] font-bold text-[#00B4D8] mb-5 pb-3 border-b border-gray-300">
+              【保固涵蓋】
             </h3>
-            <ul className="space-y-4">
-              {WARRANTY_COVERAGE.covered.map((item) => (
+            <ul className="space-y-3">
+              {WARRANTY_COVERAGE.covered.map((item, i) => (
                 <li
                   key={item}
-                  className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed pl-4 border-l-2 border-[#00B4D8]/40"
+                  className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed"
                 >
+                  <span className="font-bold text-gray-900">{i + 1}.</span>{" "}
                   {item}
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <h3 className="text-[15px] font-bold text-gray-900 mb-5 pb-3 border-b border-gray-300">
-              不在保固範圍
+            <h3 className="text-[15px] font-bold text-[#c0392b] mb-5 pb-3 border-b border-gray-300">
+              【不在保固範圍】
             </h3>
-            <ul className="space-y-4">
-              {WARRANTY_COVERAGE.notCovered.map((item) => (
+            <ul className="space-y-3">
+              {WARRANTY_COVERAGE.notCovered.map((item, i) => (
                 <li
                   key={item}
-                  className="text-[14px] md:text-[15px] text-gray-600 leading-relaxed pl-4 border-l-2 border-gray-300"
+                  className="text-[14px] md:text-[15px] text-gray-600 leading-relaxed"
                 >
-                  {item}
+                  <span className="font-bold text-gray-900">{i + 1}.</span>{" "}
+                  <EmphasisText text={item} />
                 </li>
               ))}
             </ul>
@@ -142,7 +169,7 @@ export default function WarrantyClient() {
         </div>
       </section>
 
-      {/* 註冊說明 — 開放式區塊 */}
+      {/* 註冊說明 */}
       <section className="border-t border-gray-300 bg-white">
         <div className="mx-auto max-w-[960px] px-6 py-12 md:py-16">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#00B4D8] mb-3">
@@ -152,7 +179,11 @@ export default function WarrantyClient() {
             保固以購買憑證為準
           </h2>
           <p className="text-[14px] md:text-[15px] text-gray-600 leading-relaxed max-w-2xl mb-8">
-            請保留發票或訂單編號，並建議拍攝包裝上的雷雕序號。如需保固協助，請直接聯繫客服，無需額外線上註冊。
+            請保留發票或訂單編號，並建議拍攝包裝上的雷雕序號。如需保固協助，請直接聯繫客服，
+            <strong className="font-bold text-gray-900 bg-yellow-200/80 px-1">
+              無需額外線上註冊
+            </strong>
+            。
           </p>
           <Link
             href="/contact"
@@ -166,18 +197,29 @@ export default function WarrantyClient() {
 
       {/* 底部聯絡 */}
       <section className="border-t border-gray-300">
-        <div className="mx-auto max-w-[960px] px-6 py-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-[14px] text-gray-500">
-            客服專線{" "}
-            <a
-              href={`tel:${SEO_CONFIG.organization.telephone}`}
-              className="text-gray-900 hover:text-[#00B4D8] transition-colors"
-            >
-              {SEO_CONFIG.organization.telephone}
-            </a>
-            <span className="mx-2 text-gray-300">·</span>
-            週一至週五 09:00–18:00
-          </p>
+        <div className="mx-auto max-w-[960px] px-6 py-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+          <div className="text-[14px] text-gray-600 leading-relaxed space-y-1">
+            <p>
+              <span className="text-gray-500">客服專線</span>
+              <span className="mx-2 text-gray-300">|</span>
+              <a
+                href="tel:+886-5-320-9919"
+                className="font-semibold text-[#c0392b] hover:underline"
+              >
+                +886-5-320-9919
+              </a>
+            </p>
+            <p>
+              <span className="text-gray-500">服務時間</span>
+              <span className="mx-2 text-gray-300">|</span>
+              <span className="font-semibold text-[#c0392b]">
+                週一至週五 09:00–18:00
+              </span>
+            </p>
+            <p className="text-[13px] text-[#c0392b]/80">
+              （例假日及國定假日暫停服務）
+            </p>
+          </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <Link
               href="/support/manuals"

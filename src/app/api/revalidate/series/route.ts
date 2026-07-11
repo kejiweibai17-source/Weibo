@@ -1,13 +1,17 @@
-import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { LEGACY_PRODUCT_SLUGS } from "@/lib/seriesProducts.legacy";
+import { revalidateSeriesCache } from "@/lib/seo/revalidate.server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type Body = {
   slug?: string;
 };
 
+/**
+ * 相容舊版 WP webhook：POST /api/revalidate/series
+ * 同時會刷新 /sitemap.xml（ISR on-demand）
+ */
 export async function POST(request: NextRequest) {
   const secret = process.env.REVALIDATE_SECRET;
   if (!secret) {
@@ -30,28 +34,12 @@ export async function POST(request: NextRequest) {
   }
 
   const slug = typeof body.slug === "string" ? body.slug.trim() : "";
-  const paths: string[] = ["/series"];
-
-  revalidateTag("series-all");
-
-  if (slug) {
-    revalidateTag(`series-${slug}`);
-    paths.push(`/series/${encodeURIComponent(slug)}`);
-
-    for (const [legacyPath, legacySlug] of Object.entries(LEGACY_PRODUCT_SLUGS)) {
-      if (legacySlug === slug) {
-        paths.push(`/${legacyPath}`);
-      }
-    }
-  }
-
-  for (const path of paths) {
-    revalidatePath(path);
-  }
+  const result = revalidateSeriesCache(slug);
 
   return NextResponse.json({
     ok: true,
-    revalidated: paths,
-    slug: slug || null,
+    revalidatedAt: new Date().toISOString(),
+    revalidated: result.paths,
+    ...result,
   });
 }

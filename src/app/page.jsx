@@ -2,13 +2,14 @@
 import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
 import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
-import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
+import { getSiteUrl, ogImageUrl } from "@/lib/seo/config";
 import { buildHomePageSchemas } from "@/lib/seo/schemas";
 import { getHomeBladeIntroSection } from "@/lib/homeBladeIntro.server";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
 import { getHomeConstellationSection } from "@/lib/homeConstellation.server";
 import { getHomeProductIntroSection } from "@/lib/homeProductIntro.server";
 import { getHeroSliderSlides } from "@/lib/heroSlider.server";
+import { fetchSeriesNavItems } from "@/lib/seriesProducts.server";
 
 const SITE_URL = getSiteUrl();
 
@@ -22,12 +23,17 @@ const homeFAQs = [
   {
     question: "請問是在哪裡製造的？享有保固嗎？",
     answer:
-      "SMASMALL 昔馬系列產品由專業大廠精密製造，並由台灣總代理「威柏科技」原廠授權引進。凡透過本官方商城購買，皆享有台灣代理商提供的一年原廠保固與完善售後服務，讓您買得安心。",
+      "SMASMALL 昔馬系列產品由專業大廠精密製造，並由台灣總代理「威柏科技」原廠授權引進。凡透過本官方商城購買，皆享有台灣代理商提供的一年原廠保固與完善售後服務，讓您買得安心。營運據點位於嘉義縣太保市。",
   },
   {
     question: "訂購後大約幾天可以收到商品？有退換貨服務嗎？",
     answer:
       "現貨商品一般於訂單確認後 1-3 個工作天內出貨。全館享有滿額免運優惠。若收到商品有瑕疵，請於 7 日內聯繫威柏科技客服進行退換貨。惟因刮鬍刀屬於個人衛生用品，拆封後除商品本身瑕疵外，恕不接受退換貨，退回商品必須為全新狀態且包裝完整。",
+  },
+  {
+    question: "如何查看系列商品與產品列表？",
+    answer:
+      "可至「系列商品」瀏覽星座系列、捍衛者、黑夜騎士等產品線介紹，或至「產品列表」一次比較全系列電動刮鬍刀禮盒與配件。",
   },
 ];
 
@@ -37,7 +43,7 @@ export const metadata = {
     absolute: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
   },
   description:
-    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",
+    "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。台灣總代理威柏科技，嘉義縣太保市。",
   keywords: [
     "SMASMALL",
     "昔馬",
@@ -50,7 +56,15 @@ export const metadata = {
     "男士理容",
     "威柏科技",
     "Weibo",
+    "嘉義",
+    "系列商品",
+    "產品列表",
   ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   openGraph: {
     type: "website",
     locale: "zh_TW",
@@ -87,12 +101,14 @@ export default async function Page() {
     constellationSection,
     bladeIntroSection,
     productIntroSection,
+    seriesNavItems,
   ] = await Promise.all([
     getHomeCarouselSlides(),
     getHeroSliderSlides(),
     getHomeConstellationSection(),
     getHomeBladeIntroSection(),
     getHomeProductIntroSection(),
+    fetchSeriesNavItems(),
   ]);
   const schemas = buildHomePageSchemas({
     siteUrl: SITE_URL,
@@ -102,7 +118,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={schemas} />
-      <HomeSiteLinksNav />
+      <HomeSiteLinksNav seriesItems={seriesNavItems} />
       <Client
         faqs={homeFAQs}
         carouselSlides={carouselSlides}

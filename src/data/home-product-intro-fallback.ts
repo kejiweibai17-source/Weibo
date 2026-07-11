@@ -13,7 +13,7 @@ export type HomeProductIntroSection = {
 
 /** 後台無資料或 API 失敗時的預設內容 */
 export const HOME_PRODUCT_INTRO_FALLBACK: HomeProductIntroSection = {
-  backgroundImage: "",
+  backgroundImage: "/images/s3-detail-bg.png",
   subtitle: "上蓋特寫",
   title: "磁吸防塵保護蓋",
   description: "磁吸式上蓋一貼即合，隔絕灰塵、守護刀頭，收納潔淨衛生。",

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Link } from "next-view-transitions";
-import { ArrowRight, Check, X, FileDown } from "lucide-react";
+import { ArrowRight, FileDown } from "lucide-react";
 import {
   CARE_GUIDE_SECTIONS,
   CARE_DOS_DONTS,
@@ -184,24 +184,30 @@ export default function ManualsClient() {
 
               const stepContent = (
                 <div className="flex-1 lg:sticky lg:top-28 lg:self-start">
-                  <span className="text-[11px] font-mono font-bold text-[#00B4D8] tracking-[0.2em] uppercase">
-                    Step {String(idx + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="text-[1.5rem] md:text-[2rem] font-black text-[#0d2233] uppercase mt-2 mb-4 tracking-tight">
+                  <h3 className="text-[1.15rem] md:text-[1.35rem] font-black text-[#0d2233] tracking-tight mb-4">
+                    <span className="text-[#00B4D8]">──</span>
+                    {" "}
+                    <span className="font-mono tracking-[0.12em] uppercase text-[#00B4D8]">
+                      STEP {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <span className="mx-2 text-[#0d2233]/35">　</span>
                     {section.title}
+                    {" "}
+                    <span className="text-[#00B4D8]">──</span>
                   </h3>
                   <p className="text-[15px] text-[#4a7c99] leading-relaxed mb-6 font-medium">
                     {section.summary}
                   </p>
                   <ol className="space-y-3">
                     {section.steps.map((step, stepIdx) => (
-                      <li key={stepIdx} className="flex gap-4 items-start">
-                        <span className="shrink-0 w-6 h-6 rounded-full bg-[#00B4D8] text-white text-[11px] font-black flex items-center justify-center mt-0.5">
-                          {stepIdx + 1}
-                        </span>
-                        <p className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed">
-                          {step}
-                        </p>
+                      <li
+                        key={stepIdx}
+                        className="text-[14px] md:text-[15px] text-gray-700 leading-relaxed"
+                      >
+                        <span className="font-bold text-[#0d2233]">
+                          {stepIdx + 1}.
+                        </span>{" "}
+                        {step}
                       </li>
                     ))}
                   </ol>
@@ -281,10 +287,12 @@ export default function ManualsClient() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <h2 className="text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] font-black text-white uppercase leading-tight tracking-tight">
-              堅持品質
-              <br className="md:hidden" />
-              <span className="hidden md:inline"> </span>延長使用壽命
+            <h2 className="text-[1.35rem] md:text-[1.75rem] lg:text-[2.1rem] font-black text-white leading-tight tracking-tight">
+              <span className="text-white/70">──</span>
+              {" "}
+              堅持品質　延長使用壽命
+              {" "}
+              <span className="text-white/70">──</span>
             </h2>
             <p className="mt-5 text-[15px] text-gray-300 max-w-xl mx-auto leading-relaxed font-light">
               每一支昔馬刮鬍刀，都值得被細心對待。良好的保養，是對品質最好的回應。
@@ -295,12 +303,16 @@ export default function ManualsClient() {
       <section className="w-full bg-[#edf5fb] py-20 md:py-24">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-16">
           <motion.h2
-            className="text-[1.5rem] md:text-[2rem] font-black text-[#0d2233] uppercase tracking-tight mb-12"
+            className="text-[1.15rem] md:text-[1.35rem] font-black text-[#0d2233] tracking-tight mb-12"
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
+            <span className="text-[#00B4D8]">──</span>
+            {" "}
             使用守則
+            {" "}
+            <span className="text-[#00B4D8]">──</span>
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
@@ -311,23 +323,16 @@ export default function ManualsClient() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <h3 className="text-[15px] font-black text-[#00B4D8] uppercase tracking-wider mb-6 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#00B4D8] flex items-center justify-center">
-                  <Check size={11} className="text-white" strokeWidth={3} />
-                </span>
-                建議做法
+              <h3 className="text-[15px] font-black text-[#00B4D8] tracking-wider mb-6">
+                【建議做法】
               </h3>
-              <ul className="space-y-4">
-                {CARE_DOS_DONTS.dos.map((item) => (
+              <ul className="space-y-3">
+                {CARE_DOS_DONTS.dos.map((item, i) => (
                   <li
                     key={item}
-                    className="flex gap-3 items-start text-[14px] text-gray-700 leading-relaxed"
+                    className="text-[14px] text-gray-700 leading-relaxed"
                   >
-                    <Check
-                      size={15}
-                      className="shrink-0 text-[#00B4D8] mt-0.5"
-                      strokeWidth={2.5}
-                    />
+                    <span className="font-bold text-[#0d2233]">{i + 1}.</span>{" "}
                     {item}
                   </li>
                 ))}
@@ -341,23 +346,16 @@ export default function ManualsClient() {
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
             >
-              <h3 className="text-[15px] font-black text-[#e55] uppercase tracking-wider mb-6 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#e55] flex items-center justify-center">
-                  <X size={11} className="text-white" strokeWidth={3} />
-                </span>
-                請避免
+              <h3 className="text-[15px] font-black text-[#e55] tracking-wider mb-6">
+                【請避免】
               </h3>
-              <ul className="space-y-4">
-                {CARE_DOS_DONTS.donts.map((item) => (
+              <ul className="space-y-3">
+                {CARE_DOS_DONTS.donts.map((item, i) => (
                   <li
                     key={item}
-                    className="flex gap-3 items-start text-[14px] text-gray-700 leading-relaxed"
+                    className="text-[14px] text-gray-700 leading-relaxed"
                   >
-                    <X
-                      size={15}
-                      className="shrink-0 text-[#e55] mt-0.5"
-                      strokeWidth={2.5}
-                    />
+                    <span className="font-bold text-[#0d2233]">{i + 1}.</span>{" "}
                     {item}
                   </li>
                 ))}

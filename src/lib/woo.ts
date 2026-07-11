@@ -90,10 +90,14 @@ export async function fetchProducts({
   const url = withAuth(
     `${base}/wp-json/wc/v3/products?page=${page}&per_page=${perPage}&status=publish`
   );
-  
-  // 使用 no-store 或 revalidate 確保資料新鮮度，這裡沿用原本的 revalidate: 60
-  const res = await fetch(url, { next: { revalidate: 60 } });
-  
+
+  const res = await fetch(url, {
+    next: {
+      revalidate: 60,
+      tags: ["products-all", "sitemap"],
+    },
+  });
+
   if (!res.ok) throw new Error("取得商品列表失敗");
   const data = await res.json();
   return (data as any[]).map(mapWoo) as WooProduct[];
@@ -105,12 +109,39 @@ export async function fetchAllProducts() {
   return fetchProducts({ page: 1, perPage: 100 });
 }
 
+/** Sitemap 專用：slug + 最後修改時間（ISR / on-demand revalidate） */
+export async function fetchProductsForSitemap(): Promise<
+  Array<{ slug: string; dateModified?: string }>
+> {
+  const { base } = getEnv();
+  const url = withAuth(
+    `${base}/wp-json/wc/v3/products?per_page=100&status=publish&_fields=slug,date_modified`,
+  );
+  const res = await fetch(url, {
+    next: {
+      revalidate: 3600,
+      tags: ["products-all", "sitemap"],
+    },
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as any[];
+  return (data || [])
+    .map((p) => ({
+      slug: typeof p?.slug === "string" ? p.slug : "",
+      dateModified:
+        typeof p?.date_modified === "string" ? p.date_modified : undefined,
+    }))
+    .filter((p) => Boolean(p.slug));
+}
+
 export async function fetchAllProductCategories() {
   const { base } = getEnv();
   const url = withAuth(
     `${base}/wp-json/wc/v3/products/categories?per_page=100&hide_empty=false`,
   );
-  const res = await fetch(url, { next: { revalidate: 300 } });
+  const res = await fetch(url, {
+    next: { revalidate: 300, tags: ["products-all"] },
+  });
   if (!res.ok) return [] as WooCategory[];
   const data = (await res.json()) as any[];
   return (data || []).map(
@@ -134,7 +165,12 @@ export async function fetchProductBySlug(slug: string) {
       normalizedSlug
     )}&status=publish`
   );
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const res = await fetch(url, {
+    next: {
+      revalidate: 60,
+      tags: ["products-all", `product-${normalizedSlug}`, "sitemap"],
+    },
+  });
   if (!res.ok) return null;
   const arr = (await res.json()) as any[];
   if (!Array.isArray(arr) || arr.length === 0) return null;
@@ -149,7 +185,9 @@ export async function fetchAllProductSlugs({
   const url = withAuth(
     `${base}/wp-json/wc/v3/products?per_page=${perPage}&status=publish`
   );
-  const res = await fetch(url, { next: { revalidate: 300 } });
+  const res = await fetch(url, {
+    next: { revalidate: 300, tags: ["products-all", "sitemap"] },
+  });
   if (!res.ok) return [] as string[];
   const data = (await res.json()) as any[];
   return (data || []).map((p: any) => p.slug as string).filter(Boolean);

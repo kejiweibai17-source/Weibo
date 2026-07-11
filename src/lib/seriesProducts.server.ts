@@ -20,7 +20,7 @@ function getSeriesFetchInit(slug?: string): RequestInit {
     return { cache: "no-store" };
   }
 
-  const tags = ["series-all"];
+  const tags = ["series-all", "sitemap"];
   if (slug) {
     tags.push(`series-${slug}`);
   }
@@ -319,27 +319,56 @@ export async function fetchSeriesNavItems(): Promise<SeriesNavItem[]> {
 }
 
 export async function fetchSeriesSlugs(): Promise<string[]> {
+  const entries = await fetchSeriesSitemapEntries();
+  return entries.map((entry) => entry.slug);
+}
+
+/** Sitemap：系列 slug + 更新時間 */
+export async function fetchSeriesSitemapEntries(): Promise<
+  Array<{ slug: string; updatedAt?: string }>
+> {
   const base = getWpBase();
-  if (!base) return SERIES_NAV_FALLBACK.map((item) => item.slug);
+  if (!base) {
+    return SERIES_NAV_FALLBACK.map((item) => ({ slug: item.slug }));
+  }
 
   try {
-    const res = await fetch(`${base}/wp-json/smasmall/v1/series`, getSeriesFetchInit());
-    if (!res.ok) return SERIES_NAV_FALLBACK.map((item) => item.slug);
+    const res = await fetch(
+      `${base}/wp-json/smasmall/v1/series`,
+      getSeriesFetchInit(),
+    );
+    if (!res.ok) {
+      return SERIES_NAV_FALLBACK.map((item) => ({ slug: item.slug }));
+    }
 
     const data = await res.json();
     if (!Array.isArray(data?.series)) {
-      return SERIES_NAV_FALLBACK.map((item) => item.slug);
+      return SERIES_NAV_FALLBACK.map((item) => ({ slug: item.slug }));
     }
 
-    return data.series
+    const entries = data.series
       .map((item: unknown) => {
         if (!item || typeof item !== "object") return null;
-        const slug = (item as Record<string, unknown>).slug;
-        return typeof slug === "string" ? slug : null;
+        const row = item as Record<string, unknown>;
+        const slug = typeof row.slug === "string" ? row.slug.trim() : "";
+        if (!slug) return null;
+        return {
+          slug,
+          updatedAt:
+            typeof row.updatedAt === "string" ? row.updatedAt : undefined,
+        };
       })
-      .filter((slug: string | null): slug is string => Boolean(slug));
+      .filter(
+        (
+          entry: { slug: string; updatedAt?: string } | null,
+        ): entry is { slug: string; updatedAt?: string } => Boolean(entry),
+      );
+
+    return entries.length
+      ? entries
+      : SERIES_NAV_FALLBACK.map((item) => ({ slug: item.slug }));
   } catch {
-    return SERIES_NAV_FALLBACK.map((item) => item.slug);
+    return SERIES_NAV_FALLBACK.map((item) => ({ slug: item.slug }));
   }
 }
 

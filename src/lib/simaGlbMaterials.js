@@ -2,10 +2,11 @@ import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 const ICON_TEXTURE_PATH = "/3d/icon.png";
-/** Poly Haven — studio_small_03 (CC0) */
-const HDR_PATH = "/hdr/polyhaven-studio_small_03_1k.hdr";
+/** 星座滾動區維持原本霧感；特寫區另用 Poly Haven */
+const HDR_PATH = "/hdr/studio.hdr";
 
 let _cachedEnvTexture = null;
+let _cachedEnvPath = null;
 
 function applyIconTexture(mesh) {
   const loader = new THREE.TextureLoader();
@@ -70,12 +71,14 @@ export function finalizeSimaGlbModel(root) {
         /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(nameLc);
 
       if (looksMetal) {
-        // 金屬（銀色蓋子/刀頭）：乾淨反射，避免霧面
-        mat.metalness = 1;
-        mat.roughness = 0.08;
-        if (mat.roughnessMap) mat.roughnessMap = null;
-        if (mat.metalnessMap) mat.metalnessMap = null;
-        mat.envMapIntensity = 1.6;
+        // 維持原本霧感金屬（不要鏡面高光）
+        mat.metalness = Math.max(metalness, 0.85);
+        if (typeof mat.roughness === "number") {
+          mat.roughness = THREE.MathUtils.clamp(mat.roughness, 0.15, 0.35);
+        } else {
+          mat.roughness = 0.22;
+        }
+        mat.envMapIntensity = 1.15;
       } else {
         mat.envMapIntensity = 1.0;
       }
@@ -96,12 +99,13 @@ export function setupSimaScrollSceneEnvironment(renderer, scene) {
     const pmrem = new THREE.PMREMGenerator(renderer);
     pmrem.compileEquirectangularShader();
     _cachedEnvTexture = pmrem.fromEquirectangular(texture).texture;
+    _cachedEnvPath = HDR_PATH;
     scene.environment = _cachedEnvTexture;
     texture.dispose();
     pmrem.dispose();
   };
 
-  if (_cachedEnvTexture) {
+  if (_cachedEnvTexture && _cachedEnvPath === HDR_PATH) {
     scene.environment = _cachedEnvTexture;
     return;
   }

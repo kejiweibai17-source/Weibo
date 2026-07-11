@@ -18,13 +18,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     absolute:
-      "昔馬 SMASMALL 全系列｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
+      "昔馬 SMASMALL 產品列表｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
   },
   description:
-    "昔馬 SMASMALL 全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
+    "昔馬 SMASMALL 產品列表：全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。台灣總代理威柏科技（嘉義縣太保市）原廠授權，享 12 個月保固。",
   keywords: [
     "昔馬",
     "SMASMALL",
+    "產品列表",
     "電動刮鬍刀禮盒",
     "配件",
     "星座系列",
@@ -38,28 +39,33 @@ export const metadata: Metadata = {
     "台灣總代理",
   ],
   alternates: { canonical: "/accessories" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   openGraph: {
     type: "website",
     locale: "zh_TW",
     url: "/accessories",
     siteName: SEO_CONFIG.siteName,
-    title: "昔馬 SMASMALL 全系列｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
+    title: "昔馬 SMASMALL 產品列表｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
     description:
-      "昔馬 SMASMALL 全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
+      "昔馬 SMASMALL 產品列表：全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
     images: [
       {
         url: ogImageUrl("/images/og-2.jpg"),
         width: 1200,
         height: 630,
-        alt: "SMASMALL 昔馬配件專區",
+        alt: "SMASMALL 昔馬產品列表",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "昔馬 SMASMALL 全系列｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
+    title: "昔馬 SMASMALL 產品列表｜鋅合金電動刮鬍刀・鼻毛修剪器 - 威柏",
     description:
-      "昔馬 SMASMALL 全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
+      "昔馬 SMASMALL 產品列表：全機鋅合金電動刮鬍刀，IPX7 防水、乾濕雙剃，多款禮盒附質感包裝。立即選購，享原廠 12 個月保固。",
     images: [absoluteUrl(SITE_URL, ogImageUrl("/images/og-2.jpg"))],
   },
 };

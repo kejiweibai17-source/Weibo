@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
-import { entityIds, getSiteUrl } from "@/lib/seo/config";
-import { buildBreadcrumbList } from "@/lib/seo/schemas";
+import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
+import { buildSeriesPageSchemas } from "@/lib/seo/schemas";
 import type { SeriesPage } from "@/lib/seriesProducts.types";
 import SeriesPageClient from "@/app/series/[slug]/client";
 
@@ -23,12 +23,28 @@ export function buildSeriesMetadata(page: SeriesPage): Metadata {
     metadataBase: new URL(SITE_URL),
     title: page.seoTitle,
     description: page.seoDescription,
+    keywords: [
+      "昔馬",
+      "SMASMALL",
+      page.title,
+      "系列商品",
+      "電動刮鬍刀",
+      "鋅合金",
+      "威柏科技",
+      "台灣總代理",
+      "嘉義",
+    ],
     alternates: { canonical },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true },
+    },
     openGraph: {
       type: "website",
       locale: "zh_TW",
       url: `${SITE_URL}${canonical}`,
-      siteName: "SMASMALL 昔馬 by 威柏科技",
+      siteName: SEO_CONFIG.siteName,
       title: page.seoTitle,
       description: page.seoDescription,
       ...(ogImage
@@ -45,44 +61,13 @@ export function buildSeriesMetadata(page: SeriesPage): Metadata {
 }
 
 export function SeriesPageView({ page }: { page: SeriesPage }) {
-  const ids = entityIds(SITE_URL);
-  const canonical = getSeriesCanonicalPath(page.slug);
-
-  const breadcrumb = buildBreadcrumbList(SITE_URL, [
-    { name: "首頁", path: "/" },
-    { name: "系列商品", path: canonical },
-    { name: page.title, path: canonical },
-  ]);
-
-  const productSchema = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "@id": `${SITE_URL}${canonical}#product`,
-    name: page.title,
-    description: page.seoDescription,
-    brand: { "@id": ids.brand },
-    ...(page.ogImage
-      ? {
-          image: page.ogImage.startsWith("http")
-            ? page.ogImage
-            : `${SITE_URL}${page.ogImage}`,
-        }
-      : {}),
-    ...(page.wcProductId
-      ? {
-          offers: {
-            "@type": "Offer",
-            url: `${SITE_URL}/accessories/${page.wcProductId}`,
-            availability: "https://schema.org/InStock",
-          },
-        }
-      : {}),
-  };
+  const schemas = buildSeriesPageSchemas(page, SITE_URL);
 
   return (
     <>
-      <JsonLd data={breadcrumb} />
-      <JsonLd data={productSchema} />
+      {schemas.map((schema, index) => (
+        <JsonLd key={index} data={schema} />
+      ))}
       <SeriesPageClient page={page} />
     </>
   );

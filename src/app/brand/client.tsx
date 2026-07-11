@@ -32,50 +32,63 @@ function formatStatValue(value: number, decimals: number) {
   return decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
 }
 
-function BrandRevealImage() {
+function BrandRevealImage({
+  src = BRAND_HERO_IMAGE,
+  alt = "昔馬 SMASMALL 全合金電動刮鬍刀 品牌形象 威柏科技台灣總代理",
+  origin = "left",
+  tall = false,
+}: {
+  src?: string;
+  alt?: string;
+  origin?: "left" | "right";
+  tall?: boolean;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
-      if (!wrapRef.current || !innerRef.current) return;
+      if (!wrapRef.current || !revealRef.current) return;
 
-      gsap.set(wrapRef.current, { width: "0%" });
-      gsap.set(innerRef.current, {
-        scale: 1.18,
-        transformOrigin: "left center",
-      });
+      // 容器尺寸固定，只做 clip-path 展開，避免擠動左側文字
+      const fromClip =
+        origin === "right"
+          ? "inset(0 0% 0 100%)" // 從右往左展開
+          : "inset(0 100% 0 0%)"; // 從左往右展開
+      const toClip = "inset(0 0% 0 0%)";
 
-      const tl = gsap.timeline({
+      gsap.set(revealRef.current, { clipPath: fromClip });
+
+      gsap.to(revealRef.current, {
+        clipPath: toClip,
+        duration: 1.35,
+        ease: "power3.inOut",
         scrollTrigger: {
           trigger: wrapRef.current,
           start: "top 82%",
           once: true,
         },
       });
-
-      tl.to(
-        wrapRef.current,
-        { width: "100%", duration: 1.35, ease: "power3.inOut" },
-        0,
-      ).to(
-        innerRef.current,
-        { scale: 1, duration: 1.35, ease: "power3.out" },
-        0,
-      );
     },
-    { scope: wrapRef },
+    { scope: wrapRef, dependencies: [origin, src] },
   );
 
   return (
     <div
       ref={wrapRef}
-      className="lg:col-span-7 relative h-[400px] md:h-[500px] max-w-full overflow-hidden rounded-lg shadow-sm"
+      className={`relative max-w-full overflow-hidden rounded-lg shadow-sm ${
+        tall
+          ? "w-full max-w-[420px] md:max-w-[480px] aspect-[3/4]"
+          : "lg:col-span-7 w-full h-[400px] md:h-[500px]"
+      } ${origin === "right" ? "ml-auto" : ""}`}
     >
-      <div ref={innerRef} className="absolute inset-0 h-full w-full">
+      <div
+        ref={revealRef}
+        className="absolute inset-0 h-full w-full will-change-[clip-path]"
+      >
         <Image
-          src={BRAND_HERO_IMAGE}
-          alt="昔馬 SMASMALL 全合金電動刮鬍刀 品牌形象 威柏科技台灣總代理"
+          src={src}
+          alt={alt}
           fill
           sizes="(min-width: 1024px) 60vw, 100vw"
           quality={100}
@@ -221,6 +234,59 @@ export default function SmasmallCollections() {
     <div className="w-full bg-[#f8f9fb] text-slate-900 font-sans selection:bg-blue-200 antialiased">
       <WaabiScrollIntro />
 
+      {/* ===== 我們堅持做好這三件事 ===== */}
+      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto">
+        <Copy>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 tracking-tight">
+            我們堅持做好這三件事
+          </h2>
+        </Copy>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {[
+            {
+              en: "Quality",
+              label: "品質",
+              desc: "從材料、配方到製程，每一個細節都朝著用心把關。",
+              img: "/images/2.0刀頭/去背.webp",
+            },
+            {
+              en: "Design",
+              label: "設計",
+              desc: "以積極的美學結合實用機能，打造符合現代生活的產品。",
+              img: "/images/3.0刀頭/1.webp",
+            },
+            {
+              en: "Experience",
+              label: "體驗",
+              desc: "讓每一次使用感受，讓日常護理成為生活中的美好儀式。",
+              img: "/images/a547d145-6bc1-4dd4-9653-81ee1945b2b8.png",
+            },
+          ].map((item) => (
+            <div
+              key={item.en}
+              className="relative h-[320px] md:h-[400px] rounded-sm overflow-hidden bg-black flex flex-col justify-end p-8 md:p-10 group cursor-pointer shadow-md"
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105"
+                style={{ backgroundImage: `url('${item.img}')` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="relative z-10 text-white">
+                <p className="text-[11px] font-medium tracking-[0.22em] uppercase text-white/60 mb-2">
+                  {item.en}
+                </p>
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">
+                  {item.label}
+                </h3>
+                <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
         {/* 頂部橫向大標題 */}
         <div className="max-w-4xl mb-16">
@@ -255,6 +321,34 @@ export default function SmasmallCollections() {
             </Copy>
 
             <BrandCoreStats />
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 品牌承諾 ===== */}
+      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-white">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 order-2 lg:order-1">
+            <Copy>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5 tracking-tight">
+                威柏科技有限公司
+              </h2>
+            </Copy>
+            <Copy>
+              <p className="text-stone-900 text-[15px] md:text-[16px] leading-relaxed">
+                威柏科技有限公司為昔馬 SMASMALL
+                台灣唯一官方授權總代理，負責原廠正品引進、通路管理與售後保固。透過線上商城與授權通路，提供產品諮詢、保固登錄與維修協助，讓用戶享有完整的購買與使用支援。
+              </p>
+            </Copy>
+          </div>
+
+          <div className="lg:col-span-7 order-1 lg:order-2 flex lg:justify-end">
+            <BrandRevealImage
+              src="/images/专利.jpg"
+              alt="昔馬 SMASMALL 品牌承諾"
+              origin="right"
+              tall
+            />
           </div>
         </div>
       </section>
@@ -307,14 +401,14 @@ export default function SmasmallCollections() {
               <Copy>
                 {" "}
                 <h4 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5">
-                  威柏科技有限公司
+                  品牌承諾
                 </h4>
               </Copy>
               <Copy>
                 {" "}
                 <p className="text-stone-900 text-[16px] leading-relaxed">
-                  威柏科技有限公司為昔馬 SMASMALL
-                  台灣唯一官方授權總代理，負責原廠正品引進、通路管理與售後保固。透過線上商城與授權通路，提供產品諮詢、保固登錄與維修協助，讓用戶享有完整的購買與使用支援。
+                  每一件產品，都承載著我們對品質的堅持。 <br></br>
+                  每一次使用，都源於我們對生活細節的重視。 因為我們相信，
                 </p>
               </Copy>
             </div>
@@ -326,65 +420,6 @@ export default function SmasmallCollections() {
         </div>
       </section>
 
-      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto">
-        <Copy>
-          {" "}
-          <h2 className="text-3xl font-bold text-gray-900 mb-12 tracking-tight">
-            使命與願景
-          </h2>
-        </Copy>
-
-        {/* 雙欄等寬卡片排版 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* 左卡片：Mission */}
-          <div className="relative h-[320px] md:h-[400px] rounded-sm overflow-hidden bg-black flex flex-col justify-end p-8 md:p-12 group cursor-pointer shadow-md">
-            <div className="absolute inset-0 bg-[url('/images/6c947c27-80f9-459d-ba4c-ef306388ac47.png')] bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-            <div className="relative z-10 text-white">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">使命</h3>
-              <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
-                以全合金工藝與精密刀頭技術，讓每位男士都能享有順暢、舒適且值得信賴的刮鬍體驗。
-              </p>
-            </div>
-          </div>
-
-          {/* 右卡片：Vision */}
-          <div className="relative h-[320px] md:h-[400px] rounded-sm overflow-hidden bg-black flex flex-col justify-end p-8 md:p-12 group cursor-pointer shadow-md">
-            <div className="absolute inset-0 bg-[url('/images/5654d56c-22e5-40d5-814e-d76b00de6c2f.png')] bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-            <div className="relative z-10 text-white">
-              <h3 className="text-2xl md:text-3xl font-bold mb-3">願景</h3>
-              <p className="text-gray-300 text-sm md:text-base font-light leading-relaxed max-w-sm">
-                成為亞洲男士首選的全合金電動刮鬍刀品牌，讓高質感理容走進日常，也走進每一次出門前的自信時刻。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="flex justify-center items-center pb-20">
-        <div className="max-w-4xl border-t mx-auto border-gray-100 pt-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">技術創新</h3>
-          <p className="text-stone-900 text-[16px] md:text-base leading-relaxed mb-8">
-            昔馬電動刮鬍刀結合全合金壓鑄機身、磁吸快拆刀頭、浮動刀網與 IPX7
-            防水，並支援 Type-C
-            快充。從刀頭材質到機身結構，每項設計都為更順手的刮鬍、清潔與攜帶而優化。
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            {["全合金機身", "磁吸刀頭", "IPX7 防水", "Type-C 快充"].map(
-              (tag, tIdx) => (
-                <span
-                  key={tIdx}
-                  className="bg-[#f5f5f7] border border-gray-200 text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-sm"
-                >
-                  {tag}
-                </span>
-              ),
-            )}
-          </div>
-        </div>
-      </div>
       {/* <section className="w-full py-24 px-6 lg:px-16 max-w-[1400px] mx-auto">
         {PRODUCT_CATEGORIES.map((category, catIdx) => (
           <div key={catIdx} className="mb-24 last:mb-0">

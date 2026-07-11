@@ -106,7 +106,8 @@ export default function HomeHero({ pageContentRef }) {
     const onImgLoad = () => scheduleRefresh();
     const images = pageContentRef.current.querySelectorAll("img");
     images.forEach((img) => {
-      if (!img.complete) img.addEventListener("load", onImgLoad, { once: true });
+      if (!img.complete)
+        img.addEventListener("load", onImgLoad, { once: true });
     });
 
     return () => {
@@ -148,11 +149,10 @@ export default function HomeHero({ pageContentRef }) {
             />
           </h1>
 
-          <p className="hero-sub mt-6 text-xl md:text-3xl text-gray-200 font-extralight opacity-0 drop-shadow-md">
-            昔馬電動刮鬍刀系列
-            <br className="md:hidden" />
-            威柏科技代理
-          </p>
+          <div className="flex  flex-col justify-start ">
+            <b className="text-white text-[35px]"> 秒懂男仕的禮物</b>
+            <b className="text-white text-[16px]">星座系列　重磅上市</b>
+          </div>
         </div>
       </section>
     </>

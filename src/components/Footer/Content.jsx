@@ -88,18 +88,18 @@ const Section2 = () => {
             </ul>
           </div>
 
-          {/* 第二欄：創新與工藝 */}
+          {/* 第二欄：商品導覽（Sitelinks 候選） */}
           <div className="lg:col-span-1">
             <h4 className="text-[13px] font-medium text-gray-400 mb-6 tracking-wide">
-              Innovation & Craft
+              Shop
             </h4>
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/accessories"
+                  href="/series"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  全合金機身工藝
+                  系列商品
                 </Link>
               </li>
               <li>
@@ -107,23 +107,23 @@ const Section2 = () => {
                   href="/accessories"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  磁吸式刀頭技術
+                  產品列表
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/accessories"
+                  href="/brand"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  德國進口精鋼刀片
+                  品牌介紹
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/accessories"
+                  href="/support"
                   className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  IPX7 級防水設計
+                  客戶支援中心
                 </Link>
               </li>
             </ul>

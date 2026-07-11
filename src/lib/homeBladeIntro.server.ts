@@ -14,7 +14,7 @@ function normalizeItems(raw: unknown): HomeBladeIntroItem[] {
   if (!Array.isArray(raw)) return [];
 
   return raw
-    .map((item) => {
+    .map((item): HomeBladeIntroItem | null => {
       if (!item || typeof item !== "object") return null;
       const row = item as Record<string, unknown>;
       const title = typeof row.title === "string" ? row.title.trim() : "";
@@ -23,12 +23,20 @@ function normalizeItems(raw: unknown): HomeBladeIntroItem[] {
         typeof row.id === "string" && row.id.trim()
           ? row.id.trim()
           : `blade-${title}`;
-      return {
+      const images = Array.isArray(row.images)
+        ? row.images.filter(
+            (img): img is string =>
+              typeof img === "string" && img.trim().length > 0,
+          )
+        : [];
+      const normalized: HomeBladeIntroItem = {
         id,
         label: typeof row.label === "string" ? row.label : "",
         title,
         description: typeof row.description === "string" ? row.description : "",
-      } satisfies HomeBladeIntroItem;
+      };
+      if (images.length > 0) normalized.images = images;
+      return normalized;
     })
     .filter((item): item is HomeBladeIntroItem => item !== null);
 }
@@ -70,6 +78,23 @@ function withFallbackAssets(section: HomeBladeIntroSection): HomeBladeIntroSecti
       ...section.intro,
       backgroundImage:
         section.intro.backgroundImage || HOME_BLADE_INTRO_FALLBACK.intro.backgroundImage,
+    },
+    accordion: {
+      ...section.accordion,
+      items: section.accordion.items.map((item) => {
+        const fallback = HOME_BLADE_INTRO_FALLBACK.accordion.items.find(
+          (f) => f.id === item.id,
+        );
+        return {
+          ...item,
+          images:
+            item.images?.length
+              ? item.images
+              : fallback?.images?.length
+                ? fallback.images
+                : item.images,
+        };
+      }),
     },
   };
 }
