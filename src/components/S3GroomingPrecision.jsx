@@ -20,7 +20,7 @@ const HOTSPOTS = [
     top: "34%",
     left: "52%",
     bgScale: 2.4,
-    image: "/images/主頁p11/爆炸圖1.png",
+    image: "/images/主頁p11/爆炸圖1.webp",
   },
   {
     id: "battery",
@@ -29,7 +29,7 @@ const HOTSPOTS = [
     top: "62%",
     left: "48%",
     bgScale: 2.2,
-    image: "/images/主頁p11/鋰電池.png",
+    image: "/images/主頁p11/鋰電池.webp",
   },
   {
     id: "switch",
@@ -38,7 +38,7 @@ const HOTSPOTS = [
     top: "48%",
     left: "50%",
     bgScale: 2.6,
-    image: "/images/主頁p11/星座按鍵展示.png",
+    image: "/images/主頁p11/星座按鍵展示.webp",
   },
   {
     id: "motor",
@@ -47,7 +47,7 @@ const HOTSPOTS = [
     top: "42%",
     left: "51%",
     bgScale: 2.3,
-    image: "/images/主頁p11/強勁電機1.png",
+    image: "/images/主頁p11/強勁電機1.webp",
   },
   {
     id: "blade",
@@ -56,7 +56,7 @@ const HOTSPOTS = [
     top: "28%",
     left: "53%",
     bgScale: 2.5,
-    image: "/images/主頁p11/爆炸圖_cryptomatte 1_2.png",
+    image: "/images/主頁p11/爆炸圖_cryptomatte 1_2.webp",
   },
 ];
 
@@ -66,7 +66,7 @@ export default function S3GroomingPrecision({ section }) {
   if (!section) return null;
 
   const backgroundSrc =
-    resolveImageSrc(section.backgroundImage) || "/images/s3-detail-bg.png";
+    resolveImageSrc(section.backgroundImage) || "/images/s3-detail-bg.webp";
   const primarySpec = section.specs?.[0];
   const gridSpecs = section.specs?.slice(1) ?? [];
   const active = HOTSPOTS.find((h) => h.id === activeId) ?? null;
