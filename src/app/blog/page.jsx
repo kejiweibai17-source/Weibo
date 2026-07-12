@@ -2,10 +2,7 @@
 import BlogListPageView from "@/components/blog/list/BlogListPageView";
 import { mapWordPressPostsToBlogPage } from "@/lib/wordpress/mapBlogPosts";
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 
 const SITE_URL = getSiteUrl();
 
@@ -15,7 +12,7 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: "理容知識與男士修容指南｜SMASMALL 昔馬電動刮鬍刀",
   description:
-    "探索昔馬 SMASMALL 電動刮鬍刀理容知識專欄，包含乾剃濕剃比較、刀頭清潔教學、送禮指南與男士修容技巧。由威柏科技台灣總代理提供。",
+    "昔馬 SMASMALL 電動刮鬍刀理容知識專欄，包含乾剃濕剃比較、刀頭清潔教學、送禮指南與男士修容技巧。由威柏科技台灣總代理提供。",
   keywords: [
     "電動刮鬍刀",
     "男士理容",
@@ -31,7 +28,8 @@ export const metadata = {
   },
   openGraph: {
     title: "理容知識與男士修容指南｜SMASMALL 昔馬",
-    description: "探索昔馬 SMASMALL 電動刮鬍刀理容知識，乾剃濕剃比較、刀頭清潔教學與送禮指南。",
+    description:
+      "昔馬 SMASMALL 電動刮鬍刀理容知識，乾剃濕剃比較、刀頭清潔教學與送禮指南。",
     url: `${SITE_URL}/blog`,
     siteName: SEO_CONFIG.siteName,
     images: [
@@ -48,7 +46,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "理容知識與男士修容指南｜SMASMALL 昔馬",
-    description: "探索昔馬 SMASMALL 電動刮鬍刀理容知識與男士修容技巧。",
+    description: "昔馬 SMASMALL 電動刮鬍刀理容知識與男士修容技巧。",
     images: [`${SITE_URL}${SEO_CONFIG.defaultOgImage}`],
   },
 };
@@ -99,7 +97,8 @@ export default async function BlogPage() {
     "@type": "Blog",
     "@id": `${SITE_URL}/blog/#blog`,
     name: "SMASMALL 昔馬理容知識專欄",
-    description: "探索昔馬 SMASMALL 電動刮鬍刀理容知識，乾剃濕剃比較、刀頭清潔教學與送禮指南。",
+    description:
+      "昔馬 SMASMALL 電動刮鬍刀理容知識，乾剃濕剃比較、刀頭清潔教學與送禮指南。",
     url: `${SITE_URL}/blog`,
     inLanguage: "zh-TW",
     publisher: {

@@ -28,6 +28,21 @@ const CORE_STATS = [
   { end: 12, suffix: " 個月", decimals: 0, label: "台灣總代理原廠保固" },
 ];
 
+const BRAND_STRENGTH_STATS = [
+  { end: 10, suffix: "+", decimals: 0, label: "專利與智慧財產權" },
+  { end: 1, suffix: "", decimals: 0, label: "發明專利" },
+  { end: 5, suffix: "", decimals: 0, label: "實用新型專利" },
+  { end: 4, suffix: "", decimals: 0, label: "外觀設計專利" },
+];
+
+type BrandStat = {
+  end?: number;
+  suffix?: string;
+  decimals?: number;
+  display?: string;
+  label: string;
+};
+
 function formatStatValue(value: number, decimals: number) {
   return decimals > 0 ? value.toFixed(decimals) : String(Math.round(value));
 }
@@ -104,7 +119,7 @@ function AnimatedStatValue({
   stat,
   index,
 }: {
-  stat: (typeof CORE_STATS)[number];
+  stat: BrandStat;
   index: number;
 }) {
   const valueRef = useRef<HTMLDivElement>(null);
@@ -173,6 +188,21 @@ function BrandCoreStats() {
     <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-gray-200 pt-8">
       {CORE_STATS.map((stat, idx) => (
         <div key={stat.label} className={idx === 4 ? "col-span-2" : ""}>
+          <AnimatedStatValue stat={stat} index={idx} />
+          <div className="text-xs md:text-sm text-gray-500 font-medium">
+            {stat.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BrandStrengthStats() {
+  return (
+    <div className="grid grid-cols-2 gap-x-8 gap-y-10 border-t border-gray-200 pt-8 mt-2">
+      {BRAND_STRENGTH_STATS.map((stat, idx) => (
+        <div key={stat.label}>
           <AnimatedStatValue stat={stat} index={idx} />
           <div className="text-xs md:text-sm text-gray-500 font-medium">
             {stat.label}
@@ -325,27 +355,32 @@ export default function SmasmallCollections() {
         </div>
       </section>
 
-      {/* ===== 品牌承諾 ===== */}
-      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-white">
+      {/* ===== 品牌實力（專利） ===== */}
+      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 order-2 lg:order-1">
             <Copy>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-5 tracking-tight">
-                威柏科技有限公司
+                品牌實力
               </h2>
             </Copy>
             <Copy>
-              <p className="text-stone-900 text-[15px] md:text-[16px] leading-relaxed">
-                威柏科技有限公司為昔馬 SMASMALL
-                台灣唯一官方授權總代理，負責原廠正品引進、通路管理與售後保固。透過線上商城與授權通路，提供產品諮詢、保固登錄與維修協助，讓用戶享有完整的購買與使用支援。
+              <p className="text-stone-500 text-[13px] md:text-[14px] leading-relaxed mb-2">
+                持續投入產品研發與技術創新，以專利技術與設計實力，打造兼具品質、機能與美學的個人護理產品。
               </p>
             </Copy>
+            <BrandStrengthStats />
+            <img
+              src="/images/奖项.png"
+              className="w-full mt-10"
+              alt="昔馬 SMASMALL 品牌獎項與專利肯定"
+            />
           </div>
 
           <div className="lg:col-span-7 order-1 lg:order-2 flex lg:justify-end">
             <BrandRevealImage
               src="/images/专利.jpg"
-              alt="昔馬 SMASMALL 品牌承諾"
+              alt="昔馬 SMASMALL 專利與智慧財產權"
               origin="right"
               tall
             />
@@ -378,7 +413,7 @@ export default function SmasmallCollections() {
               href="/brand"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900 hover:underline"
             >
-              <span>探索昔馬全系列產品</span>
+              <span>昔馬全系列產品</span>
               <ArrowRight size={14} />
             </a>
             {/* 品牌巨幅卡片 */}
@@ -410,6 +445,9 @@ export default function SmasmallCollections() {
                   每一件產品，都承載著我們對品質的堅持。 <br></br>
                   每一次使用，都源於我們對生活細節的重視。 因為我們相信，
                 </p>
+                <h3 className="text-2xl font-bold">
+                  Do small things to smart things.<br></br> 小事精做，智見未來。
+                </h3>
               </Copy>
             </div>
             {/* 右側：宏偉的代理商現代化總部/工藝基地大樓 */}

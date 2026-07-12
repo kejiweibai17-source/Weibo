@@ -60,3 +60,11 @@ export function normalizeRouteSlug(slug: string): string {
 export function accessoryDetailPath(slug: string): string {
   return `/accessories/${encodeURIComponent(normalizeRouteSlug(slug))}`;
 }
+
+/**
+ * Fetch / revalidateTag 用的 ASCII-safe cache tag。
+ * 中文 slug 不可直接寫入 tag：Next.js 會放進 HTTP header，非 ASCII 會導致 500。
+ */
+export function productFetchCacheTag(slug: string): string {
+  return `product-${encodeURIComponent(normalizeRouteSlug(slug))}`;
+}

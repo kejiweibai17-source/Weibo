@@ -239,7 +239,7 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
     url: collectionUrl,
     name: "昔馬 SMASMALL 產品列表｜鋅合金電動刮鬍刀・鼻毛修剪器",
     description:
-      "探索昔馬 SMASMALL 全系列電動刮鬍刀禮盒、替換刀頭、收納配件與理容周邊。台灣總代理威柏科技（嘉義縣太保市）原廠授權，享 12 個月保固。",
+      "昔馬 SMASMALL 全系列電動刮鬍刀禮盒、替換刀頭、收納配件與理容周邊。台灣總代理威柏科技（嘉義縣太保市）原廠授權，享 12 個月保固。",
     inLanguage: SEO_CONFIG.inLanguage,
     isPartOf: { "@id": ids.website },
     about: [{ "@id": ids.brand }, { "@id": ids.localBusiness }],
@@ -341,7 +341,7 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   if (!item) return [buildCoreEntityGraph(siteUrl)];
 
   const ids = entityIds(siteUrl);
-  const pageUrl = `${siteUrl}/accessories/${item.id}`;
+  const pageUrl = `${siteUrl}/accessories/${encodeURIComponent(item.id)}`;
   const core = buildCoreEntityGraph(siteUrl);
 
   const images = resolveSeriesImages(
@@ -417,11 +417,13 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
     },
   };
 
-  if (detail.rating) {
+  // 僅在有真實評價數時輸出，Google 才可能顯示搜尋結果星等
+  const reviewCount = Number(detail.reviews);
+  if (detail.rating != null && Number(detail.rating) > 0 && reviewCount > 0) {
     productNode.aggregateRating = {
       "@type": "AggregateRating",
       ratingValue: String(detail.rating),
-      reviewCount: String(detail.reviews ?? 1),
+      reviewCount: String(reviewCount),
       bestRating: "5",
       worstRating: "1",
     };

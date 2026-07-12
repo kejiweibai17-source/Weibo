@@ -2,10 +2,7 @@ import { Metadata } from "next";
 import Client from "./client";
 import JsonLd from "@/components/seo/JsonLd";
 import { entityIds, getSiteUrl, ogImageUrl } from "@/lib/seo/config";
-import {
-  buildBreadcrumbList,
-  buildCoreEntityGraph,
-} from "@/lib/seo/schemas";
+import { buildBreadcrumbList, buildCoreEntityGraph } from "@/lib/seo/schemas";
 
 export const revalidate = 60;
 
@@ -74,7 +71,7 @@ export default function BrandPage() {
     "@type": "CollectionPage",
     "@id": `${SITE_URL}/brand/#webpage`,
     url: `${SITE_URL}/brand`,
-    name: "探索昔馬 SMASMALL 產品系列",
+    name: "昔馬 SMASMALL 產品系列",
     description:
       "深入了解昔馬 SMASMALL S1 經典合金系列與專屬理容配件。由台灣總代理威柏科技原廠授權。",
     isPartOf: { "@id": ids.website },
@@ -87,7 +84,7 @@ export default function BrandPage() {
     schemaWebPage,
     buildBreadcrumbList(SITE_URL, [
       { name: "首頁", path: "/" },
-      { name: "探索昔馬系列", path: "/brand" },
+      { name: "昔馬系列", path: "/brand" },
     ]),
   ];
 

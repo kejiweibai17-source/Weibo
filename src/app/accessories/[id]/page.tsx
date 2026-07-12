@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import JsonLd from "@/components/seo/JsonLd";
-import {
-  buildAccessoryCatalog,
-} from "@/data/accessories.server";
+import { buildAccessoryCatalog } from "@/data/accessories.server";
 import {
   fetchAccessoryDetailBySlug,
   fetchAccessoriesFromWoo,
@@ -15,7 +13,12 @@ import AccessoryDetailClient from "./AccessoryDetailClient";
 
 const SITE_URL = getSiteUrl();
 
-export const revalidate = 3600;
+/**
+ * 中文 slug 不可走 ISR：Next.js 會把路徑寫進 x-next-cache-tags，
+ * 非 ASCII 字元會觸發 ERR_INVALID_CHAR → 正式環境 500。
+ * @see https://github.com/vercel/next.js/issues/93142
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   try {
@@ -41,12 +44,11 @@ export async function generateMetadata({
     return { title: "商品不存在" };
   }
 
-  const title =
-    detail.seoTitle?.trim() || `${detail.title}｜昔馬 SMASMALL`;
+  const title = detail.seoTitle?.trim() || `${detail.title}｜昔馬 SMASMALL`;
   const description =
     detail.seoDescription?.trim() ||
     detail.shortDesc ||
-    `探索昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
+    `昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
   const ogImage = detail.images?.[0] ?? SEO_CONFIG.defaultOgImage;
   const pageUrl = accessoryDetailPath(id);
   const keywords = [

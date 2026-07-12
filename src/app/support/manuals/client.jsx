@@ -10,7 +10,6 @@ import {
   MANUAL_DOWNLOADS,
 } from "@/data/supportContent";
 import { POLICY_NAV_LINKS } from "@/data/policyContent";
-import BladeRemovalParallax from "@/components/BladeRemovalParallax";
 
 const ICONS = {
   droplets: () => (
@@ -86,9 +85,10 @@ const ICONS = {
 };
 
 const SECTION_IMG = {
-  "blade-care": "/images/index/banner-03.png",
-  waterproof: "/images/index/banner-04.png",
-  storage: "/images/index/banner-05.png",
+  "daily-clean": "/images/使用與保養指南/1打開.gif",
+  "blade-care": "/images/使用與保養指南/4刷刀頭.gif",
+  waterproof: "/images/使用與保養指南/2水沖洗.gif",
+  storage: "/images/使用與保養指南/3布擦主機.gif",
 };
 
 export default function ManualsClient() {
@@ -180,20 +180,15 @@ export default function ManualsClient() {
           <div className="space-y-20">
             {CARE_GUIDE_SECTIONS.map((section, idx) => {
               const isEven = idx % 2 === 0;
-              const isDailyClean = section.id === "daily-clean";
+              const imgSrc = SECTION_IMG[section.id];
+              const isGif = imgSrc?.endsWith(".gif");
 
               const stepContent = (
                 <div className="flex-1 lg:sticky lg:top-28 lg:self-start">
                   <h3 className="text-[1.15rem] md:text-[1.35rem] font-black text-[#0d2233] tracking-tight mb-4">
-                    <span className="text-[#00B4D8]">──</span>
-                    {" "}
                     <span className="font-mono tracking-[0.12em] uppercase text-[#00B4D8]">
                       STEP {String(idx + 1).padStart(2, "0")}
                     </span>
-                    <span className="mx-2 text-[#0d2233]/35">　</span>
-                    {section.title}
-                    {" "}
-                    <span className="text-[#00B4D8]">──</span>
                   </h3>
                   <p className="text-[15px] text-[#4a7c99] leading-relaxed mb-6 font-medium">
                     {section.summary}
@@ -214,30 +209,6 @@ export default function ManualsClient() {
                 </div>
               );
 
-              if (isDailyClean) {
-                return (
-                  <motion.div
-                    key={section.id}
-                    id={`section-${section.id}`}
-                    className="scroll-mt-28 flex flex-col lg:flex-row gap-10 lg:gap-16 lg:items-center"
-                    initial={{ opacity: 0, y: 28 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <div className="w-full lg:w-[45%] shrink-0 relative">
-                      <BladeRemovalParallax />
-                      <div className="pointer-events-none absolute bottom-4 left-4 z-20 sm:bottom-6 sm:left-6">
-                        <span className="text-[#0d2233]/45 text-[12px] font-semibold tracking-widest">
-                          0{idx + 1} / {CARE_GUIDE_SECTIONS.length}
-                        </span>
-                      </div>
-                    </div>
-                    {stepContent}
-                  </motion.div>
-                );
-              }
-
               return (
                 <motion.div
                   key={section.id}
@@ -249,13 +220,14 @@ export default function ManualsClient() {
                   transition={{ duration: 0.6 }}
                   style={{ flexDirection: isEven ? "row" : "row-reverse" }}
                 >
-                  <div className="w-full lg:w-[45%] shrink-0 overflow-hidden aspect-[4/3] relative bg-[#edf5fb]">
+                  <div className="w-full lg:w-[45%] shrink-0 overflow-hidden aspect-square relative bg-[#edf5fb]">
                     <Image
-                      src={SECTION_IMG[section.id]}
+                      src={imgSrc}
                       alt={section.title}
                       fill
                       sizes="(max-width:1024px) 100vw, 600px"
                       className="object-cover object-center"
+                      unoptimized={isGif}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
                       <span className="text-white text-[13px] font-semibold tracking-widest opacity-80">
@@ -288,11 +260,7 @@ export default function ManualsClient() {
             transition={{ duration: 0.7 }}
           >
             <h2 className="text-[1.35rem] md:text-[1.75rem] lg:text-[2.1rem] font-black text-white leading-tight tracking-tight">
-              <span className="text-white/70">──</span>
-              {" "}
               堅持品質　延長使用壽命
-              {" "}
-              <span className="text-white/70">──</span>
             </h2>
             <p className="mt-5 text-[15px] text-gray-300 max-w-xl mx-auto leading-relaxed font-light">
               每一支昔馬刮鬍刀，都值得被細心對待。良好的保養，是對品質最好的回應。
@@ -308,10 +276,7 @@ export default function ManualsClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-[#00B4D8]">──</span>
-            {" "}
-            使用守則
-            {" "}
+            <span className="text-[#00B4D8]">──</span> 使用守則{" "}
             <span className="text-[#00B4D8]">──</span>
           </motion.h2>
 

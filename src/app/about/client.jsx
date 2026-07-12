@@ -179,7 +179,7 @@ export default function SmasmallStory() {
               href="/brand"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900 hover:underline"
             >
-              <span>探索昔馬全系列產品</span>
+              <span>昔馬全系列產品</span>
               <ArrowRight size={14} />
             </a>
             {/* 品牌巨幅卡片 */}

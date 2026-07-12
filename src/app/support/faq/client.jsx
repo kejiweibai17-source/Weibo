@@ -74,7 +74,7 @@ export default function FaqClient() {
               </ul>
               <p className="text-[12px] text-gray-400 leading-relaxed mb-6">
                 * 保固以購買憑證為準。刮鬍刀屬個人衛生用品，
-                <span className="font-semibold text-[#c0392b]">
+                <span className="font-semibold ">
                   若無瑕疵商品一旦拆封，即無法做退換貨服務
                 </span>
                 。

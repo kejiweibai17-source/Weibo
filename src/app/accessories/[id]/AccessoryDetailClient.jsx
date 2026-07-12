@@ -289,13 +289,16 @@ export default function AccessoryDetailClient({ productId }) {
               {product.title}
             </h1>
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex tracking-widest">
-                {renderStars(product.rating)}
+            {/* 視覺隱藏；保留給螢幕閱讀器／結構化資料對應內容 */}
+            <div className="sr-only">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex tracking-widest">
+                  {renderStars(product.rating)}
+                </div>
+                <span className="text-[13px] text-gray-500 font-medium pt-0.5">
+                  {product.reviews} reviews
+                </span>
               </div>
-              <span className="text-[13px] text-gray-500 font-medium pt-0.5">
-                {product.reviews} reviews
-              </span>
             </div>
 
             {product.price > 0 && (

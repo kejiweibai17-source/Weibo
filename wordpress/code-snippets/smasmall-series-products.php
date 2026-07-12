@@ -948,7 +948,7 @@ add_action('admin_init', function () {
     update_post_meta($post_id, SMASMALL_SERIES_META_ORDER, 0);
     update_post_meta($post_id, SMASMALL_SERIES_META_ENABLED, '1');
     update_post_meta($post_id, SMASMALL_SERIES_META_SEO_TITLE, '昔馬 SMASMALL 捍衛者+ 全合金電動刮鬍刀｜戰損塗裝、磁吸快拆');
-    update_post_meta($post_id, SMASMALL_SERIES_META_SEO_DESC, '探索昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與德國進口自銳刀片。');
+    update_post_meta($post_id, SMASMALL_SERIES_META_SEO_DESC, '昔馬 SMASMALL 捍衛者+ 全合金戰損刮鬍刀。獨創硬派戰損塗裝，搭載雙環開放式浮動圓刀頭與德國進口自銳刀片。');
     update_post_meta($post_id, SMASMALL_SERIES_META_BLOCKS, smasmall_series_sanitize_blocks([
         [
             'type'             => 'feature_slider',

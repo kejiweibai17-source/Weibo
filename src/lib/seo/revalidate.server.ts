@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { LEGACY_PRODUCT_SLUGS } from "@/lib/seriesProducts.legacy";
+import { productFetchCacheTag } from "@/lib/utils";
 
 export type RevalidateType = "product" | "series" | "blog" | "sitemap" | "all";
 
@@ -60,7 +61,7 @@ export function revalidateProductCache(slug = ""): RevalidateResult {
   const paths = ["/accessories", "/sitemap.xml"];
 
   if (slug) {
-    tags.push(`product-${slug}`);
+    tags.push(productFetchCacheTag(slug));
     paths.push(`/accessories/${pathSegment(slug)}`);
   }
 

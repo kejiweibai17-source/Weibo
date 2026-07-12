@@ -169,7 +169,7 @@ export default function HomeSima3D() {
             Interactive 3D
           </p>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            360° 探索昔馬產品
+            360° 昔馬產品
           </h2>
           <p className="mt-4 max-w-sm text-sm text-neutral-500">
             拖曳旋轉檢視 · 太空灰消光金屬機身 · 鏡面上蓋

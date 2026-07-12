@@ -1,5 +1,5 @@
 import "server-only";
-import { normalizeRouteSlug } from "@/lib/utils";
+import { normalizeRouteSlug, productFetchCacheTag } from "@/lib/utils";
 
 export type WooImage = { id: number; src: string; alt?: string };
 export type WooCategory = {
@@ -168,7 +168,7 @@ export async function fetchProductBySlug(slug: string) {
   const res = await fetch(url, {
     next: {
       revalidate: 60,
-      tags: ["products-all", `product-${normalizedSlug}`, "sitemap"],
+      tags: ["products-all", productFetchCacheTag(normalizedSlug), "sitemap"],
     },
   });
   if (!res.ok) return null;

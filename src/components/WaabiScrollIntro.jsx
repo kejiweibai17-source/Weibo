@@ -199,33 +199,39 @@ function MobileProductSection({ aboutText, aboutSubtext }) {
   );
 }
 
-function MobileHeroBanner({ heroImage, heroLabel, heroTitle, heroCopy, imageAlt }) {
+function MobileHeroBanner({
+  heroImage,
+  heroLabel,
+  heroTitle,
+  heroCopy,
+  imageAlt,
+}) {
   return (
     <section className="relative w-full overflow-hidden pt-[60px]">
-        <div className="relative w-full aspect-[4/5] max-h-[85svh] min-h-[420px]">
-          <Image
-            src={heroImage}
-            alt={imageAlt}
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-            {heroLabel && (
-              <p className="text-[0.7rem] font-medium tracking-[0.18em] uppercase opacity-75 mb-3">
-                {heroLabel}
-              </p>
-            )}
-            <h1 className="text-[1.9rem] font-light leading-snug tracking-[-0.04em] mb-4">
-              {heroTitle}
-            </h1>
-            <p className="text-[0.95rem] font-light leading-[1.6] tracking-[-0.01em] opacity-85 max-w-[90%]">
-              {heroCopy}
+      <div className="relative w-full aspect-[4/5] max-h-[85svh] min-h-[420px]">
+        <Image
+          src={heroImage}
+          alt={imageAlt}
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
+          {heroLabel && (
+            <p className="text-[0.7rem] font-medium tracking-[0.18em] uppercase opacity-75 mb-3">
+              {heroLabel}
             </p>
-          </div>
+          )}
+          <h1 className="text-[1.9rem] font-light leading-snug tracking-[-0.04em] mb-4">
+            {heroTitle}
+          </h1>
+          <p className="text-[0.95rem] font-light leading-[1.6] tracking-[-0.01em] opacity-85 max-w-[90%]">
+            {heroCopy}
+          </p>
         </div>
+      </div>
     </section>
   );
 }
@@ -273,19 +279,19 @@ function DesktopScrollIntro({
 
       mm.add("(max-width: 767px)", () =>
         buildAll(110, [
-          { ref: col1Ref, startY: 250, endY: -250, startX:   0 },
+          { ref: col1Ref, startY: 250, endY: -250, startX: 0 },
           { ref: col2Ref, startY: 125, endY: -125, startX: -40 },
-          { ref: col3Ref, startY: 125, endY: -125, startX:  40 },
-          { ref: col4Ref, startY: 250, endY: -250, startX:   0 },
+          { ref: col3Ref, startY: 125, endY: -125, startX: 40 },
+          { ref: col4Ref, startY: 250, endY: -250, startX: 0 },
         ]),
       );
 
       mm.add("(min-width: 768px)", () =>
         buildAll(160, [
-          { ref: col1Ref, startY: 500, endY: -500, startX:    0 },
+          { ref: col1Ref, startY: 500, endY: -500, startX: 0 },
           { ref: col2Ref, startY: 250, endY: -250, startX: -120 },
-          { ref: col3Ref, startY: 250, endY: -250, startX:  120 },
-          { ref: col4Ref, startY: 500, endY: -500, startX:    0 },
+          { ref: col3Ref, startY: 250, endY: -250, startX: 120 },
+          { ref: col4Ref, startY: 500, endY: -500, startX: 0 },
         ]),
       );
 
@@ -336,7 +342,6 @@ function DesktopScrollIntro({
             )}
           </div>
         </div>
-
       </section>
 
       <div className="h-[200vh]" aria-hidden="true" />
@@ -400,7 +405,7 @@ function DesktopScrollIntro({
 }
 
 export default function WaabiScrollIntro({
-  heroImage = "/images/953b6625-1fbc-4927-8b1c-bc709d4299e4.png",
+  heroImage = "/images/海报.jpg",
   heroLabel = "首篇 SMASMALL",
   heroTitle = "小事精做，智見未來。",
   heroCopy = 'SMASMALL 名字源自 "Do small things to smart things"，代表從每一件小事開始，以專注細節的態度，累積卓越品質，創造更美好的生活。',
