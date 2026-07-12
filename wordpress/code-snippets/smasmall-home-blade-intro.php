@@ -3,8 +3,9 @@
  * SMASMALL — 首頁刀頭介紹（Code Snippets）
  *
  * - 左側選單：首頁刀頭介紹
- * - 管理開場文案、背景圖、手風琴刀頭項目
+ * - 管理開場文案、背景圖、手風琴刀頭項目（每項可加多張輪播圖）
  * - 公開 REST：GET /wp-json/smasmall/v1/home-blade-intro
+ *   每個 item 含 images: string[]（輪播圖 URL）
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
  */
@@ -34,6 +35,7 @@ function smasmall_home_blade_intro_defaults(): array
                     'label'       => 'Constellation Series',
                     'title'       => '刀頭 2.0（星座系列）',
                     'description' => '標配雙環開放式 2.0 圓刀頭，採德國進口鋼材與日本精密加工，近 40 道成型工藝打造。外環開放式圓刀搭配獨立浮動刀網，貼合臉部輪廓、順滑捕捉各方向鬍鬚。磁吸式快拆設計，一秒拆卸可直接水洗，建議每 6–12 個月更換，維持最佳鋒利度。適用星座系列 CQ1 等磁吸式機身。',
+                    'images'      => [],
                     'enabled'     => true,
                     'order'       => 0,
                 ],
@@ -42,12 +44,37 @@ function smasmall_home_blade_intro_defaults(): array
                     'label'       => 'Dark Knight Series',
                     'title'       => '刀頭 3.0（黑夜系列）',
                     'description' => '雙環外開放式 3.0 版圓刀頭，外環採開放式結構，進鬚量再升級，刮剃效率更俐落。德國進口頂級鋼材，經 SGS 檢驗對金黃色葡萄球菌、大腸桿菌抗菌率高達 96%。同樣支援磁吸快拆與全機水洗，建議每 6–12 個月更換。為黑夜騎士等進階機型與升級替換首選。',
+                    'images'      => [],
                     'enabled'     => true,
                     'order'       => 1,
                 ],
             ],
         ],
     ];
+}
+
+function smasmall_home_blade_intro_sanitize_images($input): array
+{
+    if (!is_array($input)) {
+        if (is_string($input) && trim($input) !== '') {
+            $input = preg_split('/\r\n|\r|\n/', $input) ?: [];
+        } else {
+            return [];
+        }
+    }
+
+    $out = [];
+    foreach ($input as $url) {
+        if (!is_string($url)) {
+            continue;
+        }
+        $clean = esc_url_raw(trim($url));
+        if ($clean !== '') {
+            $out[] = $clean;
+        }
+    }
+
+    return array_values(array_unique($out));
 }
 
 function smasmall_home_blade_intro_get(): array
@@ -62,6 +89,17 @@ function smasmall_home_blade_intro_get(): array
     $accordion = array_merge($defaults['accordion'], is_array($saved['accordion'] ?? null) ? $saved['accordion'] : []);
     if (!is_array($accordion['items'] ?? null)) {
         $accordion['items'] = $defaults['accordion']['items'];
+    } else {
+        // 舊資料沒有 images 時補空陣列
+        $accordion['items'] = array_map(static function ($item) {
+            if (!is_array($item)) {
+                return $item;
+            }
+            if (!isset($item['images']) || !is_array($item['images'])) {
+                $item['images'] = [];
+            }
+            return $item;
+        }, $accordion['items']);
     }
 
     return [
@@ -84,7 +122,8 @@ function smasmall_home_blade_intro_sanitize_items($input): array
         }
         $title = sanitize_text_field($row['title'] ?? '');
         $description = sanitize_textarea_field($row['description'] ?? '');
-        if ($title === '' && $description === '') {
+        $images = smasmall_home_blade_intro_sanitize_images($row['images'] ?? []);
+        if ($title === '' && $description === '' && empty($images)) {
             continue;
         }
         $id = sanitize_key($row['id'] ?? '');
@@ -96,6 +135,7 @@ function smasmall_home_blade_intro_sanitize_items($input): array
             'label'       => sanitize_text_field($row['label'] ?? ''),
             'title'       => $title,
             'description' => $description,
+            'images'      => $images,
             'enabled'     => !empty($row['enabled']),
             'order'       => isset($row['order']) ? (int) $row['order'] : count($out),
         ];
@@ -156,12 +196,17 @@ function smasmall_home_blade_intro_format_for_api(array $data): ?array
         if ($title === '') {
             continue;
         }
-        $items[] = [
+        $images = smasmall_home_blade_intro_sanitize_images($item['images'] ?? []);
+        $row = [
             'id'          => sanitize_key($item['id'] ?? uniqid('blade_', true)),
             'label'       => sanitize_text_field($item['label'] ?? ''),
             'title'       => $title,
             'description' => sanitize_textarea_field($item['description'] ?? ''),
         ];
+        if (!empty($images)) {
+            $row['images'] = $images;
+        }
+        $items[] = $row;
     }
 
     if (empty($items)) {
@@ -226,6 +271,7 @@ function smasmall_home_blade_intro_render_item_row(array $item, $index): void
     $order = isset($item['order']) ? (int) $item['order'] : (is_numeric($index) ? (int) $index : 0);
     $id = $item['id'] ?? uniqid('blade_', true);
     $enabled = !isset($item['enabled']) || !empty($item['enabled']);
+    $images = is_array($item['images'] ?? null) ? $item['images'] : [];
     ?>
     <li class="shbi-item-card" data-index="<?php echo esc_attr($index_key); ?>">
         <span class="shbi-drag dashicons dashicons-move" title="拖曳排序"></span>
@@ -238,6 +284,29 @@ function smasmall_home_blade_intro_render_item_row(array $item, $index): void
                 <input type="text" class="large-text" name="blade_intro[accordion][items][<?php echo esc_attr($index_key); ?>][title]" value="<?php echo esc_attr($item['title'] ?? ''); ?>" /></p>
             <p><label>說明</label><br />
                 <textarea class="large-text" rows="4" name="blade_intro[accordion][items][<?php echo esc_attr($index_key); ?>][description]"><?php echo esc_textarea($item['description'] ?? ''); ?></textarea></p>
+
+            <div class="shbi-images-block">
+                <label>輪播圖（可多張，拖曳排序）</label>
+                <p class="description" style="margin:4px 0 8px;">前台手風琴展開後會以輪播顯示。建議正方形或直式產品圖。</p>
+                <ul class="shbi-images-list">
+                    <?php foreach ($images as $img_url) :
+                        if (!is_string($img_url) || trim($img_url) === '') {
+                            continue;
+                        }
+                        ?>
+                        <li class="shbi-image-item">
+                            <span class="shbi-image-drag dashicons dashicons-move" title="拖曳排序"></span>
+                            <img src="<?php echo esc_url($img_url); ?>" alt="" />
+                            <input type="hidden" name="blade_intro[accordion][items][<?php echo esc_attr($index_key); ?>][images][]" value="<?php echo esc_attr($img_url); ?>" />
+                            <button type="button" class="button-link-delete shbi-remove-image">移除</button>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <p>
+                    <button type="button" class="button shbi-add-images">+ 新增輪播圖</button>
+                </p>
+            </div>
+
             <p><button type="button" class="button-link-delete shbi-remove">移除此項目</button></p>
         </div>
         <label class="shbi-enabled">
@@ -263,7 +332,7 @@ function smasmall_home_blade_intro_render_page(): void
     ?>
     <div class="wrap shbi-admin">
         <h1>首頁刀頭介紹</h1>
-        <p class="description">管理官網首頁「全合金機身＋刀頭介紹手風琴」滾動區。儲存後約 1 分鐘內同步至前台。</p>
+        <p class="description">管理官網首頁「全合金機身＋刀頭介紹手風琴」滾動區。每個刀頭可上傳多張輪播圖。儲存後約 1 分鐘內同步至前台。</p>
 
         <?php if ($updated) : ?>
             <div class="notice notice-success is-dismissible"><p>已儲存設定。</p></div>
@@ -350,13 +419,14 @@ function smasmall_home_blade_intro_render_page(): void
             'label' => '',
             'title' => '',
             'description' => '',
+            'images' => [],
             'enabled' => true,
             'order' => 0,
         ], '__SHBI_INDEX__'); ?>
     </div>
 
     <style>
-        .shbi-admin { max-width: 920px; }
+        .shbi-admin { max-width: 960px; }
         .shbi-image-box .shbi-thumb img, .shbi-thumb-placeholder { max-width: 420px; width: 100%; border-radius: 8px; background: #f0f0f1; }
         .shbi-thumb-placeholder { min-height: 140px; display: flex; align-items: center; justify-content: center; }
         .shbi-toolbar { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
@@ -367,6 +437,15 @@ function smasmall_home_blade_intro_render_page(): void
         }
         .shbi-drag { cursor: grab; color: #787c82; margin-top: 8px; }
         .shbi-enabled { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 500; margin-top: 8px; }
+        .shbi-images-block { margin: 12px 0 8px; padding: 12px; background: #f6f7f7; border: 1px solid #e2e4e7; border-radius: 6px; }
+        .shbi-images-list { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; min-height: 8px; }
+        .shbi-image-item {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            width: 110px; padding: 8px; background: #fff; border: 1px solid #dcdcde; border-radius: 6px;
+        }
+        .shbi-image-item img { width: 90px; height: 90px; object-fit: cover; border-radius: 4px; background: #f0f0f1; }
+        .shbi-image-drag { cursor: grab; color: #787c82; font-size: 16px; width: 16px; height: 16px; }
+        .shbi-image-item .shbi-remove-image { font-size: 12px; }
     </style>
     <?php
 }
@@ -431,11 +510,43 @@ add_action('admin_footer', function () {
                 var $card = $(this);
                 $card.attr('data-index', index);
                 $card.find('[name^="blade_intro[accordion][items]["]').each(function () {
-                    this.name = this.name.replace(/blade_intro\[accordion\]\[items\]\[[^\]]+\]/, 'blade_intro[accordion][items][' + index + ']');
+                    this.name = this.name.replace(
+                        /blade_intro\[accordion\]\[items\]\[[^\]]+\]/,
+                        'blade_intro[accordion][items][' + index + ']'
+                    );
                 });
                 $card.find('.shbi-order').val(index);
             });
             $('#shbi-item-count').text($list.find('.shbi-item-card').length);
+        }
+
+        function makeImageItem(url, itemIndex) {
+            var $li = $('<li class="shbi-image-item"></li>');
+            $li.append('<span class="shbi-image-drag dashicons dashicons-move" title="拖曳排序"></span>');
+            $li.append($('<img>', { src: url, alt: '' }));
+            $li.append($('<input>', {
+                type: 'hidden',
+                name: 'blade_intro[accordion][items][' + itemIndex + '][images][]',
+                value: url
+            }));
+            $li.append($('<button>', {
+                type: 'button',
+                class: 'button-link-delete shbi-remove-image',
+                text: '移除'
+            }));
+            return $li;
+        }
+
+        function initImagesSortable($card) {
+            var $images = $card.find('.shbi-images-list');
+            if (!$images.length || !$.fn.sortable) return;
+            if ($images.hasClass('ui-sortable')) {
+                $images.sortable('destroy');
+            }
+            $images.sortable({
+                handle: '.shbi-image-drag',
+                update: reindexItems
+            });
         }
 
         function bindCard($card) {
@@ -444,6 +555,41 @@ add_action('admin_footer', function () {
                 $card.remove();
                 reindexItems();
             });
+
+            $card.find('.shbi-add-images').off('click.shbi').on('click.shbi', function (e) {
+                e.preventDefault();
+                if (typeof wp === 'undefined' || !wp.media) {
+                    alert('媒體庫尚未載入，請重新整理頁面後再試。');
+                    return;
+                }
+                var itemIndex = $card.attr('data-index') || '0';
+                var frame = wp.media({
+                    title: '新增刀頭輪播圖',
+                    button: { text: '加入輪播' },
+                    multiple: true,
+                    library: { type: 'image' }
+                });
+                frame.on('select', function () {
+                    var $imagesList = $card.find('.shbi-images-list');
+                    frame.state().get('selection').each(function (attachment) {
+                        var data = attachment.toJSON();
+                        var url = data.url || '';
+                        if (!url) return;
+                        $imagesList.append(makeImageItem(url, itemIndex));
+                    });
+                    reindexItems();
+                    initImagesSortable($card);
+                });
+                frame.open();
+            });
+
+            $card.off('click.shbiRemoveImg', '.shbi-remove-image').on('click.shbiRemoveImg', '.shbi-remove-image', function (e) {
+                e.preventDefault();
+                $(this).closest('.shbi-image-item').remove();
+                reindexItems();
+            });
+
+            initImagesSortable($card);
         }
 
         $('#shbi-add-item').on('click', function (e) {
