@@ -588,7 +588,7 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
 
         <div class="smasmall-meta-section">
             <h4 class="smasmall-meta-heading">Facebook</h4>
-            <p class="description">貼上 Facebook 貼文或 Reels 連結，可新增多筆。</p>
+            <p class="description">貼上 Facebook 貼文或 Reels 連結，可新增多筆。手機分享短網址（/share/v/）也可，官網會自動展開。</p>
             <div class="smasmall-url-add-row">
                 <input type="url" class="widefat smasmall-url-input" data-platform="facebook" placeholder="https://www.facebook.com/..." />
                 <button type="button" class="button smasmall-add-url" data-platform="facebook">新增連結</button>

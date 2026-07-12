@@ -126,7 +126,7 @@ function YoutubeSlideCard({ embed, isPlaying, onPlay, onVideoStop }) {
   }, [isPlaying, videoId, handleVideoStop]);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden h-full">
+    <div className="border border-gray-100 bg-white overflow-hidden h-full">
       {embed.label && (
         <div className="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2">
           <Youtube size={15} className="text-[#FF0000] shrink-0" />
@@ -134,7 +134,7 @@ function YoutubeSlideCard({ embed, isPlaying, onPlay, onVideoStop }) {
             {embed.label}
           </span>
           {isShorts && (
-            <span className="ml-auto text-[10px] font-bold bg-[#FF0000] text-white px-1.5 py-0.5 rounded-full shrink-0">
+            <span className="ml-auto text-[10px] font-bold bg-[#FF0000] text-white px-1.5 py-0.5 shrink-0">
               Shorts
             </span>
           )}
@@ -173,7 +173,7 @@ function YoutubeSlideCard({ embed, isPlaying, onPlay, onVideoStop }) {
             ) : (
               <div className="absolute inset-0 bg-gray-900" />
             )}
-            <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-[#FF0000] shadow-lg transition-transform group-hover:scale-110">
+            <span className="relative z-10 flex h-14 w-14 items-center justify-center bg-[#FF0000] shadow-lg transition-transform group-hover:scale-110">
               <Play size={22} className="ml-1 fill-white text-white" />
             </span>
           </button>
@@ -231,7 +231,7 @@ export default function YoutubeEmbedCarousel({ items }) {
                 className={[
                   "min-w-0 pl-3 first:pl-0",
                   isShorts
-                    ? "flex-[0_0_78%] sm:flex-[0_0_300px] lg:flex-[0_0_320px]"
+                    ? "flex-[0_0_100%] max-w-[350px]"
                     : "flex-[0_0_92%] sm:flex-[0_0_480px]",
                 ].join(" ")}
               >

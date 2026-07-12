@@ -14,6 +14,7 @@ import { resolveSocialEmbedSrc } from "@/lib/socialEmbed";
 import FacebookEmbed from "@/components/accessories/FacebookEmbed";
 import InstagramEmbed from "@/components/accessories/InstagramEmbed";
 import YoutubeEmbedCarousel from "@/components/accessories/YoutubeEmbedCarousel";
+import SocialEmbedCarousel from "@/components/accessories/SocialEmbedCarousel";
 
 const ICON_MAP = {
   truck: Truck,
@@ -110,19 +111,18 @@ function SocialEmbedCard({ embed }) {
   if (isShorts) {
     return (
       <div className="flex flex-col items-center">
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden w-full max-w-[360px]">
+        <div className="border border-gray-100 bg-white overflow-hidden w-full max-w-[350px]">
           {embed.label && (
             <div className="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2">
               <PlatformIcon size={15} className="text-[#FF0000]" />
               <span className="text-[12px] font-semibold text-gray-700 line-clamp-1">
                 {embed.label}
               </span>
-              <span className="ml-auto text-[10px] font-bold bg-[#FF0000] text-white px-1.5 py-0.5 rounded-full">
+              <span className="ml-auto text-[10px] font-bold bg-[#FF0000] text-white px-1.5 py-0.5">
                 Shorts
               </span>
             </div>
           )}
-          {/* 直式容器：固定 9:16 比例 */}
           <div className="relative w-full aspect-[9/16]">
             <iframe
               src={src}
@@ -141,7 +141,7 @@ function SocialEmbedCard({ embed }) {
 
   /* ── 橫式一般影片（16:9 或自訂高度）────────────────── */
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="border border-gray-100 bg-white overflow-hidden max-w-[640px]">
       {embed.label && (
         <div className="px-5 py-3 border-b border-gray-50 flex items-center gap-2">
           <PlatformIcon size={16} className="text-[#00B4D8]" />
@@ -272,26 +272,19 @@ export default function AccessoryRightPanel({ panel }) {
             const isInstagram = platform === "instagram";
             const isYoutube = platform === "youtube";
             const useYoutubeCarousel = isYoutube && items.length > 1;
-            const useCompactSocialGrid = isFacebook || isInstagram;
+            const useSocialCarousel = isFacebook || isInstagram;
 
             return (
-              <div
-                key={platform}
-                className={useCompactSocialGrid ? "space-y-3" : "space-y-4"}
-              >
+              <div key={platform} className="space-y-3">
                 <h4 className="text-[15px] font-semibold text-gray-500 uppercase tracking-wider">
                   {sectionTitles[titleKey]}
                 </h4>
                 {useYoutubeCarousel ? (
                   <YoutubeEmbedCarousel items={items} />
+                ) : useSocialCarousel ? (
+                  <SocialEmbedCarousel items={items} platform={platform} />
                 ) : (
-                  <div
-                    className={`grid items-start ${
-                      useCompactSocialGrid
-                        ? "grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-2"
-                        : "grid-cols-1 gap-4 lg:gap-6"
-                    }`}
-                  >
+                  <div className="grid items-start grid-cols-1 gap-4 lg:gap-6">
                     {items.map((embed) => (
                       <SocialEmbedCard key={embed.id} embed={embed} />
                     ))}

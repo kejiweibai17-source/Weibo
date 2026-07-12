@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { resolveSocialEmbedSrc } from "@/lib/socialEmbed";
+import {
+  isFacebookVideoUrl,
+  resolveSocialEmbedSrc,
+} from "@/lib/socialEmbed";
 
-/** 依欄寬套用 FB 官方 embed 寬度，高度可覆寫或依寬度比例估算 */
+const EMBED_WIDTH = 350;
+
+/** Facebook embed：固定 max 350 寬，影片 16:9、無圓角 */
 export default function FacebookEmbed({ embed }) {
   const containerRef = useRef(null);
-  const [columnWidth, setColumnWidth] = useState(embed.embedWidth ?? 350);
+  const [columnWidth, setColumnWidth] = useState(
+    Math.min(embed.embedWidth ?? EMBED_WIDTH, EMBED_WIDTH),
+  );
 
   useEffect(() => {
     const el = containerRef.current;
@@ -14,7 +21,7 @@ export default function FacebookEmbed({ embed }) {
 
     const measure = () => {
       const w = Math.floor(el.getBoundingClientRect().width);
-      if (w > 0) setColumnWidth(w);
+      if (w > 0) setColumnWidth(Math.min(w, EMBED_WIDTH));
     };
 
     measure();
@@ -31,20 +38,29 @@ export default function FacebookEmbed({ embed }) {
     return (
       <div
         ref={containerRef}
-        className="w-full min-h-[200px] flex items-center justify-center text-center px-4 py-8 text-[13px] text-gray-400"
+        className="w-full max-w-[350px] min-h-[200px] flex items-center justify-center text-center px-4 py-8 text-[13px] text-gray-400"
       >
         請填入 Facebook 貼文網址或 embed src
       </div>
     );
   }
 
-  const height =
-    embed.height ?? Math.max(400, Math.round(columnWidth * 2.05));
+  const isVideo =
+    embed.isVideo === true || isFacebookVideoUrl(embed.url || src);
+
+  let height;
+  if (embed.height && !isVideo) {
+    height = embed.height;
+  } else if (isVideo) {
+    height = Math.max(220, Math.round(columnWidth * (9 / 16) + 48));
+  } else {
+    height = Math.max(360, Math.round(columnWidth * 1.25));
+  }
 
   return (
     <div
       ref={containerRef}
-      className="w-full leading-[0] overflow-hidden"
+      className="w-full max-w-[350px] leading-[0] bg-black/5"
       style={{ height }}
     >
       <iframe

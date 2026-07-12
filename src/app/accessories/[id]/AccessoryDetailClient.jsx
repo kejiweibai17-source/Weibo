@@ -373,7 +373,7 @@ export default function AccessoryDetailClient({ productId }) {
             {(product.scenarioImages?.length > 0 ||
               (product.manualGuide?.imageUrl &&
                 product.manualGuide?.pdfUrl)) && (
-              <section className="mt-14 lg:mt-20 border-t border-gray-100 pt-14 lg:pt-20">
+              <section className="mt-6 lg:mt-6 border-t border-gray-100 pt-5 lg:pt-5">
                 <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2 tracking-tight">
                   使用情境
                 </h2>

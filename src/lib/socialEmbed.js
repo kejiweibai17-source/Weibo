@@ -18,6 +18,89 @@ function applyFacebookWidth(src, width) {
   return `${src}${sep}width=${width}`;
 }
 
+/** Facebook 手機分享短網址（/share/v/、/share/r/）無法直接 embed，需先展開 */
+export function isFacebookShareUrl(url = "") {
+  return /facebook\.com\/share\/[vr]\//i.test(String(url));
+}
+
+/** Reel / 影片／watch／share/v — 應用 video.php，不是 post.php */
+export function isFacebookVideoUrl(url = "") {
+  const u = String(url);
+  return (
+    /facebook\.com\/share\/v\//i.test(u) ||
+    /facebook\.com\/reel\//i.test(u) ||
+    /facebook\.com\/watch\/?/i.test(u) ||
+    /facebook\.com\/[^/]+\/videos\//i.test(u) ||
+    /fb\.watch\//i.test(u) ||
+    /facebook\.com\/plugins\/video\.php/i.test(u)
+  );
+}
+
+/** 去掉追蹤參數，留下可給 embed 的 permalink */
+export function cleanFacebookPermalink(url = "") {
+  const raw = String(url || "").trim();
+  if (!raw) return raw;
+  try {
+    const u = new URL(raw);
+    const path = u.pathname.replace(/\/+$/, "") || "/";
+    if (
+      /\/reel\/\d+/i.test(path) ||
+      /\/videos\/\d+/i.test(path) ||
+      /\/posts\//i.test(path) ||
+      /\/share\/[vr]\//i.test(path)
+    ) {
+      return `${u.origin}${path}/`;
+    }
+    return `${u.origin}${path}${u.search}`;
+  } catch {
+    return raw.split("?")[0];
+  }
+}
+
+/**
+ * 將 /share/v/xxx 展開成 /reel/ID 等正式網址（server-side）。
+ * Facebook embed 不吃 share 短連結，會顯示「貼文已無法取得」。
+ */
+export async function resolveFacebookShareUrl(url = "") {
+  const trimmed = String(url || "").trim();
+  if (!trimmed) return trimmed;
+  if (!isFacebookShareUrl(trimmed)) return cleanFacebookPermalink(trimmed);
+
+  try {
+    const res = await fetch(trimmed, {
+      method: "GET",
+      redirect: "manual",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; SMASMALLBot/1.0; +https://www.smasmall.com.tw)",
+        Accept: "text/html",
+      },
+      next: { revalidate: 86400 },
+    });
+
+    const location = res.headers.get("location");
+    if (location) {
+      const absolute = location.startsWith("http")
+        ? location
+        : `https://www.facebook.com${location.startsWith("/") ? "" : "/"}${location}`;
+      return cleanFacebookPermalink(absolute);
+    }
+  } catch {
+    // fall through
+  }
+
+  return cleanFacebookPermalink(trimmed);
+}
+
+function buildFacebookPluginSrc(permalink, width) {
+  const w = width ?? 500;
+  const href = cleanFacebookPermalink(permalink);
+  const isVideo = isFacebookVideoUrl(href);
+  const plugin = isVideo ? "video.php" : "post.php";
+  const showText = isVideo ? "false" : "true";
+  return `https://www.facebook.com/plugins/${plugin}?href=${encodeURIComponent(href)}&show_text=${showText}&width=${w}`;
+}
+
 export function resolveSocialEmbedSrc(platform, url, options = {}) {
   if (!url?.trim()) return null;
 
@@ -52,7 +135,7 @@ export function resolveSocialEmbedSrc(platform, url, options = {}) {
     if (trimmed.includes("facebook.com/plugins/")) {
       return applyFacebookWidth(trimmed, w);
     }
-    return `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(trimmed)}&show_text=true&width=${w}`;
+    return buildFacebookPluginSrc(trimmed, w);
   }
 
   if (platform === "youtube") {

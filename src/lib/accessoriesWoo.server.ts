@@ -11,6 +11,11 @@ import {
   parseContentBullets,
 } from "@/lib/productContentBullets";
 import { extractYoastSeoFromProduct } from "@/lib/yoastSeo";
+import {
+  isFacebookVideoUrl,
+  isInstagramReelUrl,
+  resolveFacebookShareUrl,
+} from "@/lib/socialEmbed";
 
 const DEFAULT_SHIPPING =
   "全館消費滿 NT$1,500 即享免運優惠。台灣本島地區約 1-3 個工作天送達。";
@@ -237,10 +242,6 @@ function isYoutubeShortsUrl(url: string) {
   return /youtube\.com\/shorts\//i.test(url);
 }
 
-function isInstagramReelUrl(url: string) {
-  return /instagram\.com\/reel\//i.test(url);
-}
-
 function normalizeFeatures(product: WooProduct): AccordionFeature[] {
   const legacy = decodeLegacyAccordionItems(product);
   const findLegacy = (keyword: string) =>
@@ -313,7 +314,7 @@ function normalizeFeatures(product: WooProduct): AccordionFeature[] {
     : [buildAccordionFeature("產品特色", desc)!];
 }
 
-function normalizeSocialEmbeds(product: WooProduct) {
+async function normalizeSocialEmbeds(product: WooProduct) {
   const youtubeRaw = pickMetaValue(product, [
     "smasmall_youtube_urls",
     "_smasmall_youtube_urls",
@@ -333,6 +334,10 @@ function normalizeSocialEmbeds(product: WooProduct) {
   const youtubeUrls = normalizeUrlList(youtubeRaw);
   const facebookUrls = normalizeUrlList(facebookRaw);
   const instagramUrls = normalizeUrlList(instagramRaw);
+
+  const resolvedFacebookUrls = await Promise.all(
+    facebookUrls.map((url) => resolveFacebookShareUrl(url)),
+  );
 
   const socialEmbeds = [
     ...youtubeUrls.map((url, idx) => ({
@@ -354,13 +359,16 @@ function normalizeSocialEmbeds(product: WooProduct) {
       url,
       isReel: isInstagramReelUrl(url),
     })),
-    ...facebookUrls.map((url, idx) => ({
-      id: `fb-${idx + 1}`,
-      platform: "facebook",
-      label: `Facebook ${idx + 1}`,
-      url,
-      height: 720,
-    })),
+    ...resolvedFacebookUrls.map((url, idx) => {
+      const isVideo = isFacebookVideoUrl(url);
+      return {
+        id: `fb-${idx + 1}`,
+        platform: "facebook",
+        label: isVideo ? `Facebook 影片 ${idx + 1}` : `Facebook ${idx + 1}`,
+        url,
+        isVideo,
+      };
+    }),
   ];
 
   return socialEmbeds.length > 0
@@ -540,7 +548,7 @@ function mapWooToAccessoryListItem(
   };
 }
 
-export function mapWooToAccessoryDetail(product: WooProduct) {
+export async function mapWooToAccessoryDetail(product: WooProduct) {
   const features = normalizeFeatures(product);
   const scenarioImages = normalizeImageList(
     pickMetaValue(product, [
@@ -570,7 +578,7 @@ export function mapWooToAccessoryDetail(product: WooProduct) {
 
   // 左側輪播：WooCommerce 商品圖片 + 商品圖庫（REST images 陣列）
   const galleryImages = product.images?.map((im) => im.src).filter(Boolean) ?? [];
-  const rightPanel = normalizeSocialEmbeds(product);
+  const rightPanel = await normalizeSocialEmbeds(product);
   const purchaseUrlRaw = pickMetaValue(product, [
     "smasmall_purchase_url",
     "_smasmall_purchase_url",
