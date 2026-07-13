@@ -167,7 +167,7 @@ add_action('admin_menu', function () {
     add_menu_page(
         '全台門市據點',
         '全台門市據點',
-        'manage_options',
+        'read',
         'smasmall-retail-stores',
         'smasmall_retail_stores_render_page',
         'dashicons-store',
@@ -188,7 +188,7 @@ add_action('admin_init', function () {
 });
 
 add_action('admin_post_smasmall_save_retail_stores', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die('Forbidden');
     }
     check_admin_referer('smasmall_retail_stores_save', 'smasmall_retail_stores_nonce');
@@ -202,7 +202,7 @@ add_action('admin_post_smasmall_save_retail_stores', function () {
 });
 
 add_action('admin_post_smasmall_import_retail_stores_defaults', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die('Forbidden');
     }
     check_admin_referer('smasmall_retail_stores_import', 'smasmall_retail_stores_import_nonce');
@@ -297,7 +297,7 @@ function smasmall_retail_stores_render_store_row(array $store, $index): void
 
 function smasmall_retail_stores_render_page(): void
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         return;
     }
 

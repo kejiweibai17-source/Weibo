@@ -27,7 +27,7 @@ add_action('admin_menu', function () {
     add_menu_page(
         '首頁 Hero 滾動區',
         '首頁 Hero 滾動區',
-        'manage_options',
+        'read',
         'smasmall-hero-slider',
         'smasmall_hero_slider_render_page',
         'dashicons-slides',
@@ -91,7 +91,7 @@ add_action('admin_init', function () {
 });
 
 add_action('admin_post_smasmall_save_hero_slider', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die('Forbidden');
     }
     check_admin_referer('smasmall_hero_slider_save', 'smasmall_hero_slider_nonce');
@@ -152,7 +152,7 @@ function smasmall_hero_slider_render_slide_row(array $slide, $index): void
 
 function smasmall_hero_slider_render_page(): void
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         return;
     }
 

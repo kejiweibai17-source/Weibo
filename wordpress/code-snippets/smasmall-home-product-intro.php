@@ -138,7 +138,7 @@ add_action('admin_menu', function () {
     add_menu_page(
         '首頁產品介紹',
         '首頁產品介紹',
-        'manage_options',
+        'read',
         'smasmall-home-product-intro',
         'smasmall_home_product_intro_render_page',
         'dashicons-products',
@@ -147,7 +147,7 @@ add_action('admin_menu', function () {
 });
 
 add_action('admin_post_smasmall_save_home_product_intro', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die(esc_html__('您沒有權限執行此操作。', 'smasmall'), esc_html__('權限不足', 'smasmall'), ['response' => 403]);
     }
     check_admin_referer('smasmall_home_product_intro_save', 'smasmall_home_product_intro_nonce');
@@ -182,7 +182,7 @@ function smasmall_home_product_intro_render_spec_row(array $spec, $index): void
 
 function smasmall_home_product_intro_render_page(): void
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         return;
     }
 

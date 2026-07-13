@@ -137,7 +137,7 @@ export default function HomeHero({ pageContentRef }) {
           playsInline
         />
 
-        <div className="absolute inset-0 z-10 flex flex-col pl-[13%] items-start justify-center text-center pointer-events-none px-4">
+        <div className="absolute inset-0 z-10 flex flex-col items-start justify-center pl-[13%] px-4 text-left pointer-events-none">
           <h1 className="hero-title opacity-0 drop-shadow-xl">
             <img
               src="/images/SMASMALL-logo-white.png"
@@ -149,8 +149,8 @@ export default function HomeHero({ pageContentRef }) {
             />
           </h1>
 
-          <div className="flex  flex-col justify-start ">
-            <b className="text-white text-[35px]"> 秒懂男仕的禮物</b>
+          <div className="mt-3 flex flex-col items-start justify-start text-left">
+            <b className="text-white text-[35px]">秒懂男仕的禮物</b>
             <b className="text-white text-[16px]">星座系列　重磅上市</b>
           </div>
         </div>

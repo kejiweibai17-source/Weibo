@@ -793,17 +793,15 @@ function smasmall_series_format_post(int $post_id, bool $include_blocks = true):
 
 function smasmall_series_get_all_published(bool $include_blocks = false): array
 {
+    // 勿用 meta_key 當查詢條件：沒填「選單排序」的新系列會被整筆排除，Navbar 就不會出現
     $query = new WP_Query([
         'post_type'              => SMASMALL_SERIES_POST_TYPE,
         'post_status'            => 'publish',
         'posts_per_page'         => -1,
         'no_found_rows'          => true,
         'update_post_term_cache' => false,
-        'meta_key'               => SMASMALL_SERIES_META_ORDER,
-        'orderby'                => [
-            'meta_value_num' => 'ASC',
-            'title'            => 'ASC',
-        ],
+        'orderby'                => 'title',
+        'order'                  => 'ASC',
     ]);
 
     $items = [];
@@ -814,11 +812,24 @@ function smasmall_series_get_all_published(bool $include_blocks = false): array
         }
     }
 
+    usort($items, static function (array $a, array $b): int {
+        $order_cmp = ((int) ($a['order'] ?? 0)) <=> ((int) ($b['order'] ?? 0));
+        if ($order_cmp !== 0) {
+            return $order_cmp;
+        }
+        return strnatcasecmp((string) ($a['title'] ?? ''), (string) ($b['title'] ?? ''));
+    });
+
     return $items;
 }
 
 function smasmall_series_find_by_slug(string $slug): ?array
 {
+    $slug = trim(rawurldecode($slug));
+    if ($slug === '') {
+        return null;
+    }
+
     $query = new WP_Query([
         'post_type'              => SMASMALL_SERIES_POST_TYPE,
         'post_status'            => 'publish',
@@ -834,11 +845,18 @@ function smasmall_series_find_by_slug(string $slug): ?array
         ],
     ]);
 
-    if (empty($query->posts)) {
-        return null;
+    if (!empty($query->posts)) {
+        return smasmall_series_format_post($query->posts[0]->ID, true);
     }
 
-    return smasmall_series_format_post($query->posts[0]->ID, true);
+    // 尚未填自訂 slug 時，退回比對 post_name / 標題產生的 slug
+    foreach (smasmall_series_get_all_published(true) as $item) {
+        if (($item['slug'] ?? '') === $slug) {
+            return $item;
+        }
+    }
+
+    return null;
 }
 
 /** ---------- 註冊 CPT ---------- */

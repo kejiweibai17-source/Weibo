@@ -147,7 +147,7 @@ if (!defined('SMASMALL_FRONTEND_REVALIDATE_HOOKED')) {
 
     /** 後台提示：常數未設定時提醒 */
     add_action('admin_notices', function () {
-        if (!current_user_can('manage_options')) {
+        if (!current_user_can('read')) {
             return;
         }
         $ok_url    = defined('SMASMALL_FRONTEND_URL') && SMASMALL_FRONTEND_URL;

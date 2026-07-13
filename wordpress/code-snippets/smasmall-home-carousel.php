@@ -19,7 +19,7 @@ add_action('admin_menu', function () {
     add_menu_page(
         '首頁底部圖片輪播',
         '首頁底部圖片輪播',
-        'manage_options',
+        'read',
         'smasmall-home-carousel',
         'smasmall_home_carousel_render_page',
         'dashicons-images-alt2',
@@ -77,7 +77,7 @@ add_action('admin_init', function () {
 });
 
 add_action('admin_post_smasmall_save_home_carousel', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die('Forbidden');
     }
     check_admin_referer('smasmall_home_carousel_save', 'smasmall_home_carousel_nonce');
@@ -92,7 +92,7 @@ add_action('admin_post_smasmall_save_home_carousel', function () {
 
 function smasmall_home_carousel_render_page(): void
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         return;
     }
 

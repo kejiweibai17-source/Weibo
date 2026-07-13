@@ -88,7 +88,7 @@ add_action('admin_menu', function () {
     add_menu_page(
         '首頁星座系列區',
         '首頁星座系列區',
-        'manage_options',
+        'read',
         'smasmall-home-constellation',
         'smasmall_home_constellation_render_page',
         'dashicons-star-filled',
@@ -109,7 +109,7 @@ add_action('admin_init', function () {
 });
 
 add_action('admin_post_smasmall_save_home_constellation', function () {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         wp_die('Forbidden');
     }
     check_admin_referer('smasmall_home_constellation_save', 'smasmall_home_constellation_nonce');
@@ -124,7 +124,7 @@ add_action('admin_post_smasmall_save_home_constellation', function () {
 
 function smasmall_home_constellation_render_page(): void
 {
-    if (!current_user_can('manage_options')) {
+    if (!current_user_can('read')) {
         return;
     }
 
