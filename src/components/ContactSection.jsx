@@ -15,11 +15,13 @@ export default function ContactSection() {
           左側：滿版產品情境圖
           ========================================================= */}
       <div className="w-full lg:w-[50%] relative min-h-[40vh] lg:min-h-screen bg-gray-100">
-        {/* 記得將 src 替換為你實際要放的左側產品圖路徑 */}
         <Image
           src="/images/簡單攜帶.png"
           alt="商務旅行攜帶昔馬電動刮鬍刀 輕便隨身理容 威柏科技-昔馬電動刮鬍刀總代理"
           fill
+          priority
+          unoptimized
+          sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-cover object-center"
         />
       </div>

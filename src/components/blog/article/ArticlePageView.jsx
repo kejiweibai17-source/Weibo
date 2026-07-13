@@ -47,12 +47,12 @@ function StickyBar({ data, title }) {
   return (
     <div className="sticky top-[60px] z-40 border-b border-[#d2d2d7] bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-5 py-3 md:px-8">
-        <p className="truncate text-[13px] font-medium text-[#1d1d1f] md:text-[15px]">
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-[#1d1d1f] md:text-[15px]">
           <span className="text-[#6e6e73]">{data.category}</span>
           <span className="mx-2 text-[#d2d2d7]">|</span>
           <span>{title || data.productLine}</span>
         </p>
-        <div className="flex shrink-0 items-center gap-3 md:gap-5 mt-3">
+        <div className="flex shrink-0 items-center gap-3 md:gap-5">
           <span className="hidden text-[12px] text-[#6e6e73] sm:inline md:text-[13px]">
             {data.priceLabel}
           </span>
@@ -451,7 +451,7 @@ function RelatedArticlesSidebar({ posts }) {
   if (!posts || posts.length === 0) return null;
 
   return (
-    <aside className="lg:sticky lg:top-[88px] lg:self-start">
+    <aside className="min-w-0 lg:sticky lg:top-[88px] lg:self-start">
       <h2 className="text-[15px] font-semibold tracking-wide text-[#1d1d1f]">
         其他文章
       </h2>
@@ -459,8 +459,8 @@ function RelatedArticlesSidebar({ posts }) {
         {posts.map((post) => (
           <Link
             key={post.slug}
-            href={`/blog/${post.slug}`}
-            className="group flex gap-4"
+            href={`/blog/${encodeURIComponent(post.slug)}`}
+            className="group flex min-w-0 gap-4"
           >
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f5f5f7]">
               {post.image ? (
@@ -473,8 +473,8 @@ function RelatedArticlesSidebar({ posts }) {
                 />
               ) : null}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="line-clamp-3 text-[14px] font-medium leading-snug text-[#1d1d1f] group-hover:text-[#0071e3]">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <p className="line-clamp-3 break-words text-[14px] font-medium leading-snug text-[#1d1d1f] group-hover:text-[#0071e3]">
                 {post.title}
               </p>
             </div>
@@ -495,10 +495,10 @@ function WpBodySection({ html, relatedPosts }) {
   if (!html) return null;
 
   return (
-    <section className="bg-white px-5 py-16 md:px-8">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+    <section className="overflow-x-clip bg-white px-5 py-16 md:px-8">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-14">
         <div
-          className="wp-content min-w-0"
+          className="wp-content min-w-0 max-w-full overflow-x-clip"
           dangerouslySetInnerHTML={{ __html: html }}
         />
         <RelatedArticlesSidebar posts={relatedPosts} />
@@ -511,7 +511,7 @@ export default function ArticlePageView({ data, relatedPosts = [] }) {
   const displayTitle = data.wpTitle || data.hero.title;
 
   return (
-    <article className="bg-white font-sans text-[#1d1d1f]">
+    <article className="overflow-x-clip bg-white font-sans text-[#1d1d1f]">
       <StickyBar data={data.stickyBar} title={displayTitle} />
       <ProductHeroSection
         hero={data.hero}
