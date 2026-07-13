@@ -89,6 +89,9 @@ export type SeriesNavItem = {
   label: string;
   slug: string;
   href: string;
+  /** 列表／卡片主圖（ogImage 或精選圖） */
+  image?: string;
+  description?: string;
 };
 
 export type SeriesSummary = {

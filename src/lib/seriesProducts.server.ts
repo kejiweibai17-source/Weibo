@@ -291,12 +291,40 @@ export async function fetchSeriesNavItems(): Promise<SeriesNavItem[]> {
   if (!base) return [...SERIES_NAV_FALLBACK];
 
   try {
-    const res = await fetch(`${base}/wp-json/smasmall/v1/series`, getSeriesFetchInit());
+    // Navbar 用較短快取，避免正式站長時間只顯示舊的單一系列
+    const init =
+      process.env.NODE_ENV === "development"
+        ? { cache: "no-store" as const }
+        : {
+            next: {
+              revalidate: 60,
+              tags: ["series-all", "sitemap"],
+            },
+          };
+
+    const res = await fetch(`${base}/wp-json/smasmall/v1/series`, init);
     if (!res.ok) return [...SERIES_NAV_FALLBACK];
 
     const data = await res.json();
     if (!Array.isArray(data?.items) || data.items.length === 0) {
       return [...SERIES_NAV_FALLBACK];
+    }
+
+    const imageBySlug = new Map<string, { image?: string; description?: string }>();
+    if (Array.isArray(data.series)) {
+      for (const raw of data.series) {
+        const summary = normalizeSummary(raw);
+        if (!summary) continue;
+        const image =
+          summary.featuredImage ||
+          summary.ogImage ||
+          summary.featuredImages?.[0] ||
+          "";
+        imageBySlug.set(summary.slug, {
+          image: image || undefined,
+          description: summary.seoDescription || undefined,
+        });
+      }
     }
 
     return data.items
@@ -310,7 +338,20 @@ export async function fetchSeriesNavItems(): Promise<SeriesNavItem[]> {
           typeof row.href === "string" && row.href.startsWith("/")
             ? row.href
             : `/series/${encodeURIComponent(slug)}`;
-        return { label, slug, href };
+        const fromRowImage =
+          typeof row.image === "string" && row.image.trim()
+            ? row.image.trim()
+            : undefined;
+        const fromSeries = imageBySlug.get(slug);
+        return {
+          label,
+          slug,
+          href,
+          image: fromRowImage || fromSeries?.image,
+          description:
+            (typeof row.description === "string" && row.description.trim()) ||
+            fromSeries?.description,
+        };
       })
       .filter((item: SeriesNavItem | null): item is SeriesNavItem => item !== null);
   } catch {

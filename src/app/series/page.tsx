@@ -1,4 +1,5 @@
 import { Link } from "next-view-transitions";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import JsonLd from "@/components/seo/JsonLd";
@@ -95,9 +96,6 @@ export default async function SeriesHubPage() {
         </nav>
 
         <header className="mx-auto max-w-[960px] px-6 pt-6 pb-10 md:pb-14">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#00B4D8] mb-4">
-            Product Series
-          </p>
           <h1
             className="text-[2rem] md:text-[2.75rem] font-bold text-gray-900 tracking-tight leading-tight mb-5"
             data-seo-speakable
@@ -113,25 +111,43 @@ export default async function SeriesHubPage() {
         </header>
 
         <section className="mx-auto max-w-[960px] px-6 pb-20 md:pb-28">
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {seriesItems.map((item) => (
               <li key={item.slug}>
                 <Link
                   href={item.href}
-                  className="group flex h-full flex-col justify-between rounded-2xl bg-white p-6 shadow-[0_8px_40px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_12px_48px_rgba(0,0,0,0.08)]"
+                  className="group flex h-full flex-col overflow-hidden   bg-white shadow-[0_8px_40px_rgba(0,0,0,0.05)] transition-shadow hover:shadow-[0_12px_48px_rgba(0,0,0,0.08)]"
                 >
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900 group-hover:text-[#00B4D8] transition-colors mb-2">
-                      {item.label}
-                    </h2>
-                    <p className="text-[14px] text-gray-500 leading-relaxed">
-                      查看 {item.label} 系列介紹、規格亮點與購買資訊
-                    </p>
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#f3f4f6]">
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={item.label}
+                        fill
+                        sizes="(max-width:768px) 100vw, 460px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-[13px] text-gray-400">
+                        尚未設定主圖
+                      </div>
+                    )}
                   </div>
-                  <span className="mt-6 inline-flex items-center gap-1 text-[13px] font-semibold text-[#00B4D8]">
-                    前往系列頁
-                    <ArrowRight size={14} />
-                  </span>
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      <h2 className="mb-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-[#00B4D8]">
+                        {item.label}
+                      </h2>
+                      <p className="line-clamp-2 text-[14px] leading-relaxed text-gray-500">
+                        {item.description?.trim() ||
+                          `查看 ${item.label} 系列介紹、規格亮點與購買資訊`}
+                      </p>
+                    </div>
+                    <span className="mt-6 inline-flex items-center gap-1 text-[13px] font-semibold text-[#00B4D8]">
+                      前往系列頁
+                      <ArrowRight size={14} />
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}

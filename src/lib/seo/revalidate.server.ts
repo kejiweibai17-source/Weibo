@@ -73,7 +73,7 @@ export function revalidateProductCache(slug = ""): RevalidateResult {
 
 export function revalidateSeriesCache(slug = ""): RevalidateResult {
   const tags = [SERIES_CACHE_TAG, SITEMAP_CACHE_TAG];
-  const paths = ["/series", "/sitemap.xml"];
+  const paths = ["/", "/series", "/api/series/nav", "/sitemap.xml"];
 
   if (slug) {
     tags.push(`series-${slug}`);

@@ -1,6 +1,8 @@
 import "server-only";
 import {
   HOME_PRODUCT_INTRO_FALLBACK,
+  HOME_PRODUCT_INTRO_FEATURES_FALLBACK,
+  type HomeProductIntroFeature,
   type HomeProductIntroSection,
   type HomeProductIntroSpec,
 } from "@/data/home-product-intro-fallback";
@@ -26,6 +28,66 @@ function normalizeSpecs(raw: unknown): HomeProductIntroSpec[] {
   return specs;
 }
 
+function normalizeFeatures(raw: unknown): HomeProductIntroFeature[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [...HOME_PRODUCT_INTRO_FEATURES_FALLBACK];
+  }
+
+  const features: HomeProductIntroFeature[] = [];
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const item = row as Record<string, unknown>;
+    const title = typeof item.title === "string" ? item.title.trim() : "";
+    if (!title) continue;
+
+    const idRaw = typeof item.id === "string" ? item.id.trim() : "";
+    const id =
+      idRaw.replace(/[^a-zA-Z0-9_-]/g, "") ||
+      `feature-${features.length + 1}`;
+
+    const description =
+      typeof item.description === "string"
+        ? item.description.trim()
+        : typeof item.desc === "string"
+          ? item.desc.trim()
+          : "";
+
+    const image = typeof item.image === "string" ? item.image.trim() : "";
+
+    const fallback = HOME_PRODUCT_INTRO_FEATURES_FALLBACK[features.length];
+    const top =
+      typeof item.top === "string" && item.top.trim()
+        ? item.top.trim()
+        : (fallback?.top ?? "50%");
+    const left =
+      typeof item.left === "string" && item.left.trim()
+        ? item.left.trim()
+        : (fallback?.left ?? "50%");
+
+    let bgScale = fallback?.bgScale ?? 2.4;
+    if (typeof item.bgScale === "number" && Number.isFinite(item.bgScale)) {
+      bgScale = item.bgScale;
+    } else if (typeof item.bgScale === "string" && item.bgScale.trim()) {
+      const parsed = Number.parseFloat(item.bgScale);
+      if (Number.isFinite(parsed)) bgScale = parsed;
+    }
+
+    features.push({
+      id,
+      title,
+      description,
+      image: image || fallback?.image || "",
+      top,
+      left,
+      bgScale,
+    });
+
+    if (features.length >= 8) break;
+  }
+
+  return features.length ? features : [...HOME_PRODUCT_INTRO_FEATURES_FALLBACK];
+}
+
 function normalizeSection(raw: unknown): HomeProductIntroSection | null {
   if (!raw || typeof raw !== "object") return null;
 
@@ -43,6 +105,7 @@ function normalizeSection(raw: unknown): HomeProductIntroSection | null {
     title,
     description: typeof row.description === "string" ? row.description : "",
     specs,
+    features: normalizeFeatures(row.features),
   };
 }
 

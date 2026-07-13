@@ -4,61 +4,13 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { HOME_PRODUCT_INTRO_FEATURES_FALLBACK } from "@/data/home-product-intro-fallback";
 
 function resolveImageSrc(image) {
   if (!image) return "";
   if (image.startsWith("http") || image.startsWith("/")) return image;
   return `/${image.replace(/^\/+/, "")}`;
 }
-
-/** 五個閃爍熱點（位置依口袋情境圖粗略對準，之後可微調） */
-const HOTSPOTS = [
-  {
-    id: "lid",
-    title: "磁吸防塵保護蓋",
-    desc: "磁吸式上蓋一貼即合，隔絕灰塵、守護刀頭，收納潔淨衛生。",
-    top: "34%",
-    left: "52%",
-    bgScale: 2.4,
-    image: "/images/主頁p11/爆炸圖1.webp",
-  },
-  {
-    id: "battery",
-    title: "450mAh 高能鋰電池",
-    desc: "大容量鋰電池，60 分鐘即可快速充滿，長效續航一次到位。",
-    top: "62%",
-    left: "48%",
-    bgScale: 2.2,
-    image: "/images/主頁p11/鋰電池.webp",
-  },
-  {
-    id: "switch",
-    title: "專利防水推式開關",
-    desc: "獨家防水推動設計，有效防止誤觸，操作更安心。",
-    top: "48%",
-    left: "50%",
-    bgScale: 2.6,
-    image: "/images/主頁p11/星座按鍵展示.webp",
-  },
-  {
-    id: "motor",
-    title: "9200 rpm 強勁靜音電機",
-    desc: "每分鐘 9200 轉高速運轉，動力強勁、噪音低沉，刮鬍俐落不擾人。",
-    top: "42%",
-    left: "51%",
-    bgScale: 2.3,
-    image: "/images/主頁p11/強勁電機1.webp",
-  },
-  {
-    id: "blade",
-    title: "開放式雙環刀網",
-    desc: "開放式雙環結構精準導入鬍鬚，捕鬚更全面、刮除更高效。",
-    top: "28%",
-    left: "53%",
-    bgScale: 2.5,
-    image: "/images/主頁p11/爆炸圖_cryptomatte 1_2.webp",
-  },
-];
 
 export default function S3GroomingPrecision({ section }) {
   const [activeId, setActiveId] = useState(null);
@@ -69,8 +21,14 @@ export default function S3GroomingPrecision({ section }) {
     resolveImageSrc(section.backgroundImage) || "/images/s3-detail-bg.webp";
   const primarySpec = section.specs?.[0];
   const gridSpecs = section.specs?.slice(1) ?? [];
-  const active = HOTSPOTS.find((h) => h.id === activeId) ?? null;
+  const hotspots =
+    Array.isArray(section.features) && section.features.length > 0
+      ? section.features
+      : HOME_PRODUCT_INTRO_FEATURES_FALLBACK;
+  const active = hotspots.find((h) => h.id === activeId) ?? null;
   const isDetail = Boolean(active);
+  const activeImage = active ? resolveImageSrc(active.image) : "";
+  const activeDesc = active?.description || active?.desc || "";
 
   return (
     <div className="relative flex h-screen w-full select-none items-center justify-center overflow-hidden font-sans">
@@ -113,7 +71,7 @@ export default function S3GroomingPrecision({ section }) {
         )}
       </AnimatePresence>
 
-      {/* 五個閃爍熱點 */}
+      {/* 閃爍熱點 */}
       <AnimatePresence>
         {!isDetail && (
           <motion.div
@@ -122,7 +80,7 @@ export default function S3GroomingPrecision({ section }) {
             exit={{ opacity: 0 }}
             className="absolute inset-0 z-30"
           >
-            {HOTSPOTS.map((spot) => (
+            {hotspots.map((spot) => (
               <button
                 key={spot.id}
                 type="button"
@@ -195,13 +153,15 @@ export default function S3GroomingPrecision({ section }) {
           >
             <div className="overflow-hidden rounded-2xl border border-white/15 bg-black/55 shadow-2xl backdrop-blur-xl">
               <div className="relative aspect-[4/3] w-full bg-black/40">
-                <Image
-                  src={active.image}
-                  alt={active.title}
-                  fill
-                  sizes="360px"
-                  className="object-contain p-4"
-                />
+                {activeImage ? (
+                  <Image
+                    src={activeImage}
+                    alt={active.title}
+                    fill
+                    sizes="360px"
+                    className="object-contain p-4"
+                  />
+                ) : null}
                 <button
                   type="button"
                   aria-label="關閉"
@@ -216,7 +176,7 @@ export default function S3GroomingPrecision({ section }) {
                   {active.title}
                 </h2>
                 <p className="text-sm leading-relaxed text-gray-300">
-                  {active.desc}
+                  {activeDesc}
                 </p>
               </div>
             </div>

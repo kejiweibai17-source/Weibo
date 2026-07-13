@@ -9,7 +9,12 @@
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
  *
- * 版本：1.4.2（儲存後觸發 Next.js ISR、圖片 hidden 欄位）
+ * 版本：1.5.0
+ * - 列表查詢不再用 meta_key，避免新系列被排除
+ * - REST items 回傳 image / description（供 /series 列表主圖）
+ * - 列表也回傳 featuredImage（不需 include_blocks）
+ * - find_by_slug 支援無自訂 slug meta 時退回比對
+ * - 儲存後觸發 Next.js ISR revalidate
  */
 
 if (!defined('ABSPATH')) {
@@ -772,19 +777,23 @@ function smasmall_series_format_post(int $post_id, bool $include_blocks = true):
         $data['seoTitle'] = $data['title'];
     }
 
+    $featured_images = smasmall_series_get_featured_images($post_id);
+    if (!empty($featured_images)) {
+        $data['featuredImages'] = $featured_images;
+        $data['featuredImage'] = $featured_images[0];
+        if (($data['ogImage'] ?? '') === '') {
+            $data['ogImage'] = $featured_images[0];
+        }
+    }
+
     if ($include_blocks) {
         $data['blocks'] = smasmall_series_get_blocks($post_id);
-        $featured_images = smasmall_series_get_featured_images($post_id);
-        if (!empty($featured_images)) {
-            $data['featuredImages'] = $featured_images;
-            $data['featuredImage'] = $featured_images[0];
-        }
     }
 
     if ($data['wcProductId'] <= 0) {
         unset($data['wcProductId']);
     }
-    if ($data['ogImage'] === '') {
+    if (($data['ogImage'] ?? '') === '') {
         unset($data['ogImage']);
     }
 
@@ -2088,11 +2097,25 @@ add_action('rest_api_init', function () {
         'callback'            => function () {
             $items = smasmall_series_get_all_published(false);
             $nav = array_map(static function ($item) {
-                return [
+                $image = '';
+                if (!empty($item['featuredImage'])) {
+                    $image = (string) $item['featuredImage'];
+                } elseif (!empty($item['ogImage'])) {
+                    $image = (string) $item['ogImage'];
+                }
+
+                $row = [
                     'label' => $item['title'],
                     'slug'  => $item['slug'],
                     'href'  => '/series/' . rawurlencode($item['slug']),
                 ];
+                if ($image !== '') {
+                    $row['image'] = $image;
+                }
+                if (!empty($item['seoDescription'])) {
+                    $row['description'] = (string) $item['seoDescription'];
+                }
+                return $row;
             }, $items);
 
             return rest_ensure_response(['items' => $nav, 'series' => $items]);
