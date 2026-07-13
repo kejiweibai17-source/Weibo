@@ -14,14 +14,15 @@ export function getSiteUrl() {
 }
 
 export const SEO_CONFIG = {
-  siteName: "SMASMALL 昔馬 台灣官方商城",
-  siteAlternateName: "昔馬電動刮鬍刀",
+  /** Google 搜尋結果「網站名稱」主要來源（WebSite.name / og:site_name） */
+  siteName: "昔馬電動刮鬍刀",
+  siteAlternateName: ["SMASMALL 昔馬", "SMASMALL 昔馬 台灣官方商城"],
   defaultLocale: "zh-TW",
   inLanguage: "zh-TW",
   areaServed: "TW",
   brand: {
     name: "SMASMALL 昔馬",
-    alternateName: "昔馬",
+    alternateName: "昔馬電動刮鬍刀",
     description:
       "復古未來主義理容品牌，專注於全合金工藝、磁吸刀頭與 IPX7 防水的電動刮鬍刀與男士理容產品。",
     logoPath: "/images/logo/smasmall-logo.png",

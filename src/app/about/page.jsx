@@ -35,7 +35,7 @@ export const metadata = {
     type: "website",
     locale: "zh_TW",
     url: "/about",
-    siteName: "SMASMALL 昔馬 by 威柏科技",
+    siteName: "昔馬電動刮鬍刀",
     title: "關於昔馬 SMASMALL｜2024 網路熱門刮鬍刀領導品牌的故事",
     description:
       "為什麼眾多男士選擇昔馬 SMASMALL？我們以鋅合金壓鑄工藝與智能技術，打造復古未來主義個護品牌，森田愛用、媒體推薦。認識我們如何重新定義男士儀容。",

@@ -69,7 +69,7 @@ export const metadata = {
     type: "website",
     locale: "zh_TW",
     url: "/",
-    siteName: "SMASMALL 昔馬 台灣官方商城",
+    siteName: "昔馬電動刮鬍刀",
     title: "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO",
     description:
       "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。",

@@ -213,12 +213,13 @@ export default function ManualsClient() {
                 <motion.div
                   key={section.id}
                   id={`section-${section.id}`}
-                  className="scroll-mt-28 flex flex-col lg:flex-row gap-10 lg:gap-16 items-start"
+                  className={`scroll-mt-28 flex flex-col gap-10 lg:gap-16 items-start ${
+                    isEven ? "lg:flex-row" : "lg:flex-row-reverse"
+                  }`}
                   initial={{ opacity: 0, y: 28 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.6 }}
-                  style={{ flexDirection: isEven ? "row" : "row-reverse" }}
                 >
                   <div className="w-full lg:w-[45%] shrink-0 overflow-hidden aspect-square relative bg-[#edf5fb]">
                     <Image

@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     locale: "zh_TW",
     // ⚠️ 這裡請換成你實際的路由
     url: "/brand",
-    siteName: "SMASMALL 昔馬 by 威柏科技",
+    siteName: "昔馬電動刮鬍刀",
     title: "昔馬 SMASMALL｜森田愛用・2024 熱門刮鬍刀領導品牌",
     description:
       "昔馬 SMASMALL，Smart + Small 智能個人護理品牌。鋅合金工藝、復古未來主義設計，日本藝人森田愛用，重新定義男士儀容美學。探索完整品牌系列。",

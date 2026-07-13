@@ -12,6 +12,7 @@ const SITE_URL = getSiteUrl();
 // ✨ 全域 SEO 預設（各頁面可覆寫）
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: SEO_CONFIG.siteName,
   title: {
     default: SEO_CONFIG.siteName,
     template: `%s｜${SEO_CONFIG.brand.name}`,
@@ -48,13 +49,16 @@ export const metadata: Metadata = {
     images: [SEO_CONFIG.defaultOgImage],
   },
   robots: { index: true, follow: true },
+  // Google favicon：需為正方形，且尺寸為 48 的倍數（48 / 96 / 192）
   icons: {
     icon: [
+      { url: "/icon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/icon-96.png", type: "image/png", sizes: "96x96" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/images/logo/smasmall-logo.png", type: "image/png", sizes: "256x256" },
     ],
     shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
