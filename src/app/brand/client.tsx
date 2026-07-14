@@ -93,7 +93,7 @@ function BrandRevealImage({
       ref={wrapRef}
       className={`relative max-w-full overflow-hidden rounded-lg shadow-sm ${
         tall
-          ? "w-full max-w-[420px] md:max-w-[480px] aspect-[3/4]"
+          ? "w-full aspect-[4/2.8]"
           : "lg:col-span-7 w-full h-[400px] md:h-[500px]"
       } ${origin === "right" ? "ml-auto" : ""}`}
     >
@@ -265,7 +265,7 @@ export default function SmasmallCollections() {
       <WaabiScrollIntro />
 
       {/* ===== 我們堅持做好這三件事 ===== */}
-      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto">
+      <section className="w-full py-4 md:py-24 px-6 lg:px-16 max-w-[1600px] mx-auto">
         <Copy>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-12 tracking-tight">
             我們堅持做好這三件事
@@ -282,7 +282,7 @@ export default function SmasmallCollections() {
             {
               en: "Design",
               label: "設計",
-              desc: "以積極的美學結合實用機能，打造符合現代生活的產品。",
+              desc: "以簡約美學結合實用機能，打造符合現代生活的產品。",
               img: "/images/3.0刀頭/1.webp",
             },
             {
@@ -317,7 +317,7 @@ export default function SmasmallCollections() {
         </div>
       </section>
 
-      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
+      <section className="w-full  py-6 md:py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
         {/* 頂部橫向大標題 */}
         <div className="max-w-4xl mb-16">
           <Copy>
@@ -356,7 +356,7 @@ export default function SmasmallCollections() {
       </section>
 
       {/* ===== 品牌實力（專利） ===== */}
-      <section className="w-full py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
+      <section className="w-full  py-4 md:py-24 px-6 lg:px-16 max-w-[1600px] mx-auto bg-[#f5f5f7]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 order-2 lg:order-1">
             <Copy>
@@ -371,7 +371,7 @@ export default function SmasmallCollections() {
             </Copy>
             <BrandStrengthStats />
             <img
-              src="/images/奖项.png"
+              src="/images/昔馬 獲獎標章0714更改.png"
               className="w-full mt-10"
               alt="昔馬 SMASMALL 品牌獎項與專利肯定"
             />
@@ -379,7 +379,7 @@ export default function SmasmallCollections() {
 
           <div className="lg:col-span-7 order-1 lg:order-2 flex lg:justify-end">
             <BrandRevealImage
-              src="/images/专利.jpg"
+              src="/images/昔馬專利0714更改.jpg"
               alt="昔馬 SMASMALL 專利與智慧財產權"
               origin="right"
               tall
@@ -391,47 +391,10 @@ export default function SmasmallCollections() {
       {/* ====================================================================
           SECTION 3: Brand Banner & Headquarters (參照 截圖 2.57.47 & 2.57.54)
           ==================================================================== */}
-      <section className="w-full bg-white py-24 border-t border-b border-gray-200/60">
+      <section className="w-full bg-white py-8 xl:py-24 border-t border-b border-gray-200/60">
         <div className="max-w-[1600px] w-full mx-auto px-6 lg:px-16">
-          {/* Part A: 昔馬品牌旗艦視覺牆 */}
-          <div className="mb-20">
-            <Copy>
-              {" "}
-              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-                昔馬 SMASMALL
-              </h3>
-            </Copy>
-            <Copy>
-              {" "}
-              <p className="text-stone-900 text-[16px] max-w-4xl leading-relaxed mb-8">
-                專注於全合金機身與磁吸快拆刀頭，結合德國進口精鋼刀網與 Type-C
-                快充，讓居家、差旅與商務場合都能輕鬆完成刮鬍。威柏科技於台灣提供原廠授權銷售與售後服務，讓每位用戶買得安心、用得長久。
-              </p>
-            </Copy>
-
-            <a
-              href="/brand"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-900 hover:underline"
-            >
-              <span>昔馬全系列產品</span>
-              <ArrowRight size={14} />
-            </a>
-            {/* 品牌巨幅卡片 */}
-            <div className="w-full h-[220px] md:h-[320px] bg-gradient-to-r from-blue-900 via-sky-800 to-blue-900 rounded-lg mt-8 flex items-center justify-center relative overflow-hidden shadow-inner">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_70%)]" />
-              <div className="text-center z-10 text-white">
-                <h2 className="text-4xl md:text-5xl font-extralight tracking-[0.3em]">
-                  昔馬 SMASMALL
-                </h2>
-                <p className="text-[11px] tracking-[0.4em] opacity-60 mt-3">
-                  威柏科技台灣總代理
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Part B: 總代理威柏科技營運與現代化大樓 */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-12 border-t border-gray-100">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-2 md:pt-12 border-t border-gray-100">
             <div className="lg:col-span-5">
               <Copy>
                 {" "}

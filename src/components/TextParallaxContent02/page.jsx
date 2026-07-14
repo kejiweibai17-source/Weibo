@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Info, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
+import { Info, ChevronDown } from "lucide-react";
 import {
   HOME_BLADE_INTRO_FALLBACK,
   resolveBladeItemImages,
@@ -25,104 +23,25 @@ function resolveImageSrc(image) {
     .join("/");
 }
 
-function BladeImageCarousel({ images, label }) {
-  const autoplay = useRef(
-    Autoplay({ delay: 3200, stopOnInteraction: false, stopOnMouseEnter: true }),
-  );
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: "center" },
-    [autoplay.current],
-  );
-  const [selected, setSelected] = useState(0);
-  const [canScroll, setCanScroll] = useState(false);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelected(emblaApi.selectedScrollSnap());
-    setCanScroll(emblaApi.canScrollPrev() || emblaApi.canScrollNext());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-      emblaApi.off("reInit", onSelect);
-    };
-  }, [emblaApi, onSelect]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.reInit();
-    emblaApi.scrollTo(0, true);
-    autoplay.current?.reset?.();
-  }, [emblaApi, images]);
-
+/** 收折區底部：圓形小圖列（後台「刀頭輪播圖」可改） */
+function BladeCircleThumbs({ images, label }) {
   if (!images?.length) return null;
 
   return (
-    <div className="relative w-full">
-      <div
-        className="overflow-hidden rounded-sm border border-white/10 bg-black/30"
-        ref={emblaRef}
-      >
-        <div className="flex">
-          {images.map((src, index) => (
-            <div
-              key={`${src}-${index}`}
-              className="relative min-w-0 flex-[0_0_100%]"
-            >
-              <div className="relative aspect-square w-full">
-                <img
-                  src={resolveImageSrc(src)}
-                  alt={`${label || "刀頭細節"} ${index + 1}`}
-                  className="h-full w-full object-contain p-3 md:p-4"
-                  draggable={false}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {canScroll ? (
-        <>
-          <button
-            type="button"
-            aria-label="上一張"
-            onClick={() => emblaApi?.scrollPrev()}
-            className="absolute top-1/2 left-2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/45 text-white/80 backdrop-blur-sm transition hover:bg-black/70 hover:text-white md:left-3"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            type="button"
-            aria-label="下一張"
-            onClick={() => emblaApi?.scrollNext()}
-            className="absolute top-1/2 right-2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center border border-white/15 bg-black/45 text-white/80 backdrop-blur-sm transition hover:bg-black/70 hover:text-white md:right-3"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </>
-      ) : null}
-
-      <div className="mt-4 flex items-center justify-center gap-2">
-        {images.map((_, index) => (
-          <button
-            key={`dot-${index}`}
-            type="button"
-            aria-label={`切換至第 ${index + 1} 張`}
-            onClick={() => emblaApi?.scrollTo(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              selected === index
-                ? "w-6 bg-white"
-                : "w-1.5 bg-white/30 hover:bg-white/55"
-            }`}
+    <div className="mt-6 -mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {images.map((src, index) => (
+        <div
+          key={`${src}-${index}`}
+          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-white/30 bg-white/5 md:h-[4.25rem] md:w-[4.25rem]"
+        >
+          <img
+            src={resolveImageSrc(src)}
+            alt={`${label || "刀頭細節"} ${index + 1}`}
+            className="h-full w-full object-cover"
+            draggable={false}
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -335,13 +254,11 @@ export default function ElegantScrollSection({ section = null }) {
                       ) : null}
 
                       {isOpen && itemImages.length > 0 ? (
-                        <div className="mt-6">
-                          <BladeImageCarousel
-                            key={item.id}
-                            images={itemImages}
-                            label={item.title}
-                          />
-                        </div>
+                        <BladeCircleThumbs
+                          key={item.id}
+                          images={itemImages}
+                          label={item.title}
+                        />
                       ) : null}
                     </div>
                   </div>

@@ -19,7 +19,9 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const MODEL_PATH = "/3d/機身細節26.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
-const SCROLL_VIEWPORT_HEIGHTS = 5;
+// 縮短總滾動距離讓整段更緊湊；動畫內容（遮罩揭露、標題滑動、分隔線、文字、旋轉、上蓋分離）全部保留，
+// 只是把時間軸壓縮、拉近彼此的間距，減少「轉完之後還要滾很久才接到文字」的空白感
+const SCROLL_VIEWPORT_HEIGHTS = 3;
 const MOBILE_MQ = "(max-width: 768px)";
 const MOBILE_MODEL_SCALE = 0.58;
 const DESKTOP_MODEL_SCALE = 1;
@@ -341,8 +343,9 @@ export default function ConstellationProductScroll() {
 
       const tooltipRevealSets = [
         {
-          start: 0.65,
-          end: 0.72,
+          // 產品定住、分隔線畫完後就馬上接文字，不留空白滾動區
+          start: 0.42,
+          end: 0.5,
           elements: [
             ...q(section, ".tooltip:nth-child(1) .eyebrow"),
             ...q(section, ".tooltip:nth-child(1) .title .line > span"),
@@ -350,8 +353,8 @@ export default function ConstellationProductScroll() {
           ],
         },
         {
-          start: 0.85,
-          end: 0.9,
+          start: 0.64,
+          end: 0.72,
           elements: [
             ...q(section, ".tooltip:nth-child(2) .eyebrow"),
             ...q(section, ".tooltip:nth-child(2) .title .line > span"),
@@ -407,8 +410,8 @@ export default function ConstellationProductScroll() {
         const { state } = three;
         if (!state.lidReady || !state.lidParts?.length || !state.modelSize) return;
 
-        const liftStart = 0.3;
-        const liftEnd = 0.7;
+        const liftStart = 0.5;
+        const liftEnd = 0.8;
         const raw =
           progress < liftStart
             ? 0
@@ -448,23 +451,23 @@ export default function ConstellationProductScroll() {
 
           const headerProgress = Math.max(
             0,
-            Math.min(1, (progress - 0.05) / 0.3),
+            Math.min(1, (progress - 0.03) / 0.19),
           );
           gsap.set(header1Ref.current, {
             xPercent:
-              progress < 0.05
+              progress < 0.03
                 ? 0
-                : progress > 0.35
+                : progress > 0.22
                   ? -100
                   : -100 * headerProgress,
           });
 
           const maskSize =
-            progress < 0.2
+            progress < 0.12
               ? 0
-              : progress > 0.3
+              : progress > 0.22
                 ? 100
-                : 100 * ((progress - 0.2) / 0.1);
+                : 100 * ((progress - 0.12) / 0.1);
           const clipPath = `circle(${maskSize}% at 50% 50%)`;
 
           if (maskBgRef.current) {
@@ -474,21 +477,21 @@ export default function ConstellationProductScroll() {
             maskGlassRef.current.style.clipPath = clipPath;
           }
 
-          const header2Progress = (progress - 0.15) / 0.35;
+          const header2Progress = (progress - 0.1) / 0.22;
           const header2XPercent =
-            progress < 0.15
+            progress < 0.1
               ? 100
-              : progress > 0.5
+              : progress > 0.32
                 ? -200
                 : 100 - 300 * header2Progress;
           gsap.set(header2Ref.current, { xPercent: header2XPercent });
 
           const scaleX =
-            progress < 0.45
+            progress < 0.28
               ? 0
-              : progress > 0.65
+              : progress > 0.42
                 ? 100
-                : 100 * ((progress - 0.45) / 0.2);
+                : 100 * ((progress - 0.28) / 0.14);
           gsap.set(dividerEls, { scaleX: `${scaleX}%` });
 
           tooltipRevealSets.forEach(({ start, end, elements }) => {
@@ -496,7 +499,7 @@ export default function ConstellationProductScroll() {
           });
 
           const rotationProgress =
-            progress < 0.05 ? 0 : (progress - 0.05) / 0.95;
+            progress < 0.03 ? 0 : (progress - 0.03) / 0.97;
           three.pivot.rotation.y = Math.PI * 12 * rotationProgress;
           updateLidSeparation(progress);
           three.requestRender();

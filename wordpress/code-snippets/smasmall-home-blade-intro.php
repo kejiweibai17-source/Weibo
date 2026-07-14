@@ -3,9 +3,9 @@
  * SMASMALL — 首頁刀頭介紹（Code Snippets）
  *
  * - 左側選單：首頁刀頭介紹
- * - 管理開場文案、背景圖、手風琴刀頭項目（每項可加多張輪播圖）
+ * - 管理開場文案、背景圖、手風琴刀頭項目（每項可加多張圓形小圖）
  * - 公開 REST：GET /wp-json/smasmall/v1/home-blade-intro
- *   每個 item 含 images: string[]（輪播圖 URL）
+ *   每個 item 含 images: string[]（圓形小圖 URL）
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
  */
@@ -286,8 +286,8 @@ function smasmall_home_blade_intro_render_item_row(array $item, $index): void
                 <textarea class="large-text" rows="4" name="blade_intro[accordion][items][<?php echo esc_attr($index_key); ?>][description]"><?php echo esc_textarea($item['description'] ?? ''); ?></textarea></p>
 
             <div class="shbi-images-block">
-                <label>輪播圖（可多張，拖曳排序）</label>
-                <p class="description" style="margin:4px 0 8px;">前台手風琴展開後會以輪播顯示。建議正方形或直式產品圖。</p>
+                <label>圓形小圖（可多張，拖曳排序）</label>
+                <p class="description" style="margin:4px 0 8px;">前台手風琴展開後會以圓形小圖列顯示。建議上傳正方形產品圖。</p>
                 <ul class="shbi-images-list">
                     <?php foreach ($images as $img_url) :
                         if (!is_string($img_url) || trim($img_url) === '') {
@@ -303,7 +303,7 @@ function smasmall_home_blade_intro_render_item_row(array $item, $index): void
                     <?php endforeach; ?>
                 </ul>
                 <p>
-                    <button type="button" class="button shbi-add-images">+ 新增輪播圖</button>
+                    <button type="button" class="button shbi-add-images">+ 新增圓形小圖</button>
                 </p>
             </div>
 
@@ -332,7 +332,7 @@ function smasmall_home_blade_intro_render_page(): void
     ?>
     <div class="wrap shbi-admin">
         <h1>首頁刀頭介紹</h1>
-        <p class="description">管理官網首頁「全合金機身＋刀頭介紹手風琴」滾動區。每個刀頭可上傳多張輪播圖。儲存後約 1 分鐘內同步至前台。</p>
+        <p class="description">管理官網首頁「全合金機身＋刀頭介紹手風琴」滾動區。每個刀頭可上傳多張圓形小圖。儲存後約 1 分鐘內同步至前台。</p>
 
         <?php if ($updated) : ?>
             <div class="notice notice-success is-dismissible"><p>已儲存設定。</p></div>
@@ -564,8 +564,8 @@ add_action('admin_footer', function () {
                 }
                 var itemIndex = $card.attr('data-index') || '0';
                 var frame = wp.media({
-                    title: '新增刀頭輪播圖',
-                    button: { text: '加入輪播' },
+                    title: '新增刀頭圓形小圖',
+                    button: { text: '加入小圖' },
                     multiple: true,
                     library: { type: 'image' }
                 });

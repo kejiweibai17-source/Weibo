@@ -409,7 +409,7 @@ export default function WaabiScrollIntro({
   heroLabel = "首篇 SMASMALL",
   heroTitle = "小事精做，智見未來。",
   heroCopy = 'SMASMALL 名字源自 "Do small things to smart things"，代表從每一件小事開始，以專注細節的態度，累積卓越品質，創造更美好的生活。',
-  aboutText = "我對幸福生活，也相信每一位使用者都是自己生活中的主角。",
+  aboutText = "我們熱愛生活，也相信每一位使用者都是自己生活中的主角。",
   aboutSubtext = "SMASMALL 不只是提供個人護理產品，更希望透過產品品質與設計師的造品，陪伴每一個人享受更舒適、更自在、更有質感的生活方式。",
   imageAlt = "SMASMALL 昔馬電動刮鬍刀",
 }) {
