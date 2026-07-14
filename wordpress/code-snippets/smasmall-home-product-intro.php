@@ -1,8 +1,13 @@
 /**
  * SMASMALL — 首頁產品介紹區塊（Code Snippets）
  *
+ * 對應前台：src/components/S3GroomingPrecision.jsx
+ *
  * - 左側選單：首頁產品介紹
- * - 管理背景圖、副標、標題、描述、產品規格、熱點特色（小圖＋標題＋說明）
+ * - 管理：左下規格、熱點特色（背景圖切換／熱點位置／放大倍率）、副標
+ * - 前台行為：
+ *   · 規格（specs）→ 左下「產品資訊」卡片
+ *   · 特色（features）→ 上一個／下一個切換 + 背景換成該特色 image；白點熱點在 top/left；點擊後依 bgScale 放大，右下顯示標題與說明
  * - 公開 REST：GET /wp-json/smasmall/v1/home-product-intro
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
@@ -14,17 +19,30 @@ if (!defined('ABSPATH')) {
 
 const SMASMALL_HOME_PRODUCT_INTRO_OPTION = 'smasmall_home_product_intro';
 
+function smasmall_home_product_intro_sanitize_image_url($url): string
+{
+    $url = trim((string) $url);
+    if ($url === '') {
+        return '';
+    }
+    // 允許站內相對路徑（例如 /images/...）
+    if (isset($url[0]) && $url[0] === '/') {
+        return sanitize_text_field($url);
+    }
+    return esc_url_raw($url);
+}
+
 function smasmall_home_product_intro_defaults(): array
 {
     return [
         'enabled'         => true,
         'backgroundImage' => '',
-        'subtitle'        => '上蓋特寫',
+        'subtitle'        => '產品特寫',
         'title'           => '磁吸防塵保護蓋',
         'description'     => '磁吸式上蓋一貼即合，隔絕灰塵、守護刀頭，收納潔淨衛生。',
         'specs'           => [
             ['label' => '適用機型', 'value' => 'S3 旗艦版刮鬍刀'],
-            ['label' => '核心功能', 'value' => '磁吸防塵保護蓋'],
+            ['label' => '核心功能', 'value' => '9200 rpm 強勁靜音電機'],
             ['label' => '磁吸結構', 'value' => '一貼即合'],
             ['label' => '機身材質', 'value' => '鋅合金壓鑄'],
         ],
@@ -80,19 +98,20 @@ function smasmall_home_product_intro_defaults(): array
 
 function smasmall_home_product_intro_get(): array
 {
-    $saved = get_option(SMASMALL_HOME_PRODUCT_INTRO_OPTION, []);
-    if (!is_array($saved)) {
-        $saved = [];
+    $saved = get_option(SMASMALL_HOME_PRODUCT_INTRO_OPTION, false);
+    // 尚未儲存過：後台表單顯示預設值，但 API 不輸出（見 format_for_api）
+    if ($saved === false || !is_array($saved)) {
+        return smasmall_home_product_intro_defaults();
     }
 
     $defaults = smasmall_home_product_intro_defaults();
     $merged = array_merge($defaults, $saved);
 
     if (!is_array($merged['specs'] ?? null)) {
-        $merged['specs'] = $defaults['specs'];
+        $merged['specs'] = [];
     }
-    if (!is_array($merged['features'] ?? null) || empty($merged['features'])) {
-        $merged['features'] = $defaults['features'];
+    if (!is_array($merged['features'] ?? null)) {
+        $merged['features'] = [];
     }
 
     return $merged;
@@ -101,7 +120,7 @@ function smasmall_home_product_intro_get(): array
 function smasmall_home_product_intro_sanitize_specs($input): array
 {
     if (!is_array($input)) {
-        return smasmall_home_product_intro_defaults()['specs'];
+        return [];
     }
 
     $out = [];
@@ -123,13 +142,13 @@ function smasmall_home_product_intro_sanitize_specs($input): array
         }
     }
 
-    return $out ?: smasmall_home_product_intro_defaults()['specs'];
+    return $out;
 }
 
 function smasmall_home_product_intro_sanitize_features($input): array
 {
     if (!is_array($input)) {
-        return smasmall_home_product_intro_defaults()['features'];
+        return [];
     }
 
     $defaults = smasmall_home_product_intro_defaults()['features'];
@@ -142,7 +161,7 @@ function smasmall_home_product_intro_sanitize_features($input): array
 
         $title = sanitize_text_field($row['title'] ?? '');
         $description = sanitize_textarea_field($row['description'] ?? '');
-        $image = esc_url_raw(trim((string) ($row['image'] ?? '')));
+        $image = smasmall_home_product_intro_sanitize_image_url($row['image'] ?? '');
         if ($title === '' && $description === '' && $image === '') {
             continue;
         }
@@ -185,7 +204,7 @@ function smasmall_home_product_intro_sanitize_features($input): array
         }
     }
 
-    return $out ?: $defaults;
+    return $out;
 }
 
 function smasmall_home_product_intro_sanitize($input): array
@@ -198,7 +217,7 @@ function smasmall_home_product_intro_sanitize($input): array
 
     return [
         'enabled'         => !empty($input['enabled']),
-        'backgroundImage' => esc_url_raw(trim((string) ($input['backgroundImage'] ?? ''))),
+        'backgroundImage' => smasmall_home_product_intro_sanitize_image_url($input['backgroundImage'] ?? ''),
         'subtitle'        => sanitize_text_field($input['subtitle'] ?? $defaults['subtitle']),
         'title'           => sanitize_text_field($input['title'] ?? $defaults['title']),
         'description'     => sanitize_textarea_field($input['description'] ?? $defaults['description']),
@@ -209,6 +228,12 @@ function smasmall_home_product_intro_sanitize($input): array
 
 function smasmall_home_product_intro_format_for_api(array $data): ?array
 {
+    // 從未儲存過後台 → 前台不顯示預設假資料
+    $raw = get_option(SMASMALL_HOME_PRODUCT_INTRO_OPTION, false);
+    if ($raw === false || !is_array($raw)) {
+        return null;
+    }
+
     if (empty($data['enabled'])) {
         return null;
     }
@@ -233,10 +258,6 @@ function smasmall_home_product_intro_format_for_api(array $data): ?array
         ];
     }
 
-    if (empty($specs)) {
-        return null;
-    }
-
     $features = [];
     foreach (($data['features'] ?? []) as $row) {
         if (!is_array($row)) {
@@ -250,15 +271,20 @@ function smasmall_home_product_intro_format_for_api(array $data): ?array
             'id'          => sanitize_key((string) ($row['id'] ?? uniqid('feature_', false))),
             'title'       => $title,
             'description' => sanitize_textarea_field($row['description'] ?? ''),
-            'image'       => esc_url_raw((string) ($row['image'] ?? '')),
+            'image'       => smasmall_home_product_intro_sanitize_image_url($row['image'] ?? ''),
             'top'         => sanitize_text_field((string) ($row['top'] ?? '50%')),
             'left'        => sanitize_text_field((string) ($row['left'] ?? '50%')),
             'bgScale'     => (float) ($row['bgScale'] ?? 2.4),
         ];
     }
 
+    // 規格與特色都沒填 → 前台不顯示
+    if (empty($specs) && empty($features)) {
+        return null;
+    }
+
     return [
-        'backgroundImage' => esc_url_raw($data['backgroundImage'] ?? ''),
+        'backgroundImage' => smasmall_home_product_intro_sanitize_image_url($data['backgroundImage'] ?? ''),
         'subtitle'        => sanitize_text_field($data['subtitle'] ?? ''),
         'title'           => sanitize_text_field($data['title'] ?? ''),
         'description'     => sanitize_textarea_field($data['description'] ?? ''),
@@ -306,7 +332,7 @@ function smasmall_home_product_intro_render_spec_row(array $spec, $index): void
             name="product_intro[specs][<?php echo esc_attr($index_key); ?>][value]"
             value="<?php echo esc_attr($spec['value'] ?? ''); ?>" placeholder="例如：S3 旗艦版刮鬍刀" style="margin-top:8px" />
         <?php if ((int) $index === 0) : ?>
-        <p class="description">第一項會以較大字顯示在產品資訊卡片上方。</p>
+        <p class="description">第一項顯示在左下卡片上方（較大字）。其餘規格以兩欄顯示。前台「核心功能」標題會改顯示目前切換到的特色名稱，不必把「核心功能」再寫進規格。</p>
         <?php endif; ?>
     </td>
 </tr>
@@ -339,41 +365,42 @@ function smasmall_home_product_intro_render_feature_card(array $feature, $index)
             </div>
             <input type="hidden" name="product_intro[features][<?php echo esc_attr($index_key); ?>][image]" value="<?php echo esc_attr($image); ?>" class="shpi-feature-image-url" />
             <p>
-                <button type="button" class="button shpi-pick-feature-image">選擇特色小圖</button>
+                <button type="button" class="button shpi-pick-feature-image">選擇特色背景圖</button>
                 <button type="button" class="button-link-delete shpi-clear-feature-image">清除</button>
             </p>
-            <p class="description">點擊熱點後右下角卡片會顯示此圖。</p>
+            <p class="description">前台用「上一個／下一個」切到此特色時，全螢幕背景會換成這張圖。</p>
         </div>
 
         <div class="shpi-feature-fields">
             <p>
-                <label>標題</label><br />
+                <label>標題（左下「核心功能」＋點擊後右下大標）</label><br />
                 <input type="text" class="large-text" name="product_intro[features][<?php echo esc_attr($index_key); ?>][title]"
                     value="<?php echo esc_attr($feature['title'] ?? ''); ?>" placeholder="例如：專利防水推式開關" />
             </p>
             <p>
-                <label>說明</label><br />
+                <label>說明（點擊白點放大後，右下顯示）</label><br />
                 <textarea class="large-text" rows="3" name="product_intro[features][<?php echo esc_attr($index_key); ?>][description]"
                     placeholder="例如：獨家防水推動設計，有效防止誤觸，操作更安心。"><?php echo esc_textarea($feature['description'] ?? ''); ?></textarea>
             </p>
             <div class="shpi-feature-pos">
                 <p>
-                    <label>熱點 Top（%）</label><br />
+                    <label>白點 Top（%）</label><br />
                     <input type="text" class="small-text" name="product_intro[features][<?php echo esc_attr($index_key); ?>][top]"
                         value="<?php echo esc_attr($feature['top'] ?? '50%'); ?>" placeholder="48%" />
                 </p>
                 <p>
-                    <label>熱點 Left（%）</label><br />
+                    <label>白點 Left（%）</label><br />
                     <input type="text" class="small-text" name="product_intro[features][<?php echo esc_attr($index_key); ?>][left]"
                         value="<?php echo esc_attr($feature['left'] ?? '50%'); ?>" placeholder="50%" />
                 </p>
                 <p>
-                    <label>放大倍率</label><br />
+                    <label>點擊後放大倍率</label><br />
                     <input type="number" class="small-text" step="0.1" min="1" max="5"
                         name="product_intro[features][<?php echo esc_attr($index_key); ?>][bgScale]"
                         value="<?php echo esc_attr((string) ($feature['bgScale'] ?? 2.4)); ?>" />
                 </p>
             </div>
+            <p class="description">Top／Left 決定白點位置與放大中心（例：48%、50%）。倍率建議 2.0～2.6。</p>
         </div>
     </div>
 </li>
@@ -397,7 +424,7 @@ function smasmall_home_product_intro_render_page(): void
     ?>
 <div class="wrap shpi-admin">
     <h1>首頁產品介紹</h1>
-    <p class="description">管理官網首頁 3D 產品特寫區：左下產品資訊、點擊熱點後的右下特色卡片（小圖＋標題＋說明）。儲存後約 1 分鐘內同步至前台。</p>
+    <p class="description">對應前台 <code>S3GroomingPrecision</code>：左下規格＋上／下一個、白點熱點、點擊放大後右下說明。儲存後約 1 分鐘同步前台。</p>
 
     <?php if ($updated) : ?>
     <div class="notice notice-success is-dismissible">
@@ -416,7 +443,7 @@ function smasmall_home_product_intro_render_page(): void
                             <?php checked(!empty($data['enabled'])); ?> /> 在前台顯示</label></td>
             </tr>
             <tr>
-                <th scope="row">背景圖</th>
+                <th scope="row">預設背景圖</th>
                 <td>
                     <div class="shpi-image-box">
                         <div class="shpi-thumb">
@@ -434,38 +461,46 @@ function smasmall_home_product_intro_render_page(): void
                             <button type="button" class="button" id="shpi-pick-bg">選擇背景圖</button>
                             <button type="button" class="button-link-delete" id="shpi-clear-bg">清除</button>
                         </p>
-                        <p class="description">建議使用深色、高質感背景圖；熱點與 3D／產品圖會疊加在背景上方。</p>
+                        <p class="description">當目前特色沒有上傳圖片時，才用這張當全螢幕背景。有上傳特色圖時以特色圖為主。</p>
                     </div>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="shpi-subtitle">副標（小字）</label></th>
-                <td><input type="text" class="regular-text" id="shpi-subtitle" name="product_intro[subtitle]"
-                        value="<?php echo esc_attr($data['subtitle'] ?? ''); ?>" placeholder="上蓋特寫" /></td>
+                <th scope="row"><label for="shpi-subtitle">副標（放大後右下小字）</label></th>
+                <td>
+                    <input type="text" class="regular-text" id="shpi-subtitle" name="product_intro[subtitle]"
+                        value="<?php echo esc_attr($data['subtitle'] ?? ''); ?>" placeholder="產品特寫" />
+                    <p class="description">點擊白點放大後，右下角上方的灰色小標（預設「產品特寫」）。</p>
+                </td>
             </tr>
             <tr>
-                <th scope="row"><label for="shpi-title">標題</label></th>
-                <td><input type="text" class="large-text" id="shpi-title" name="product_intro[title]"
-                        value="<?php echo esc_attr($data['title'] ?? ''); ?>" /></td>
+                <th scope="row"><label for="shpi-title">區塊識別標題</label></th>
+                <td>
+                    <input type="text" class="large-text" id="shpi-title" name="product_intro[title]"
+                        value="<?php echo esc_attr($data['title'] ?? ''); ?>" />
+                    <p class="description">API／後台識別用；前台主要顯示的是下方「特色」標題。不可空白，否則區塊不會輸出。</p>
+                </td>
             </tr>
             <tr>
-                <th scope="row"><label for="shpi-description">描述</label></th>
-                <td><textarea class="large-text" rows="3" id="shpi-description"
+                <th scope="row"><label for="shpi-description">區塊備註描述</label></th>
+                <td>
+                    <textarea class="large-text" rows="2" id="shpi-description"
                         name="product_intro[description]"><?php echo esc_textarea($data['description'] ?? ''); ?></textarea>
+                    <p class="description">選填。前台內容以各特色的「說明」為主。</p>
                 </td>
             </tr>
         </table>
 
         <h2>產品資訊卡片（最多 4 項）</h2>
-        <p class="description">對應前台左下角「產品資訊」區塊。</p>
+        <p class="description">對應左下角半透明「產品資訊」卡片（適用機型、磁吸結構、機身材質等）。切換特色時「核心功能」會自動帶入該特色標題。</p>
         <table class="form-table" role="presentation">
             <?php foreach (array_slice($specs, 0, 4) as $i => $spec) :
                 smasmall_home_product_intro_render_spec_row(is_array($spec) ? $spec : [], $i);
             endforeach; ?>
         </table>
 
-        <h2>熱點特色卡片（小圖＋標題＋說明）</h2>
-        <p class="description">對應前台閃爍熱點；點擊後右下角顯示特色小圖、標題與說明。可調整熱點位置（Top / Left %）與背景放大倍率。</p>
+        <h2>熱點特色（上一個／下一個＋白點放大）</h2>
+        <p class="description">每一項 = 一張背景圖＋左側核心功能名稱＋白點位置。前台最多約 8 項，可新增／刪除。</p>
         <div class="shpi-toolbar">
             <button type="button" class="button button-primary" id="shpi-add-feature">+ 新增特色</button>
             <span>共 <strong id="shpi-feature-count"><?php echo count($features); ?></strong> 項</span>
@@ -607,7 +642,7 @@ jQuery(function($) {
             return;
         }
         var frame = wp.media({
-            title: '選擇背景圖',
+            title: '選擇預設背景圖',
             button: { text: '使用這張圖' },
             multiple: false,
             library: { type: 'image' }
@@ -672,7 +707,7 @@ jQuery(function($) {
                 return;
             }
             var frame = wp.media({
-                title: '選擇特色小圖',
+                title: '選擇特色背景圖',
                 button: { text: '使用這張圖' },
                 multiple: false,
                 library: { type: 'image' }
@@ -694,6 +729,10 @@ jQuery(function($) {
         e.preventDefault();
         if (!$tmpl.length) {
             alert('找不到特色範本，請重新整理頁面。');
+            return;
+        }
+        if ($list.find('.shpi-feature-card').length >= 8) {
+            alert('最多 8 個特色項目。');
             return;
         }
         var index = $list.find('.shpi-feature-card').length;

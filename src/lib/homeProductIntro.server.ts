@@ -1,10 +1,8 @@
 import "server-only";
-import {
-  HOME_PRODUCT_INTRO_FALLBACK,
-  HOME_PRODUCT_INTRO_FEATURES_FALLBACK,
-  type HomeProductIntroFeature,
-  type HomeProductIntroSection,
-  type HomeProductIntroSpec,
+import type {
+  HomeProductIntroFeature,
+  HomeProductIntroSection,
+  HomeProductIntroSpec,
 } from "@/data/home-product-intro-fallback";
 
 function getWpBase(): string | null {
@@ -29,9 +27,7 @@ function normalizeSpecs(raw: unknown): HomeProductIntroSpec[] {
 }
 
 function normalizeFeatures(raw: unknown): HomeProductIntroFeature[] {
-  if (!Array.isArray(raw) || raw.length === 0) {
-    return [...HOME_PRODUCT_INTRO_FEATURES_FALLBACK];
-  }
+  if (!Array.isArray(raw) || raw.length === 0) return [];
 
   const features: HomeProductIntroFeature[] = [];
   for (const row of raw) {
@@ -54,17 +50,16 @@ function normalizeFeatures(raw: unknown): HomeProductIntroFeature[] {
 
     const image = typeof item.image === "string" ? item.image.trim() : "";
 
-    const fallback = HOME_PRODUCT_INTRO_FEATURES_FALLBACK[features.length];
     const top =
       typeof item.top === "string" && item.top.trim()
         ? item.top.trim()
-        : (fallback?.top ?? "50%");
+        : "50%";
     const left =
       typeof item.left === "string" && item.left.trim()
         ? item.left.trim()
-        : (fallback?.left ?? "50%");
+        : "50%";
 
-    let bgScale = fallback?.bgScale ?? 2.4;
+    let bgScale = 2.4;
     if (typeof item.bgScale === "number" && Number.isFinite(item.bgScale)) {
       bgScale = item.bgScale;
     } else if (typeof item.bgScale === "string" && item.bgScale.trim()) {
@@ -76,7 +71,7 @@ function normalizeFeatures(raw: unknown): HomeProductIntroFeature[] {
       id,
       title,
       description,
-      image: image || fallback?.image || "",
+      image,
       top,
       left,
       bgScale,
@@ -85,7 +80,7 @@ function normalizeFeatures(raw: unknown): HomeProductIntroFeature[] {
     if (features.length >= 8) break;
   }
 
-  return features.length ? features : [...HOME_PRODUCT_INTRO_FEATURES_FALLBACK];
+  return features;
 }
 
 function normalizeSection(raw: unknown): HomeProductIntroSection | null {
@@ -96,16 +91,21 @@ function normalizeSection(raw: unknown): HomeProductIntroSection | null {
   if (!title) return null;
 
   const specs = normalizeSpecs(row.specs);
-  if (!specs.length) return null;
+  const features = normalizeFeatures(row.features);
+
+  // 後台未填規格與特色 → 整段不輸出
+  if (!specs.length && !features.length) return null;
 
   return {
     backgroundImage:
       typeof row.backgroundImage === "string" ? row.backgroundImage.trim() : "",
-    subtitle: typeof row.subtitle === "string" ? row.subtitle : "",
+    subtitle:
+      typeof row.subtitle === "string" ? row.subtitle.trim() : "",
     title,
-    description: typeof row.description === "string" ? row.description : "",
+    description:
+      typeof row.description === "string" ? row.description.trim() : "",
     specs,
-    features: normalizeFeatures(row.features),
+    features,
   };
 }
 
@@ -116,24 +116,21 @@ function getHomeFetchInit(): RequestInit {
   return { next: { revalidate: 60 } };
 }
 
-/** 從 WordPress REST 取得首頁產品介紹區塊 */
+/** 從 WordPress REST 取得首頁產品介紹；後台無資料則回傳 null（前台不顯示） */
 export async function getHomeProductIntroSection(): Promise<HomeProductIntroSection | null> {
   const base = getWpBase();
-  if (!base) return HOME_PRODUCT_INTRO_FALLBACK;
+  if (!base) return null;
 
   try {
     const res = await fetch(
       `${base}/wp-json/smasmall/v1/home-product-intro`,
       getHomeFetchInit(),
     );
-    if (!res.ok) return HOME_PRODUCT_INTRO_FALLBACK;
+    if (!res.ok) return null;
 
     const data = await res.json();
-    const section = normalizeSection(data?.section);
-    if (!section) return null;
-
-    return section;
+    return normalizeSection(data?.section);
   } catch {
-    return HOME_PRODUCT_INTRO_FALLBACK;
+    return null;
   }
 }
