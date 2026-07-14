@@ -7,7 +7,7 @@ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import gsap from "gsap";
 
-const MODEL_PATH = "/3d/機身細節26.glb";
+const MODEL_PATH = "/3d/機身細節33.glb";
 /** Poly Haven — studio_small_03 (CC0) */
 const HDR_PATH = "/hdr/polyhaven-studio_small_03_1k.hdr";
 
@@ -20,125 +20,310 @@ const LID_EXACT_NAMES = new Set([
   "上盖",
 ]);
 
-const METAL_MESH_HINT =
-  /盖子|蓋子|上蓋|上盖|^刀$|刀网|刀網|德国刀|德國刀|机身链接|機身連結/i;
+/** 星座圖騰開關的實際網格名稱，用於自動算出精準對焦點 */
+const SWITCH_EXACT_NAMES = new Set(["按钮", "按钮.001", "按钮框"]);
 
-/** 預設載入／上蓋／刀頭共用：略小、螢幕正中；刀頭僅多上蓋飛離 */
-const DEFAULT_POSE = {
-  modelRot: { x: 0.18, y: -0.22, z: 0 },
-  focusY: 0,
-  /** 越小＝主體越小 */
-  fill: 0.58,
-  yaw: 0.1,
-  pitch: 0.05,
+/**
+ * Type-C 充電接口的實際網格名稱，用於自動算出精準對焦點。
+ * 機身細節33.glb 匯出後這兩個部件維持 Blender 預設的「立方體」命名，
+ * 不再是舊版的 type-c-1 / type-c-2，這裡兩組名稱都保留以相容不同版本模型。
+ */
+const TYPEC_EXACT_NAMES = new Set(["type-c-1", "type-c-2", "立方體", "立方體.001"]);
+
+/** 立方體：獨立渲染金屬材質；立方體.001：直接沿用機身外殼材質，融為一體 */
+const CUBE_METAL_NAME = "立方體";
+const CUBE_BODY_MATCH_NAME = "立方體.001";
+const BODY_MATERIAL_SOURCE_NAME = "挤压";
+
+/** 拖曳旋轉固定繞「世界座標軸」轉，不會因目前視角本身帶有傾斜角而讓拖曳方向跟著歪掉 */
+const WORLD_UP_AXIS = new THREE.Vector3(0, 1, 0);
+const WORLD_RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
+
+/**
+ * 五個特寫視角設定。之後要微調某個特寫的角度／位置，只需要調整這裡的數字：
+ * - modelRot：整台機身旋轉角度（rad），決定該部位正面朝向鏡頭的方向
+ * - anchor：對焦點在模型外框中的相對位置（0~1），x/y/z 三軸；
+ *   y:0 = 外框最底部，y:1 = 外框最頂部，x/z 同理
+ * - meshNames：若該部位有專屬網格名稱，會自動用該網格的實際外框取代 anchor 估算值（更精準）
+ * - fill：鏡頭拉近程度，數字越大越靠近、越容易裁切；越小越遠、模型越小
+ * - yaw / pitch：鏡頭相對對焦點左右／上下偏移的角度，做出「側拍」的視角感
+ * - lidOpen：是否要把上蓋飛開露出刀頭（僅「刀頭特寫」需要，其餘機制保留供未來擴充）
+ */
+const VIEWS = {
+  port: {
+    key: "port",
+    label: "快充接口",
+    title: "Type-C 快充接口",
+    lines: ["通用 Type-C 充電，正反皆可插", "充電更快速、更便利"],
+    modelRot: { x: -0.85, y: 0.4, z: 0 },
+    anchor: { x: 0.5, y: 0.5, z: 0.5 },
+    // 新模型有專屬 type-c-1 / type-c-2 網格，會自動取代上面的 anchor 估算值
+    meshNames: TYPEC_EXACT_NAMES,
+    focusY: -0.03,
+    fill: 1.4,
+    yaw: 0.02,
+    pitch: -0.03,
+    lidOpen: false,
+  },
+  switchBtn: {
+    key: "switchBtn",
+    label: "圖騰開關",
+    title: "星座圖騰開關",
+    lines: ["開關鍵鐫刻星座圖騰", "一鍵啟動，細節見質感"],
+    modelRot: { x: 0.05, y: -0.05, z: 0 },
+    anchor: { x: 0.5, y: 0.42, z: 0.85 },
+    meshNames: SWITCH_EXACT_NAMES,
+    focusY: 0,
+    fill: 1.35,
+    yaw: 0.04,
+    pitch: 0.02,
+    lidOpen: false,
+  },
+  shell: {
+    key: "shell",
+    label: "鋅合金外殼",
+    title: "鋅合金外殼",
+    lines: ["一體成型鋅合金機身", "分量沉穩、堅固耐用、質感升級"],
+    modelRot: { x: 0.18, y: -0.55, z: 0 },
+    anchor: { x: 0.5, y: 0.5, z: 0.5 },
+    focusY: 0,
+    fill: 0.85,
+    yaw: 0.14,
+    pitch: 0.06,
+    lidOpen: false,
+  },
+  sparkle: {
+    key: "sparkle",
+    label: "星空閃點",
+    title: "星空閃點工藝",
+    lines: ["表面星空閃點特殊工藝", "光影流轉，低調中見精緻"],
+    // 機身轉為正面（僅保留一點點俯角），閃點紋理正對鏡頭
+    modelRot: { x: 0.1, y: -0.05, z: 0 },
+    anchor: { x: 0.5, y: 0.55, z: 0.5 },
+    focusY: 0,
+    fill: 2.1,
+    yaw: 0.02,
+    pitch: 0.02,
+    lidOpen: false,
+  },
+  blade: {
+    key: "blade",
+    label: "刀頭特寫",
+    title: "德製精密刀頭",
+    lines: ["上蓋自動分離，露出刀頭刀網", "剃淨貼合，兼顧防護與耐用"],
+    // 機身大幅往前傾，鏡頭幾乎俯視刀頭刀網，機身則往後下方傾斜遠離鏡頭
+    modelRot: { x: 1.1, y: -0.05, z: 0 },
+    // 上蓋飛開後，刀頭會露出在機身「靠上方」的位置，對焦點要跟著往上移
+    anchor: { x: 0.5, y: 0.85, z: 0.5 },
+    focusY: 0,
+    fill: 1.3,
+    yaw: 0.02,
+    pitch: 0,
+    // 唯一需要把上蓋飛開露出刀頭的視角
+    lidOpen: true,
+  },
 };
 
-const VIEW_POSE = {
-  lid: { ...DEFAULT_POSE, lidOpen: false },
-  blade: { ...DEFAULT_POSE, lidOpen: true },
-};
+const VIEW_ORDER = ["port", "switchBtn", "shell", "sparkle", "blade"];
 
-const BUTTONS = [
-  { key: "lid", label: "上蓋特寫", icon: "◈" },
-  { key: "blade", label: "刀頭特寫", icon: "◉" },
-];
-
-function collectLidParts(root) {
+function collectPartsByNames(root, nameSet) {
   const parts = [];
   root.traverse((child) => {
-    const name = child.name ?? "";
-    if (LID_EXACT_NAMES.has(name)) parts.push(child);
+    if (nameSet.has(child.name)) parts.push(child);
   });
   return parts;
 }
 
-function shouldBeMetal(mesh) {
-  const name = mesh.name ?? "";
-  if (LID_EXACT_NAMES.has(name) || METAL_MESH_HINT.test(name)) return true;
-  return /盖|蓋|刀|metal|steel|silver|chrome|金/i.test(
-    mesh.material?.name ?? "",
+function collectLidParts(root) {
+  return collectPartsByNames(root, LID_EXACT_NAMES);
+}
+
+/**
+ * 參考 ConstellationProductScroll（simaGlbMaterials.js）的做法：
+ * 不整顆換新材質，而是直接微調 GLB 自帶材質的金屬度／粗糙度／環境反射強度，
+ * 保留原始材質裡的貼圖／顏色資料，只是讓「看起來像金屬」更明顯、更正確。
+ *
+ * Blender「Dented Metal」這類資產庫材質常常無法把數值匯出成 glTF 的
+ * pbrMetallicRoughness（金屬度／粗糙度全部落回規格預設值 1），所以這裡
+ * 用比較明確、偏低的粗糙度＋較高的環境反射強度，確定它視覺上會呈現金屬感，
+ * 而不是維持規格預設的「全粗糙、幾乎沒反射」灰白色。
+ */
+function tuneAsMetal(material, envMap) {
+  const mats = Array.isArray(material) ? material : material ? [material] : [];
+  mats.forEach((mat) => {
+    if (!mat) return;
+    mat.metalness = 1;
+    mat.roughness =
+      typeof mat.roughness === "number" && mat.roughness < 0.9
+        ? THREE.MathUtils.clamp(mat.roughness, 0.12, 0.3)
+        : 0.18;
+    // 材質沒有貼圖時規格預設是純白，帶一點冷色調銀灰比較像拋光金屬，不會死白
+    if (!mat.map) mat.color?.set("#d7dbe1");
+    if (envMap) mat.envMap = envMap;
+    mat.envMapIntensity = 1.6;
+    mat.needsUpdate = true;
+  });
+}
+
+/**
+ * 從貼圖中間取樣一小塊區域算平均色，用來讓「共用機身材質」的部件即使 UV
+ * 對不上，也能有一個貼近機身色調的純色，而不是直接共用貼圖材質時，因為
+ * 立方體.001 自己的 UV 跟機身外殼不同，取樣貼圖時很容易採到圖集空白區
+ * （通常是白色），導致看起來變成一片白，而不是機身該有的深色。
+ */
+function sampleAverageColor(texture) {
+  try {
+    const img = texture?.image;
+    if (!img || !img.width || !img.height) return null;
+    if (typeof document === "undefined") return null;
+    const size = 12;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, size, size);
+    const { data } = ctx.getImageData(0, 0, size, size);
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let count = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      r += data[i];
+      g += data[i + 1];
+      b += data[i + 2];
+      count += 1;
+    }
+    if (!count) return null;
+    return new THREE.Color(r / count / 255, g / count / 255, b / count / 255);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 產生一份「視覺上跟機身一致，但不會有 UV 貼圖錯位問題」的材質：
+ * 保留機身材質的金屬度／粗糙度手感，但拿掉貼圖，改用機身貼圖的平均色
+ * （或保底的深紫灰色）當作純色，避免直接共用同一份貼圖材質時，
+ * 因為兩邊 UV 不對應而取樣到貼圖空白處，整塊變成不自然的白色。
+ */
+function createBodyMatchMaterial(bodyMaterial, envMap) {
+  const source = Array.isArray(bodyMaterial) ? bodyMaterial[0] : bodyMaterial;
+  if (!source) return null;
+
+  const fallbackColor = new THREE.Color("#1c1830");
+  const sampled = sampleAverageColor(source.map);
+  const clone = source.clone();
+  clone.name = "body-match";
+  clone.map = null;
+  clone.color = sampled || fallbackColor;
+  clone.metalness = typeof source.metalness === "number" ? source.metalness : 1;
+  clone.roughness =
+    typeof source.roughness === "number"
+      ? THREE.MathUtils.clamp(source.roughness, 0.3, 0.55)
+      : 0.42;
+  if (envMap) clone.envMap = envMap;
+  clone.envMapIntensity = 1.1;
+  clone.needsUpdate = true;
+  return clone;
+}
+
+function boxFromParts(parts) {
+  const box = new THREE.Box3();
+  parts.forEach((part, i) => {
+    const partBox = new THREE.Box3().setFromObject(part);
+    if (i === 0) box.copy(partBox);
+    else box.union(partBox);
+  });
+  return box;
+}
+
+function anchorPoint(box, anchor) {
+  const { min, max } = box;
+  return new THREE.Vector3(
+    min.x + (max.x - min.x) * anchor.x,
+    min.y + (max.y - min.y) * anchor.y,
+    min.z + (max.z - min.z) * anchor.z,
   );
 }
 
-/** 參照產品圖上方拋光銀部材質 */
-function applyPolyHavenMetal(mesh, envMap = null) {
-  const sources = Array.isArray(mesh.material)
-    ? mesh.material
-    : mesh.material
-      ? [mesh.material]
-      : [];
-
-  const next = sources.map((src) => {
-    return new THREE.MeshStandardMaterial({
-      name: `${src?.name || mesh.name || "part"}-chrome`,
-      color: new THREE.Color("#c8d0da"),
-      metalness: 1,
-      roughness: 0.07,
-      envMapIntensity: 2.0,
-      envMap: envMap || src?.envMap || null,
-      map: null,
-      roughnessMap: null,
-      metalnessMap: null,
-      normalMap: src?.normalMap || null,
-      normalScale: src?.normalScale?.clone?.() || new THREE.Vector2(0.6, 0.6),
-      side: src?.side ?? THREE.FrontSide,
-    });
-  });
-
-  mesh.material = next.length === 1 ? next[0] : next;
+/**
+ * 依「球型包覆」計算鏡頭距離，並同時檢查垂直與水平視角（會隨螢幕寬高比變化）。
+ * 這樣無論視窗被拉得多窄或多寬，模型的外框都保證完整落在畫面內，不會被裁到框外。
+ */
+function computeFitDistance(camera, radius, fill) {
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+  const distV = radius / Math.sin(vFov / 2);
+  const distH = radius / Math.sin(hFov / 2);
+  return Math.max(distV, distH) / Math.max(fill, 0.01);
 }
 
-function bindEnvMapToMetals(root, envMap) {
-  if (!root || !envMap) return;
-  root.traverse((child) => {
-    if (!child.isMesh || !shouldBeMetal(child)) return;
-    const mats = Array.isArray(child.material)
-      ? child.material
-      : [child.material];
-    mats.forEach((mat) => {
-      if (!mat) return;
-      mat.envMap = envMap;
-      mat.color?.set("#c8d0da");
-      mat.metalness = 1;
-      mat.roughness = 0.07;
-      mat.envMapIntensity = 2.0;
-      mat.needsUpdate = true;
-    });
-  });
-}
-
-function frameCentered(camera, model, pose) {
+/** 計算某個特寫視角所需的鏡頭位置與注視點，不會直接套用到 camera（供動畫過渡使用） */
+function computeViewFrame(camera, model, view) {
+  model.rotation.set(view.modelRot.x, view.modelRot.y, view.modelRot.z);
   model.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
 
-  // 螢幕正中：對準模型中心
-  const focus = new THREE.Vector3(
-    center.x,
-    center.y + size.y * pose.focusY,
-    center.z,
+  const fullBox = new THREE.Box3().setFromObject(model);
+  const size = fullBox.getSize(new THREE.Vector3());
+  const overallRadius = fullBox.getBoundingSphere(new THREE.Sphere()).radius;
+
+  let focusBox = fullBox;
+  if (view.meshNames) {
+    const parts = collectPartsByNames(model, view.meshNames);
+    if (parts.length) focusBox = boxFromParts(parts);
+  }
+
+  const focus = anchorPoint(
+    focusBox,
+    view.anchor ?? { x: 0.5, y: 0.5, z: 0.5 },
   );
+  focus.y += size.y * (view.focusY ?? 0);
 
-  const half = Math.max(size.x, size.y, size.z) * 0.5;
-  const fov = THREE.MathUtils.degToRad(camera.fov);
-  const distance = (half / Math.tan(fov / 2)) / pose.fill;
+  // 對焦局部區塊時仍以「整台外框」的半徑為縮放基準，避免局部框太小導致鏡頭貼進模型內部
+  const distance = computeFitDistance(camera, overallRadius, view.fill);
 
-  const cam = new THREE.Vector3(
-    focus.x + distance * pose.yaw,
-    focus.y + distance * pose.pitch,
+  const camPos = new THREE.Vector3(
+    focus.x + distance * (view.yaw ?? 0),
+    focus.y + distance * (view.pitch ?? 0),
     focus.z + distance,
   );
 
-  return { camera: cam, lookAt: focus };
+  return { camera: camPos, lookAt: focus };
 }
 
-function applyPoseInstant(camera, model, pose) {
-  model.rotation.set(pose.modelRot.x, pose.modelRot.y, pose.modelRot.z);
-  model.updateMatrixWorld(true);
-  const framed = frameCentered(camera, model, pose);
+function applyFrameInstant(camera, framed) {
   camera.position.copy(framed.camera);
   camera.lookAt(framed.lookAt);
+}
+
+/**
+ * 從「刀頭特寫」(上蓋飛開) 切到其他視角時，若直接用當下模型外框計算對焦點，
+ * 蓋子還飄在飛開的半路上，外框會偏高／偏移，算出來的鏡頭位置就會跟著跑掉。
+ * 這裡在量測外框前，先暫時把蓋子物件搬回「關閉」的基準位置，量完再搬回原位，
+ * 不會造成畫面閃動，但能確保每個視角的對焦點都是以「機身關閉」的固定幾何為準。
+ */
+function computeViewFrameAtRest(camera, model, view, lidParts, lidRestPos, lidRestRot) {
+  if (!lidParts?.length) return computeViewFrame(camera, model, view);
+
+  const savedPos = lidParts.map((p) => p.position.clone());
+  const savedRot = lidParts.map((p) => p.rotation.clone());
+
+  lidParts.forEach((part, i) => {
+    const restPos = lidRestPos[i];
+    const restRot = lidRestRot[i];
+    if (restPos) part.position.copy(restPos);
+    if (restRot) part.rotation.copy(restRot);
+  });
+
+  const framed = computeViewFrame(camera, model, view);
+
+  lidParts.forEach((part, i) => {
+    part.position.copy(savedPos[i]);
+    part.rotation.copy(savedRot[i]);
+  });
+  model.updateMatrixWorld(true);
+
   return framed;
 }
 
@@ -151,10 +336,18 @@ export default function HomeScrollSequence01() {
   const lidRestRotRef = useRef([]);
   const modelSizeRef = useRef(null);
   const lookAtRef = useRef(new THREE.Vector3(0, 0.3, 0));
-  const lockedCamPosRef = useRef(null);
-  const lockedLookAtRef = useRef(null);
+  const camTweenRef = useRef(null);
+  const lookTweenRef = useRef(null);
   const rafRef = useRef(null);
-  const [active, setActive] = useState("lid");
+  const cubeMetalMaterialsRef = useRef([]);
+  const dragPitchRef = useRef(0);
+  const dragStateRef = useRef({
+    dragging: false,
+    lastX: 0,
+    lastY: 0,
+    moved: false,
+  });
+  const [active, setActive] = useState(VIEW_ORDER[0]);
   const activeRef = useRef(active);
   activeRef.current = active;
 
@@ -165,9 +358,9 @@ export default function HomeScrollSequence01() {
     let destroyed = false;
 
     const resizeToContainer = (renderer, camera) => {
-      const rw = Math.max(el.clientWidth || 0, window.innerWidth);
-      const rh = Math.max(el.clientHeight || 0, window.innerHeight);
-      camera.aspect = rw / rh;
+      const rw = el.clientWidth || window.innerWidth;
+      const rh = el.clientHeight || window.innerHeight;
+      camera.aspect = rw / Math.max(rh, 1);
       camera.updateProjectionMatrix();
       renderer.setSize(rw, rh, false);
       renderer.domElement.style.width = "100%";
@@ -217,7 +410,10 @@ export default function HomeScrollSequence01() {
         scene.environment = envMap;
         if ("environmentIntensity" in scene) scene.environmentIntensity = 1.35;
         texture.dispose();
-        if (modelRef.current) bindEnvMapToMetals(modelRef.current, envMap);
+        cubeMetalMaterialsRef.current.forEach((mat) => {
+          mat.envMap = envMap;
+          mat.needsUpdate = true;
+        });
       },
       undefined,
       (err) => {
@@ -245,6 +441,9 @@ export default function HomeScrollSequence01() {
         const model = gltf.scene;
         const envMap = scene.environment;
 
+        // 材質已在 Blender 端處理好，這裡單純使用 GLB 內建材質；
+        // 只有「立方體」/「立方體.001」(Type-C 相關部件) 才用程式補上材質（見下方）
+        let bodyMaterial = null;
         model.traverse((child) => {
           const name = child.name ?? "";
           const mat = child.material?.name ?? "";
@@ -255,18 +454,32 @@ export default function HomeScrollSequence01() {
           if (!child.isMesh) return;
           child.castShadow = true;
           child.receiveShadow = true;
-          if (shouldBeMetal(child)) {
-            applyPolyHavenMetal(child, envMap);
-          } else if (child.material) {
+          if (name === BODY_MATERIAL_SOURCE_NAME && !bodyMaterial) {
+            bodyMaterial = Array.isArray(child.material)
+              ? child.material[0]
+              : child.material;
+          }
+        });
+
+        cubeMetalMaterialsRef.current = [];
+        model.traverse((child) => {
+          if (!child.isMesh) return;
+          const name = child.name ?? "";
+          if (name === CUBE_METAL_NAME) {
+            // 用 Poly Haven HDR 當反射環境，微調 GLB 自帶材質使其呈現正確金屬質感
+            tuneAsMetal(child.material, envMap);
             const mats = Array.isArray(child.material)
               ? child.material
               : [child.material];
-            mats.forEach((m) => {
-              if (m && "envMapIntensity" in m) {
-                m.envMapIntensity = 0.75;
-                m.needsUpdate = true;
-              }
-            });
+            cubeMetalMaterialsRef.current.push(...mats.filter(Boolean));
+          } else if (name === CUBE_BODY_MATCH_NAME && bodyMaterial) {
+            // 不直接共用機身貼圖材質（UV 不同會取樣到貼圖空白處變白），
+            // 改用「拿掉貼圖、取平均色」的複製材質，色調金屬感一致但不會跑位
+            const matched = createBodyMatchMaterial(bodyMaterial, envMap);
+            if (matched) {
+              child.material = matched;
+              cubeMetalMaterialsRef.current.push(matched);
+            }
           }
         });
 
@@ -287,16 +500,70 @@ export default function HomeScrollSequence01() {
         modelRef.current = model;
         scene.add(model);
 
-        const framed = applyPoseInstant(camera, model, VIEW_POSE.lid);
+        const framed = computeViewFrame(
+          camera,
+          model,
+          VIEWS[activeRef.current],
+        );
+        applyFrameInstant(camera, framed);
         lookAtRef.current.copy(framed.lookAt);
-        lockedCamPosRef.current = framed.camera.clone();
-        lockedLookAtRef.current = framed.lookAt.clone();
       },
       undefined,
       (err) => {
         console.error("[HomeScrollSequence01] GLB load failed", err);
       },
     );
+
+    // 拖曳可 360° 旋轉產品（左右拖曳自由旋轉、上下拖曳有限幅度俯仰）。
+    // 用 Pointer Events 統一處理滑鼠／觸控／觸控筆，手機用手指拖曳也能轉動模型。
+    const ROTATE_SPEED = 0.0055;
+    const PITCH_LIMIT = 1.1;
+    const drag = dragStateRef.current;
+
+    function onPointerDown(e) {
+      if (!modelRef.current) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      drag.dragging = true;
+      drag.moved = false;
+      drag.lastX = e.clientX;
+      drag.lastY = e.clientY;
+      el.style.cursor = "grabbing";
+      el.setPointerCapture?.(e.pointerId);
+    }
+    function onPointerMove(e) {
+      if (!drag.dragging || !modelRef.current) return;
+      const dx = e.clientX - drag.lastX;
+      const dy = e.clientY - drag.lastY;
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) drag.moved = true;
+      drag.lastX = e.clientX;
+      drag.lastY = e.clientY;
+      const model = modelRef.current;
+
+      // 繞世界座標軸旋轉（quaternion），而不是直接疊加 Euler rotation.x / rotation.y。
+      // 目前視角本身可能帶有傾斜角，疊加 Euler 會讓拖曳方向跟著歪掉、軸線感覺很怪；
+      // 用 rotateOnWorldAxis 就能固定「左右永遠繞世界豎直軸、上下永遠繞世界水平軸」。
+      model.rotateOnWorldAxis(WORLD_UP_AXIS, dx * ROTATE_SPEED);
+
+      const nextPitch = THREE.MathUtils.clamp(
+        dragPitchRef.current + dy * ROTATE_SPEED,
+        -PITCH_LIMIT,
+        PITCH_LIMIT,
+      );
+      const appliedPitch = nextPitch - dragPitchRef.current;
+      dragPitchRef.current = nextPitch;
+      model.rotateOnWorldAxis(WORLD_RIGHT_AXIS, appliedPitch);
+    }
+    function onPointerUp(e) {
+      if (!drag.dragging) return;
+      drag.dragging = false;
+      el.style.cursor = "grab";
+      el.releasePointerCapture?.(e.pointerId);
+    }
+    el.style.cursor = "grab";
+    el.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
 
     function animate() {
       rafRef.current = requestAnimationFrame(animate);
@@ -306,26 +573,23 @@ export default function HomeScrollSequence01() {
 
     function onResize() {
       resizeToContainer(renderer, camera);
-      if (modelRef.current) {
-        const framed = applyPoseInstant(
-          camera,
-          modelRef.current,
-          VIEW_POSE.lid,
-        );
-        lockedCamPosRef.current = framed.camera.clone();
-        lockedLookAtRef.current = framed.lookAt.clone();
-        lookAtRef.current.copy(framed.lookAt);
-        camera.position.copy(lockedCamPosRef.current);
-        camera.lookAt(lockedLookAtRef.current);
+      const model = modelRef.current;
+      if (!model) return;
 
-        if (activeRef.current === "blade") {
-          modelRef.current.rotation.set(
-            VIEW_POSE.blade.modelRot.x,
-            VIEW_POSE.blade.modelRot.y,
-            VIEW_POSE.blade.modelRot.z,
-          );
-        }
-      }
+      // 視窗尺寸變動時，重新用「目前所在」的視角重新對焦，不要跳回預設視角，
+      // 也不要中斷正在飛開的上蓋動畫。
+      camTweenRef.current?.kill();
+      lookTweenRef.current?.kill();
+      const framed = computeViewFrameAtRest(
+        camera,
+        model,
+        VIEWS[activeRef.current],
+        lidPartsRef.current,
+        lidRestPosRef.current,
+        lidRestRotRef.current,
+      );
+      applyFrameInstant(camera, framed);
+      lookAtRef.current.copy(framed.lookAt);
     }
     window.addEventListener("resize", onResize);
 
@@ -337,7 +601,13 @@ export default function HomeScrollSequence01() {
     return () => {
       destroyed = true;
       window.removeEventListener("resize", onResize);
+      el.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
       cancelAnimationFrame(rafRef.current);
+      camTweenRef.current?.kill();
+      lookTweenRef.current?.kill();
       pmrem.dispose();
       renderer.dispose();
       if (scene.environment?.dispose) scene.environment.dispose();
@@ -347,26 +617,55 @@ export default function HomeScrollSequence01() {
       lidPartsRef.current = [];
       lidRestPosRef.current = [];
       lidRestRotRef.current = [];
+      cubeMetalMaterialsRef.current = [];
+      dragPitchRef.current = 0;
     };
   }, []);
 
   const goToView = useCallback((viewKey) => {
-    const pose = VIEW_POSE[viewKey];
+    const view = VIEWS[viewKey];
     const camera = cameraRef.current;
     const model = modelRef.current;
-    if (!pose || !camera || !model) return;
+    if (!view || !camera || !model) return;
 
     const lidParts = lidPartsRef.current;
     const lidRestPos = lidRestPosRef.current;
     const lidRestRot = lidRestRotRef.current;
     const modelSize = modelSizeRef.current;
 
-    // 上蓋／刀頭都用預設載入構圖（正中、略小）
-    model.rotation.set(pose.modelRot.x, pose.modelRot.y, pose.modelRot.z);
-    const framed = applyPoseInstant(camera, model, VIEW_POSE.lid);
-    lockedCamPosRef.current = framed.camera.clone();
-    lockedLookAtRef.current = framed.lookAt.clone();
-    lookAtRef.current.copy(framed.lookAt);
+    const framed = computeViewFrameAtRest(
+      camera,
+      model,
+      view,
+      lidParts,
+      lidRestPos,
+      lidRestRot,
+    );
+    // 切換視角時模型會被重新設定為該視角的基準角度，拖曳累積的俯仰角要跟著歸零
+    dragPitchRef.current = 0;
+
+    camTweenRef.current?.kill();
+    lookTweenRef.current?.kill();
+
+    camTweenRef.current = gsap.to(camera.position, {
+      x: framed.camera.x,
+      y: framed.camera.y,
+      z: framed.camera.z,
+      duration: 1.1,
+      ease: "power3.inOut",
+      overwrite: "auto",
+    });
+
+    const lookProxy = lookAtRef.current;
+    lookTweenRef.current = gsap.to(lookProxy, {
+      x: framed.lookAt.x,
+      y: framed.lookAt.y,
+      z: framed.lookAt.z,
+      duration: 1.1,
+      ease: "power3.inOut",
+      overwrite: "auto",
+      onUpdate: () => camera.lookAt(lookProxy),
+    });
 
     if (!lidParts.length || !modelSize) return;
 
@@ -378,7 +677,7 @@ export default function HomeScrollSequence01() {
       const restPos = lidRestPos[i] || lid.position;
       const restRot = lidRestRot[i] || lid.rotation;
 
-      if (pose.lidOpen) {
+      if (view.lidOpen) {
         gsap.to(lid.position, {
           x: restPos.x + flyX,
           y: restPos.y + flyY,
@@ -418,11 +717,14 @@ export default function HomeScrollSequence01() {
 
   const handleView = useCallback(
     (key) => {
+      if (key === activeRef.current) return;
       setActive(key);
       goToView(key);
     },
     [goToView],
   );
+
+  const currentView = VIEWS[active];
 
   return (
     <section
@@ -442,25 +744,52 @@ export default function HomeScrollSequence01() {
         }}
       />
 
-      <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full" />
+      <div
+        ref={containerRef}
+        className="absolute inset-0 z-0 h-full w-full touch-none select-none"
+      />
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center">
-        <div className="max-w-[20rem] px-6 md:ml-[6%] md:max-w-[26rem] md:px-0 lg:ml-[8%]">
-          <h2 className="text-[2rem] font-light leading-tight tracking-[0.08em] text-white/95 md:text-[2.75rem]">
+      {/* 手機版：文字上下錯開，避免跟下方特寫細節、底部按鈕互相重疊；桌機維持左右對稱置中 */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-6 pt-8 md:inset-0 md:flex md:items-center md:px-0 md:pt-0">
+        <div className="max-w-[19rem] md:ml-[6%] md:max-w-[26rem] lg:ml-[8%]">
+          <h2 className="text-[1.6rem] font-light leading-tight tracking-[0.08em] text-white/95 md:text-[2.75rem]">
             小。很強大。
           </h2>
-          <p className="mt-4 text-[0.95rem] font-light leading-7 tracking-wide text-white/70 md:mt-5 md:text-[1.05rem] md:leading-8">
+          <p className="mt-3 text-[0.85rem] font-light leading-6 tracking-wide text-white/70 md:mt-5 md:text-[1.05rem] md:leading-8">
             昔馬捍衛者，把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
           </p>
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-4 pb-10 md:pb-12">
-        <p className="text-[11px] tracking-[0.2em] text-white/45 uppercase">
-          選擇特寫視角
+      <div
+        key={active}
+        className="pointer-events-none absolute inset-x-0 bottom-[8.5rem] z-10 px-6 md:inset-0 md:bottom-auto md:flex md:items-center md:justify-end md:px-0"
+      >
+        <div className="max-w-[19rem] md:mr-[6%] md:max-w-[22rem] md:text-right lg:mr-[8%]">
+          <p className="text-[11px] tracking-[0.2em] text-[#B79CFF]/80 uppercase">
+            特寫細節
+          </p>
+          <h3 className="mt-2 text-[1.2rem] font-light tracking-[0.04em] text-white/95 md:text-[1.7rem]">
+            {currentView.title}
+          </h3>
+          {currentView.lines.map((line) => (
+            <p
+              key={line}
+              className="mt-1.5 text-[0.8rem] font-light leading-5 tracking-wide text-white/65 md:mt-2 md:text-[0.95rem] md:leading-6"
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 pb-8 md:gap-4 md:pb-12">
+        <p className="px-6 text-center text-[11px] tracking-[0.2em] text-white/45 uppercase">
+          拖曳畫面可 360° 旋轉查看 ・ 選擇特寫視角
         </p>
-        <div className="pointer-events-auto flex gap-3">
-          {BUTTONS.map(({ key, label, icon }) => {
+        <div className="pointer-events-auto flex w-full gap-3 overflow-x-auto px-6 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-proximity md:w-auto md:flex-wrap md:justify-center md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+          {VIEW_ORDER.map((key) => {
+            const view = VIEWS[key];
             const isActive = active === key;
             return (
               <button
@@ -468,14 +797,13 @@ export default function HomeScrollSequence01() {
                 type="button"
                 onClick={() => handleView(key)}
                 className={[
-                  "flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium tracking-wide transition-all duration-300",
+                  "shrink-0 snap-start rounded-full px-4 py-2 text-[13px] font-medium tracking-wide transition-all duration-300 md:px-5 md:py-2.5 md:text-sm",
                   isActive
                     ? "bg-gradient-to-r from-[#5B21B6] to-[#7C3AED] border border-[#A78BFA]/60 text-white shadow-[0_0_24px_rgba(139,92,246,0.55)] scale-[1.04]"
                     : "bg-[#1a0533]/70 border border-[#4C1D95]/50 text-[#EDE4FF] hover:bg-[#2e0f52]/80 hover:border-[#7C3AED]/60 backdrop-blur-sm shadow-[0_2px_12px_rgba(0,0,0,0.4)]",
                 ].join(" ")}
               >
-                <span className="text-xs opacity-70">{icon}</span>
-                {label}
+                {view.label}
               </button>
             );
           })}

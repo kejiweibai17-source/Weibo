@@ -138,20 +138,13 @@ export default function HomeHero({ pageContentRef }) {
         />
 
         <div className="absolute inset-0 z-10 flex flex-col items-start justify-center pl-[13%] px-4 text-left pointer-events-none">
-          <h1 className="hero-title opacity-0 drop-shadow-xl">
-            <img
-              src="/images/SMASMALL-logo-white.png"
-              alt="SMASMALL"
-              width={775}
-              height={195}
-              className="h-auto w-[280px] md:w-[420px] lg:w-[min(520px,48vw)]"
-              draggable={false}
-            />
-          </h1>
-
           <div className="mt-3 flex flex-col items-start justify-start text-left">
-            <b className="text-white text-[35px]">秒懂男仕的禮物</b>
-            <b className="text-white text-[16px]">星座系列　重磅上市</b>
+            <b className="text-white font-light  text-4xl xl:text-7xl">
+              秒懂男仕的禮物
+            </b>
+            <b className="text-white font-light text-[22px] xl:text-[26px]">
+              星座系列　重磅上市
+            </b>
           </div>
         </div>
       </section>

@@ -10,6 +10,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   finalizeSimaGlbModel,
+  resetSimaEnvCache,
   setupSimaScrollSceneEnvironment,
 } from "@/lib/simaGlbMaterials";
 import "./ConstellationProductScroll.css";
@@ -277,6 +278,9 @@ function getOrCreateThreeScene(container) {
       cancelAnimationFrame(rafId);
       renderer.dispose();
       if (scene.environment?.dispose) scene.environment.dispose();
+      // 這個場景的 renderer 沒了，快取的環境貼圖也要跟著失效，
+      // 不然下次頁面切回來、新 renderer 拿到舊 GL context 的貼圖就會渲染成一片黑
+      resetSimaEnvCache();
       container.replaceChildren();
       _threeInstance = null;
     },

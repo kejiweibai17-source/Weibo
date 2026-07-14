@@ -159,14 +159,7 @@ const Section2 = () => {
                   常見問題 FAQ
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/support/policies"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
-                >
-                  使用條款與政策
-                </Link>
-              </li>
+
               <li>
                 <Link
                   href="/stores"
@@ -242,8 +235,7 @@ const Section2 = () => {
               官方帳號與威柏科技聯繫，我們將為您提供專人服務與理容建議。
             </p>
             <a
-              href={LINE_OFFICIAL_URL}
-              target="_blank"
+              href="/contact"
               rel="noopener noreferrer"
               className="inline-flex bg-[#00B4D8] hover:bg-[#0096B4] transition-colors text-white text-[15px] font-medium px-6 py-3 rounded-full items-center gap-2"
             >

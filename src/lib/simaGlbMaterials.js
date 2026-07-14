@@ -88,6 +88,19 @@ export function finalizeSimaGlbModel(root) {
   });
 }
 
+/**
+ * PMREM 產生的環境貼圖是綁在「產生它的那個 WebGLRenderer / GL context」上的。
+ * 頁面切走再切回來時，舊的 renderer 會被 dispose、GL context 也會跟著失效，
+ * 但模組層級的 _cachedEnvTexture 卻還留著舊的參照 —— 如果之後又被新的 renderer
+ * 拿去用，反射環境圖等於是指向一個已經死掉的 GL context，畫面就會變黑/ 沒有反射。
+ * 所以每次 dispose 舊的 three.js 場景時，都要呼叫這個函式把快取一併清掉，
+ * 讓下一次 setupSimaScrollSceneEnvironment 用「新的」renderer 重新產生一份。
+ */
+export function resetSimaEnvCache() {
+  _cachedEnvTexture = null;
+  _cachedEnvPath = null;
+}
+
 export function setupSimaScrollSceneEnvironment(renderer, scene) {
   // 整體環境反射亮度（three r163+ 支援；舊版忽略不影響）
   if ("environmentIntensity" in scene) {

@@ -147,7 +147,7 @@ export default function Preloader({ onComplete }) {
           onClick={playIntro}
           className="group flex items-center gap-3 px-6 py-2.5 border border-white/40 rounded-full text-white text-sm font-medium transition-all duration-300 hover:bg-white hover:text-black"
         >
-          昔馬電動刮鬍刀
+          探索昔馬
           <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
             →
           </span>
