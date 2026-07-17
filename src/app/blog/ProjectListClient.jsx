@@ -7,6 +7,7 @@ import Image from "next/image";
 import ImageTextSlider from "../../components/ImageTextSlider.jsx";
 import HeroSlider from "../../components/HeroSlideContact/page";
 import { ReactLenis } from "@studio-freight/react-lenis";
+import { blogPostPath } from "@/lib/utils";
 
 export default function HomeClient({ posts }) {
   const [showNav, setShowNav] = useState(true);
@@ -82,7 +83,7 @@ export default function HomeClient({ posts }) {
                 return (
                   <Link
                     key={post.id}
-                    href={`/blog/${post.slug}`}
+                    href={blogPostPath(post.slug)}
                     className="block h-full"
                   >
                     <div className="article-card bg-white group border-[.5px] border-gray-200 h-full flex flex-col">

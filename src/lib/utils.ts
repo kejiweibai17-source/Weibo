@@ -62,9 +62,22 @@ export function accessoryDetailPath(slug: string): string {
 }
 
 /**
+ * Blog 文章路徑。
+ * WP 常回傳已 percent-encode 的中文 slug；必須先 decode 再 encode 一次，
+ * 否則會變成 %25e9... 導致 404。
+ */
+export function blogPostPath(slug: string): string {
+  return `/blog/${encodeURIComponent(normalizeRouteSlug(slug))}`;
+}
+
+/**
  * Fetch / revalidateTag 用的 ASCII-safe cache tag。
  * 中文 slug 不可直接寫入 tag：Next.js 會放進 HTTP header，非 ASCII 會導致 500。
  */
 export function productFetchCacheTag(slug: string): string {
   return `product-${encodeURIComponent(normalizeRouteSlug(slug))}`;
+}
+
+export function blogFetchCacheTag(slug: string): string {
+  return `blog-${encodeURIComponent(normalizeRouteSlug(slug))}`;
 }

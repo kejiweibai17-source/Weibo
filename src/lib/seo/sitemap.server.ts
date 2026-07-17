@@ -8,6 +8,7 @@ import {
   SITEMAP_CACHE_TAG,
   SITEMAP_REVALIDATE_SECONDS,
 } from "@/lib/seo/revalidate.server";
+import { blogPostPath } from "@/lib/utils";
 
 export type SitemapEntrySource = {
   path: string;
@@ -113,7 +114,7 @@ async function fetchBlogEntries(): Promise<SitemapEntrySource[]> {
       .map((post: { slug?: string; modified?: string }): SitemapEntrySource | null => {
         if (!post?.slug) return null;
         const entry: SitemapEntrySource = {
-          path: `/blog/${post.slug}`,
+          path: blogPostPath(post.slug),
           changeFrequency: "monthly",
           priority: 0.6,
         };

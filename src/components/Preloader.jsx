@@ -5,10 +5,8 @@ import React, { useRef, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { markPreloaderPlayedThisSession } from "@/lib/preloaderSession";
+import { startHomeMusic } from "@/lib/homeMusic";
 import PreloaderBackdrop from "./PreloaderBackdrop";
-
-const PRELOADER_MUSIC =
-  "/music/poradovskyi-fashion-luxury-sensual-music-519482.mp3";
 
 /** 整體動畫時長保留 1/3（縮短 2/3） */
 const T = 1 / 3;
@@ -18,34 +16,10 @@ export default function Preloader({ onComplete }) {
   const introTextRef = useRef(null);
   const brandTextRef = useRef(null);
   const lineRef = useRef(null);
-  const audioRef = useRef(null);
 
   useEffect(() => {
-    const audio = new Audio(PRELOADER_MUSIC);
-    audio.loop = true;
-    audio.volume = 0.4;
-    audioRef.current = audio;
-
-    const tryPlay = () => {
-      audio.play().catch(() => {
-        const resumeOnInteraction = () => {
-          audio.play().catch(() => {});
-          document.removeEventListener("click", resumeOnInteraction);
-          document.removeEventListener("touchstart", resumeOnInteraction);
-        };
-        document.addEventListener("click", resumeOnInteraction, { once: true });
-        document.addEventListener("touchstart", resumeOnInteraction, {
-          once: true,
-        });
-      });
-    };
-    tryPlay();
-
-    return () => {
-      audio.pause();
-      audio.src = "";
-      audioRef.current = null;
-    };
+    // 進首頁即播，播完一次即停；preloader 結束後不中斷
+    startHomeMusic();
   }, []);
 
   const { contextSafe } = useGSAP(
@@ -56,24 +30,7 @@ export default function Preloader({ onComplete }) {
     { scope: overlayRef },
   );
 
-  const stopMusic = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    gsap.to(audio, {
-      volume: 0,
-      duration: 1.2,
-      ease: "power2.out",
-      onComplete: () => {
-        audio.pause();
-        audio.src = "";
-        audioRef.current = null;
-      },
-    });
-  };
-
   const playIntro = contextSafe(() => {
-    stopMusic();
-
     const tl = gsap.timeline({
       onComplete: () => {
         markPreloaderPlayedThisSession();

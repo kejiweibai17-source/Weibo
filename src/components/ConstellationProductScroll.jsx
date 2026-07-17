@@ -19,9 +19,11 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const MODEL_PATH = "/3d/機身細節26.glb";
 const CPS_MASK_BG = "/images/8041cae4-aad7-4ae2-bbcd-8eb6d2def921.png";
-// 縮短總滾動距離讓整段更緊湊；動畫內容（遮罩揭露、標題滑動、分隔線、文字、旋轉、上蓋分離）全部保留，
-// 只是把時間軸壓縮、拉近彼此的間距，減少「轉完之後還要滾很久才接到文字」的空白感
-const SCROLL_VIEWPORT_HEIGHTS = 3;
+// 右下角「為俐落而生」出現後即可離開；pin 距離對齊文字出現節奏
+const SCROLL_VIEWPORT_HEIGHTS = 2;
+/** 第二組 tooltip（為俐落而生）完整出現的進度；機身旋轉也對齊此點結束 */
+const TOOLTIP2_REVEAL_START = 0.82;
+const TOOLTIP2_REVEAL_END = 0.93;
 const MOBILE_MQ = "(max-width: 768px)";
 const MOBILE_MODEL_SCALE = 0.58;
 const DESKTOP_MODEL_SCALE = 1;
@@ -353,8 +355,8 @@ export default function ConstellationProductScroll() {
           ],
         },
         {
-          start: 0.64,
-          end: 0.72,
+          start: TOOLTIP2_REVEAL_START,
+          end: TOOLTIP2_REVEAL_END,
           elements: [
             ...q(section, ".tooltip:nth-child(2) .eyebrow"),
             ...q(section, ".tooltip:nth-child(2) .title .line > span"),
@@ -410,8 +412,9 @@ export default function ConstellationProductScroll() {
         const { state } = three;
         if (!state.lidReady || !state.lidParts?.length || !state.modelSize) return;
 
+        // 上蓋分離與右下文字節奏對齊，避免文字出完還卡很久
         const liftStart = 0.5;
-        const liftEnd = 0.8;
+        const liftEnd = TOOLTIP2_REVEAL_END;
         const raw =
           progress < liftStart
             ? 0
@@ -439,6 +442,7 @@ export default function ConstellationProductScroll() {
       const pinTrigger = ScrollTrigger.create({
         trigger: section,
         start: "top top",
+        // 文字完整出現後很快結束 pin，可立刻往下滾
         end: `+=${window.innerHeight * SCROLL_VIEWPORT_HEIGHTS}px`,
         pin: true,
         pinSpacing: true,
@@ -498,9 +502,13 @@ export default function ConstellationProductScroll() {
             applyReveal(elements, progress, start, end);
           });
 
-          const rotationProgress =
-            progress < 0.03 ? 0 : (progress - 0.03) / 0.97;
-          three.pivot.rotation.y = Math.PI * 12 * rotationProgress;
+          // 機身旋轉在「為俐落而生」出現時結束，不再多轉最後幾圈
+          const rotationProgress = gsap.utils.clamp(
+            0,
+            1,
+            (progress - 0.03) / (TOOLTIP2_REVEAL_END - 0.03),
+          );
+          three.pivot.rotation.y = Math.PI * 8 * rotationProgress;
           updateLidSeparation(progress);
           three.requestRender();
         },

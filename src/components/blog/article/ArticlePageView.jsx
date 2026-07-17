@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { blogPostPath } from "@/lib/utils";
 import "./wp-content.css";
 
 const ACTION_BLUE = "#0071e3";
+const ACCENT = "#00B4D8";
 
 function PillButton({ href, children, variant = "primary" }) {
   const base =
@@ -58,7 +62,7 @@ function StickyBar({ data, title }) {
           </span>
           <Link
             href={data.ctaHref}
-            className="rounded-full px-4 py-1.5 text-[13px] font-medium text-white md:px-5 md:py-2 md:text-[14px]"
+            className="rounded-full px-4 mt-3 py-1.5 text-[13px] font-medium text-white md:px-5 md:py-2 md:text-[14px]"
             style={{ backgroundColor: ACTION_BLUE }}
           >
             {data.ctaLabel}
@@ -328,40 +332,224 @@ function DuoCardsSection({ cards }) {
   );
 }
 
-function TrioFeaturesSection({ features }) {
+function isRemoteImage(src) {
+  return typeof src === "string" && /^https?:\/\//.test(src);
+}
+
+function formatBlogDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}.${m}.${day}`;
+}
+
+function CircleArrowIcon({ className = "" }) {
+  return (
+    <span
+      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-current ${className}`}
+      aria-hidden
+    >
+      <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none">
+        <path
+          d="M3.5 8h9M8.5 4.5 12 8l-3.5 3.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function RelatedPostCard({ post }) {
+  const href = blogPostPath(post.slug);
+  const dateLabel = formatBlogDate(post.date);
+  const tags = (post.tags?.length ? post.tags : [post.category]).filter(
+    Boolean,
+  );
+
+  return (
+    <Link href={href} className="group flex h-full min-w-0 flex-col text-left">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#f5f5f7]">
+        {post.image ? (
+          <Image
+            src={post.image}
+            alt={post.title}
+            fill
+            unoptimized={isRemoteImage(post.image)}
+            className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 380px"
+          />
+        ) : null}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <time
+          className="text-[13px] font-semibold tracking-wide"
+          style={{ color: ACCENT }}
+        >
+          {dateLabel || "SMASMALL"}
+        </time>
+        <CircleArrowIcon className="text-[#00B4D8] transition-transform duration-500 ease-in-out group-hover:translate-x-0.5" />
+      </div>
+
+      <h3 className="mt-3 line-clamp-2 text-[17px] font-bold leading-snug text-[#1d1d1f] md:text-[20px]">
+        {post.title}
+      </h3>
+
+      {post.excerpt ? (
+        <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-[#8e8e93] md:text-[14px]">
+          {post.excerpt}
+        </p>
+      ) : null}
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {post.category ? (
+          <span
+            className="rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide"
+            style={{ borderColor: `${ACCENT}8C`, color: ACCENT }}
+          >
+            {post.category}
+          </span>
+        ) : null}
+        {tags.slice(0, 2).map((tag) => (
+          <span key={tag} className="text-[12px] text-[#aeaeb2]">
+            #{tag}
+          </span>
+        ))}
+      </div>
+    </Link>
+  );
+}
+
+function CarouselNavButton({ direction, onClick, disabled }) {
+  const isPrev = direction === "prev";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={isPrev ? "上一則" : "下一則"}
+      className={`absolute top-[18%] z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#d2d2d7] bg-white/95 text-[#1d1d1f] shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-300 ease-in-out hover:border-[#1d1d1f] hover:bg-white disabled:pointer-events-none disabled:opacity-30 md:top-[22%] ${
+        isPrev
+          ? "left-1 md:-left-2 lg:-left-5"
+          : "right-1 md:-right-2 lg:-right-5"
+      } opacity-100 md:pointer-events-none md:opacity-0 md:group-hover/carousel:pointer-events-auto md:group-hover/carousel:opacity-100`}
+    >
+      <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" aria-hidden>
+        <path
+          d={isPrev ? "M10 3.5 5.5 8 10 12.5" : "M6 3.5 10.5 8 6 12.5"}
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function RelatedPostsCarousel({ posts }) {
+  const items = posts ?? [];
+  const autoplay = useRef(
+    Autoplay({
+      delay: 4200,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      playOnInit: items.length > 1,
+    }),
+  );
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: items.length > 1,
+      align: "start",
+      skipSnaps: false,
+      dragFree: false,
+      duration: 38,
+    },
+    [autoplay.current],
+  );
+
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  const updateButtons = useCallback((api) => {
+    if (!api) return;
+    setCanPrev(api.canScrollPrev());
+    setCanNext(api.canScrollNext());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    updateButtons(emblaApi);
+    emblaApi.on("select", updateButtons);
+    emblaApi.on("reInit", updateButtons);
+    return () => {
+      emblaApi.off("select", updateButtons);
+      emblaApi.off("reInit", updateButtons);
+    };
+  }, [emblaApi, updateButtons]);
+
+  const scrollPrev = useCallback(() => {
+    emblaApi?.scrollPrev();
+    autoplay.current?.reset();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    emblaApi?.scrollNext();
+    autoplay.current?.reset();
+  }, [emblaApi]);
+
+  if (!items.length) return null;
+
   return (
     <section className="bg-white px-5 pb-20 md:px-8 md:pb-28">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 md:grid-cols-3 md:gap-6">
-        {features.map((item) => (
-          <article key={item.title}>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-[#f5f5f7] md:rounded-[28px]">
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
+      <div className="mx-auto max-w-[1200px]">
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-[28px] font-bold leading-tight text-[#1d1d1f] md:text-[40px]">
+              相關文章
+            </h2>
+          </div>
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 self-start text-[13px] font-semibold text-[#1d1d1f] transition-opacity hover:opacity-70 md:self-auto"
+          >
+            查看更多文章
+            <CircleArrowIcon className="text-[#00B4D8]" />
+          </Link>
+        </div>
+
+        <div className="group/carousel relative mt-10 md:mt-12">
+          <CarouselNavButton
+            direction="prev"
+            onClick={scrollPrev}
+            disabled={!canPrev}
+          />
+          <CarouselNavButton
+            direction="next"
+            onClick={scrollNext}
+            disabled={!canNext}
+          />
+
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
+              {items.map((post) => (
+                <div
+                  key={post.slug}
+                  className="min-w-0 shrink-0 grow-0 basis-[85%] pr-4 sm:basis-[55%] md:basis-[33.333%] md:pr-5"
+                >
+                  <RelatedPostCard post={post} />
+                </div>
+              ))}
             </div>
-            <h3 className="mt-5 text-[21px] font-bold text-[#1d1d1f] md:text-[24px]">
-              {item.title}
-            </h3>
-            <p className="mt-3 text-[15px] leading-relaxed text-[#6e6e73] md:text-[17px]">
-              {item.description}
-              {item.link && (
-                <>
-                  {" "}
-                  <Link
-                    href={item.link.href}
-                    className="text-[#0071e3] hover:underline"
-                  >
-                    {item.link.label}
-                  </Link>
-                </>
-              )}
-            </p>
-          </article>
-        ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -459,7 +647,7 @@ function RelatedArticlesSidebar({ posts }) {
         {posts.map((post) => (
           <Link
             key={post.slug}
-            href={`/blog/${encodeURIComponent(post.slug)}`}
+            href={blogPostPath(post.slug)}
             className="group flex min-w-0 gap-4"
           >
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f5f5f7]">
@@ -468,12 +656,21 @@ function RelatedArticlesSidebar({ posts }) {
                   src={post.image}
                   alt={post.title}
                   fill
+                  unoptimized={isRemoteImage(post.image)}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="64px"
                 />
               ) : null}
             </div>
             <div className="min-w-0 flex-1 overflow-hidden">
+              {post.date ? (
+                <time
+                  dateTime={post.date}
+                  className="mb-1 block text-[12px] tracking-wide text-[#86868b]"
+                >
+                  {formatBlogDate(post.date)}
+                </time>
+              ) : null}
               <p className="line-clamp-3 break-words text-[14px] font-medium leading-snug text-[#1d1d1f] group-hover:text-[#0071e3]">
                 {post.title}
               </p>
@@ -501,7 +698,7 @@ function WpBodySection({ html, relatedPosts }) {
           className="wp-content min-w-0 max-w-full overflow-x-clip"
           dangerouslySetInnerHTML={{ __html: html }}
         />
-        <RelatedArticlesSidebar posts={relatedPosts} />
+        <RelatedArticlesSidebar posts={(relatedPosts ?? []).slice(0, 5)} />
       </div>
     </section>
   );
@@ -523,7 +720,7 @@ export default function ArticlePageView({ data, relatedPosts = [] }) {
       <WpBodySection html={data.wpBodyHtml} relatedPosts={relatedPosts} />
       <FaqSection faq={data.faq} />
       <NewsletterSection newsletter={data.newsletter} />
-      <TrioFeaturesSection features={data.trioFeatures} />
+      <RelatedPostsCarousel posts={relatedPosts} />
       <DuoCardsSection cards={data.duoCards} />
       <div className="flex justify-center border-t border-[#d2d2d7] bg-white py-12">
         <Link

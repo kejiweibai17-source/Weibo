@@ -6,7 +6,7 @@ const WP_API_URL =
 
 // 取得文章列表 (包含圖片與分類)
 export async function getAllPosts() {
-  const res = await fetch(`${WP_API_URL}/posts?_embed&per_page=10`, {
+  const res = await fetch(`${WP_API_URL}/posts?_embed&per_page=12`, {
     next: {
       revalidate: 3600,
       tags: ["blog-all", "sitemap"],

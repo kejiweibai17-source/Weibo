@@ -8,6 +8,7 @@ import {
   buildBreadcrumbList,
   buildCoreEntityGraph,
 } from "@/lib/seo/schemas";
+import { blogPostPath } from "@/lib/utils";
 
 function stripHtml(html = "") {
   return String(html)
@@ -39,7 +40,7 @@ function getPostTags(post) {
  * 文章頁完整 GEO SEO：BlogPosting + WebPage + Breadcrumb + 核心實體
  */
 export default function ArticleJsonLd({ post, siteUrl, imageUrl }) {
-  const canonicalUrl = `${siteUrl}/blog/${post.slug}`;
+  const canonicalUrl = `${siteUrl}${blogPostPath(post.slug)}`;
   const ids = entityIds(siteUrl);
   const cleanTitle = stripHtml(post.title?.rendered);
   const cleanDescription =
@@ -64,7 +65,7 @@ export default function ArticleJsonLd({ post, siteUrl, imageUrl }) {
   const breadcrumb = buildBreadcrumbList(siteUrl, [
     { name: "首頁", path: "/" },
     { name: "理容知識", path: "/blog" },
-    { name: cleanTitle, path: `/blog/${post.slug}` },
+    { name: cleanTitle, path: blogPostPath(post.slug) },
   ]);
 
   const articleSchema = {

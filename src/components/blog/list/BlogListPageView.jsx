@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
 import { motion } from "framer-motion";
+import { blogPostPath } from "@/lib/utils";
 
 const ANKER_BLUE = "#1a5cff";
 
@@ -152,7 +153,7 @@ function MomentsSection({ moments }) {
 }
 
 function SelectionCard({ post }) {
-  const href = post.isMock ? "/blog" : `/blog/${post.slug}`;
+  const href = post.isMock ? "/blog" : blogPostPath(post.slug);
 
   return (
     <Link href={href} className="group block text-left">
@@ -179,12 +180,114 @@ function SelectionCard({ post }) {
   );
 }
 
-function SelectionsSection({ selections, posts }) {
+function blogPageHref(page) {
+  const base = page <= 1 ? "/blog" : `/blog?page=${page}`;
+  return `${base}#blog-list`;
+}
+
+function getVisiblePages(current, total) {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const pages = new Set([1, total, current]);
+  for (let i = current - 1; i <= current + 1; i += 1) {
+    if (i >= 1 && i <= total) pages.add(i);
+  }
+
+  const sorted = [...pages].sort((a, b) => a - b);
+  const result = [];
+  for (let i = 0; i < sorted.length; i += 1) {
+    const page = sorted[i];
+    if (i > 0 && page - sorted[i - 1] > 1) {
+      result.push("ellipsis");
+    }
+    result.push(page);
+  }
+  return result;
+}
+
+function BlogPagination({ page, totalPages }) {
+  const pages = Math.max(1, Number(totalPages) || 1);
+  const current = Math.min(Math.max(1, Number(page) || 1), pages);
+  const visible = getVisiblePages(current, pages);
+
+  return (
+    <nav
+      className="mt-14 flex flex-wrap items-center justify-center gap-2 md:mt-16"
+      aria-label="文章分頁"
+    >
+      {current <= 1 ? (
+        <span
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#e8e8ed] text-[14px] text-[#c7c7cc]"
+          aria-hidden
+        >
+          ‹
+        </span>
+      ) : (
+        <Link
+          href={blogPageHref(current - 1)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d2d2d7] text-[14px] text-[#1d1d1f] transition-colors hover:border-[#1d1d1f]"
+          aria-label="上一頁"
+        >
+          ‹
+        </Link>
+      )}
+
+      {visible.map((item, index) =>
+        item === "ellipsis" ? (
+          <span
+            key={`ellipsis-${index}`}
+            className="px-1 text-[14px] text-[#86868b]"
+            aria-hidden
+          >
+            …
+          </span>
+        ) : item === current ? (
+          <span
+            key={item}
+            aria-current="page"
+            className="inline-flex h-10 min-w-10 items-center justify-center rounded-full bg-[#1d1d1f] px-3 text-[14px] font-medium text-white"
+          >
+            {item}
+          </span>
+        ) : (
+          <Link
+            key={item}
+            href={blogPageHref(item)}
+            className="inline-flex h-10 min-w-10 items-center justify-center rounded-full border border-[#d2d2d7] px-3 text-[14px] font-medium text-[#1d1d1f] transition-colors hover:border-[#1d1d1f]"
+          >
+            {item}
+          </Link>
+        ),
+      )}
+
+      {current >= pages ? (
+        <span
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#e8e8ed] text-[14px] text-[#c7c7cc]"
+          aria-hidden
+        >
+          ›
+        </span>
+      ) : (
+        <Link
+          href={blogPageHref(current + 1)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d2d2d7] text-[14px] text-[#1d1d1f] transition-colors hover:border-[#1d1d1f]"
+          aria-label="下一頁"
+        >
+          ›
+        </Link>
+      )}
+    </nav>
+  );
+}
+
+function SelectionsSection({ selections, posts, pagination }) {
   const [activeTab, setActiveTab] = useState("new");
   const displayPosts = activeTab === "popular" ? [...posts].reverse() : posts;
 
   return (
-    <section className="bg-white px-5 py-20 md:px-8 md:py-28">
+    <section id="blog-list" className="bg-white px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-[1200px] text-center">
         <h2 className="text-[32px] font-bold leading-tight text-[#1d1d1f] md:text-[48px]">
           {selections.title}
@@ -210,6 +313,10 @@ function SelectionsSection({ selections, posts }) {
             <SelectionCard key={post.id} post={post} />
           ))}
         </div>
+        <BlogPagination
+          page={pagination?.page}
+          totalPages={pagination?.totalPages}
+        />
       </div>
     </section>
   );
@@ -285,11 +392,15 @@ function ConfidenceSection({ confidence }) {
   );
 }
 
-export default function BlogListPageView({ data }) {
+export default function BlogListPageView({ data, pagination }) {
   return (
     <div className="mt-[60px] bg-white font-sans text-[#1d1d1f]">
       <MomentsSection moments={data.moments} />
-      <SelectionsSection selections={data.selections} posts={data.posts} />
+      <SelectionsSection
+        selections={data.selections}
+        posts={data.posts}
+        pagination={pagination}
+      />
       <ConfidenceSection confidence={data.confidence} />
     </div>
   );

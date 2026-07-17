@@ -4,6 +4,7 @@ import {
   type BlogMomentItem,
   type BlogPostCard,
 } from "@/data/blogPageFallback";
+import { blogPostPath } from "@/lib/utils";
 
 function decodeHtmlEntities(text: string) {
   return text
@@ -103,8 +104,10 @@ function mergePostsWithFallback(
   mockPosts: BlogPostCard[],
   max: number,
 ): BlogPostCard[] {
-  const merged: BlogPostCard[] = realPosts.map((post) => ({ ...post, isMock: false }));
-  const usedSlugs = new Set(realPosts.map((post) => post.slug));
+  const merged: BlogPostCard[] = realPosts
+    .slice(0, max)
+    .map((post) => ({ ...post, isMock: false }));
+  const usedSlugs = new Set(merged.map((post) => post.slug));
 
   for (const mock of mockPosts) {
     if (merged.length >= max) break;
@@ -117,24 +120,39 @@ function mergePostsWithFallback(
 }
 
 function postHref(post: BlogPostCard) {
-  return post.isMock ? "/blog" : `/blog/${post.slug}`;
+  return post.isMock ? "/blog" : blogPostPath(post.slug);
 }
+
+export const BLOG_LIST_PAGE_SIZE = 9;
 
 export function mapWordPressPostsToBlogPage(
   wpPosts: Array<Parameters<typeof mapWpPost>[0]> | null | undefined,
+  options?: {
+    /** 上方 Moments 用的文章來源（通常為最新一頁） */
+    momentWpPosts?: Array<Parameters<typeof mapWpPost>[0]> | null;
+    pageSize?: number;
+  },
 ): BlogListPageData {
   const fallback = structuredClone(BLOG_PAGE_FALLBACK);
+  const pageSize = options?.pageSize ?? BLOG_LIST_PAGE_SIZE;
   const realPosts = wpPosts?.length ? wpPosts.map(mapWpPost) : [];
+  const momentSource = options?.momentWpPosts?.length
+    ? options.momentWpPosts.map(mapWpPost)
+    : realPosts;
 
-  // 真實文章優先，不足時用假資料補滿（後台新增後會逐步替換）
+  // 上方 Moments：最新 5 篇
   const momentPosts = mergePostsWithFallback(
-    realPosts,
+    momentSource,
     fallback.mockPosts,
     5,
   );
-  const posts = mergePostsWithFallback(realPosts, fallback.mockPosts, 12);
 
-  const featuredPost = realPosts[0] ?? posts[0];
+  // 下方列表：有真實文章時不補假資料（讓分頁頁數正確）
+  const posts = realPosts.length
+    ? realPosts.slice(0, pageSize).map((post) => ({ ...post, isMock: false }))
+    : mergePostsWithFallback([], fallback.mockPosts, pageSize);
+
+  const featuredPost = momentSource[0] ?? posts[0];
 
   const momentsItems: BlogMomentItem[] = momentPosts.map((post, i) => ({
     image: post.image,

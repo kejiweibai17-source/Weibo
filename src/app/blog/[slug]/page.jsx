@@ -4,7 +4,15 @@ import { notFound } from "next/navigation";
 import ArticleJsonLd from "./ArticleJsonLd";
 import ArticlePageView from "@/components/blog/article/ArticlePageView";
 import { getSiteUrl, SEO_CONFIG, ogImageUrl } from "@/lib/seo/config";
-import { BLOG_CACHE_TAG, SITEMAP_CACHE_TAG } from "@/lib/seo/revalidate.server";
+import {
+  BLOG_CACHE_TAG,
+  SITEMAP_CACHE_TAG,
+} from "@/lib/seo/revalidate.server";
+import {
+  blogFetchCacheTag,
+  blogPostPath,
+  normalizeRouteSlug,
+} from "@/lib/utils";
 
 const SITE_URL = getSiteUrl();
 
@@ -44,7 +52,10 @@ function getPostTerms(post, taxonomy) {
     .map((term) => term.name);
 }
 
-async function getPostBySlug(slug) {
+async function getPostBySlug(rawSlug) {
+  const slug = normalizeRouteSlug(rawSlug);
+  if (!slug) return null;
+
   const rawBase =
     process.env.WORDPRESS_API_URL ||
     "https://inf.fjg.mybluehost.me/website_b45d1e40";
@@ -55,7 +66,7 @@ async function getPostBySlug(slug) {
     const res = await fetch(fetchUrl, {
       next: {
         revalidate: 3600,
-        tags: [BLOG_CACHE_TAG, `blog-${slug}`, SITEMAP_CACHE_TAG],
+        tags: [BLOG_CACHE_TAG, blogFetchCacheTag(slug), SITEMAP_CACHE_TAG],
       },
       headers: {
         "User-Agent":
@@ -74,14 +85,18 @@ async function getPostBySlug(slug) {
 export async function generateStaticParams() {
   try {
     const posts = await getAllPostSlugs();
-    return posts.map((post) => ({ slug: post.slug }));
+    return posts.map((post) => ({
+      // 輸出已 decode 的中文，避免靜態路徑再被二次編碼
+      slug: normalizeRouteSlug(post.slug),
+    }));
   } catch {
     return [];
   }
 }
 
 export async function generateMetadata({ params }) {
-  const post = await getPostBySlug(params.slug);
+  const slug = normalizeRouteSlug(params.slug);
+  const post = await getPostBySlug(slug);
   if (!post) return { title: "找不到文章" };
 
   const imageUrl = getPostImage(post);
@@ -91,7 +106,7 @@ export async function generateMetadata({ params }) {
     "SMASMALL 昔馬電動刮鬍刀理容知識與男士修容專欄。台灣總代理威柏科技，嘉義縣太保市。";
   const categories = getPostTerms(post, "category");
   const tags = getPostTerms(post, "post_tag");
-  const pageUrl = `/blog/${post.slug}`;
+  const pageUrl = blogPostPath(post.slug);
   const title = `${cleanTitle}｜SMASMALL 昔馬理容知識`;
 
   return {
@@ -149,33 +164,44 @@ function getRelatedPostImage(post) {
   const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
   const rawUrl =
     post.jetpack_featured_media_url ||
-    featuredMedia?.media_details?.sizes?.medium?.source_url ||
+    featuredMedia?.media_details?.sizes?.medium_large?.source_url ||
     featuredMedia?.media_details?.sizes?.large?.source_url ||
+    featuredMedia?.media_details?.sizes?.medium?.source_url ||
     featuredMedia?.source_url ||
     "";
-  return rawUrl ? rawUrl.split("?")[0] : "";
+  return rawUrl ? rawUrl.split("?")[0] : "/images/003-01.png";
 }
 
 async function getRelatedPosts(currentSlug) {
+  const current = normalizeRouteSlug(currentSlug);
   try {
     const posts = await getAllPosts();
     if (!Array.isArray(posts)) return [];
     return posts
-      .filter((p) => p.slug !== currentSlug)
-      .slice(0, 5)
-      .map((p) => ({
-        slug: p.slug,
-        title: p.title?.rendered?.replace(/<[^>]+>/g, "") ?? "",
-        image: getRelatedPostImage(p),
-        date: p.date,
-      }));
+      .filter((p) => normalizeRouteSlug(p.slug) !== current)
+      .slice(0, 8)
+      .map((p) => {
+        const categories = getPostTerms(p, "category");
+        const tags = getPostTerms(p, "post_tag");
+        const excerpt = stripHtml(p.excerpt?.rendered || "").substring(0, 120);
+        return {
+          slug: p.slug,
+          title: stripHtml(p.title?.rendered || ""),
+          image: getRelatedPostImage(p),
+          date: p.date,
+          excerpt,
+          category: categories[0] || "理容知識",
+          tags: tags.slice(0, 3),
+        };
+      });
   } catch {
     return [];
   }
 }
 
 export default async function BlogPostPage({ params }) {
-  const post = await getPostBySlug(params.slug);
+  const slug = normalizeRouteSlug(params.slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -183,7 +209,7 @@ export default async function BlogPostPage({ params }) {
 
   const articleData = mapWordPressPostToArticlePage(post);
   const mainImageUrl = getPostImage(post);
-  const relatedPosts = await getRelatedPosts(params.slug);
+  const relatedPosts = await getRelatedPosts(slug);
 
   return (
     <>

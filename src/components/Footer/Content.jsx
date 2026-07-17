@@ -197,7 +197,7 @@ const Section2 = () => {
     <footer className="w-full bg-white pt-10 pb-8 px-6 sm:px-10 lg:px-20 xl:px-32 border-t border-gray-100">
       <div className="max-w-[1400px] mx-auto">
         {/* 頂部 Logo (置中) */}
-        <div className="flex justify-center mb-20">
+        <div className="flex justify-center mb-12 md:mb-20">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-3xl font-light tracking-[0.25em] text-black uppercase">
               SMASMALL
@@ -205,18 +205,18 @@ const Section2 = () => {
           </Link>
         </div>
 
-        {/* 主要欄位區塊 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-16">
+        {/* 主要欄位區塊：手機兩欄，桌機五欄 */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10 sm:gap-x-8 md:gap-y-16">
           {/* 第一欄：關於我們 */}
           <div className="lg:col-span-1">
-            <h4 className="text-[13px] font-medium text-gray-400 mb-6 tracking-wide">
+            <h4 className="text-[13px] font-medium text-gray-400 mb-4 md:mb-6 tracking-wide">
               About us
             </h4>
-            <ul className="space-y-4">
+            <ul className="space-y-3 md:space-y-4">
               <li>
                 <Link
                   href="/weibo"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   威柏科技介紹
                 </Link>
@@ -224,7 +224,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/brand"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   昔馬品牌故事
                 </Link>
@@ -232,7 +232,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/blog"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   最新消息與專欄
                 </Link>
@@ -242,14 +242,14 @@ const Section2 = () => {
 
           {/* 第二欄：商品導覽（Sitelinks 候選） */}
           <div className="lg:col-span-1">
-            <h4 className="text-[13px] font-medium text-gray-400 mb-6 tracking-wide">
+            <h4 className="text-[13px] font-medium text-gray-400 mb-4 md:mb-6 tracking-wide">
               Shop
             </h4>
-            <ul className="space-y-4">
+            <ul className="space-y-3 md:space-y-4">
               <li>
                 <Link
                   href="/series"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   系列商品
                 </Link>
@@ -257,7 +257,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/accessories"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   產品列表
                 </Link>
@@ -265,7 +265,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/brand"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   品牌介紹
                 </Link>
@@ -273,7 +273,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/support"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   客戶支援中心
                 </Link>
@@ -283,14 +283,14 @@ const Section2 = () => {
 
           {/* 第三欄：支援服務 */}
           <div className="lg:col-span-1">
-            <h4 className="text-[13px] font-medium text-gray-400 mb-6 tracking-wide">
+            <h4 className="text-[13px] font-medium text-gray-400 mb-4 md:mb-6 tracking-wide">
               Support
             </h4>
-            <ul className="space-y-4">
+            <ul className="space-y-3 md:space-y-4">
               <li>
                 <Link
                   href="/support/manuals"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   使用與保養指南
                 </Link>
@@ -298,7 +298,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/support/warranty"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   產品保固與註冊
                 </Link>
@@ -306,7 +306,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/support/faq"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   常見問題 FAQ
                 </Link>
@@ -315,7 +315,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/stores"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   全台門市
                 </Link>
@@ -323,7 +323,7 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
                   聯絡我們
                 </Link>
@@ -331,13 +331,13 @@ const Section2 = () => {
             </ul>
           </div>
 
-          {/* 第四欄：聯繫 CTA + 社群圖示 */}
-          <div className="lg:col-span-2 lg:pl-8">
-            <h3 className="text-[22px] font-bold text-black mb-4 leading-tight">
+          {/* 第四欄：聯繫 CTA + 社群圖示（手機橫跨兩欄） */}
+          <div className="col-span-2 lg:col-span-2 lg:pl-8">
+            <h3 className="text-[18px] md:text-[22px] font-bold text-black mb-3 md:mb-4 leading-tight">
               Explore the Craftsmanship <br />
               with SMASMALL
             </h3>
-            <p className="text-[13px] text-gray-400 leading-relaxed mb-6 pr-4">
+            <p className="text-[13px] text-gray-400 leading-relaxed mb-6 pr-0 md:pr-4">
               想進一步了解昔馬 SMASMALL 產品、保固或購買資訊？歡迎透過 LINE
               官方帳號與威柏科技聯繫，我們將為您提供專人服務與理容建議。
             </p>

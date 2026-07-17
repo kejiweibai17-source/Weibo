@@ -1,124 +1,219 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Users,
-  Ship,
-  Store,
-  Building2,
-  Globe2,
-  Sparkles,
-} from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 import Copy from "@/components/Copy";
 
 // ============================================================================
 // 威柏科技 WEIBO 企業介紹頁 — 資料設定
 // ============================================================================
 
+/** 歷史沿革：圖文時間軸（圖片暫代，之後可替換） */
 const TIMELINE = [
   {
     year: "2015",
-    icon: "logo",
-    text: "威柏科技貿易有限公司正式成立",
+    side: "right",
+    text: "威柏科技貿易公司籌備處成立",
+    media: "logo",
+    image: "/images/logo/weibo-logo.png",
   },
   {
     year: "2016",
-    icon: Store,
+    side: "left",
     text: "成為國內各大連鎖 3C 賣場通路供應商",
+    image: "/images/index/banner-01.png",
+  },
+  {
+    year: "2016",
+    side: "right",
+    text: "成立電子商務部門，並於國內電商平台上架",
+    image: "/images/index/banner-02.png",
+    imageShape: "round",
   },
   {
     year: "2017",
-    icon: Users,
-    text: "線上客服與售後服務部門成立",
+    side: "left",
+    text: "線上客服與檢修部門成立",
+    image: "/images/index/banner-03.png",
   },
   {
     year: "2018",
-    icon: Building2,
+    side: "right",
     text: "專案業務部成立",
+    image: "/images/index/banner-04.png",
   },
   {
     year: "2019",
-    icon: Sparkles,
+    side: "left",
     text: "WEIZ 通路品牌成立",
+    media: "weiz",
+    image: "/images/index/banner-05.png",
   },
   {
     year: "2022",
-    icon: Ship,
-    text: "打造全渠 OMO 整合系統，深度服務全通路顧客",
+    side: "right",
+    text: "打造台灣 OMO 整合系統，深度服務全通路顧客",
+    image: "/images/002.png",
   },
   {
     year: "2024",
-    icon: Globe2,
+    side: "left",
     text: "打造線上新零售，提供代理品牌全台消費者線上、線下體驗及售後服務",
+    image: "/images/003.png",
   },
   {
     year: "2025",
-    icon: Store,
+    side: "right",
     text: "WEIZ 佈局三家中南部旗艦體驗店：高雄、台南、台中",
+    image: "/images/001.png",
   },
 ];
 
 const BRAND_LOGOS = [
   {
     name: "WEILIFE",
-    tag: "生活家電",
-    image: "/images/weibo/brand-weilife.jpg",
+    logoClass:
+      "text-[17px] md:text-[19px] font-extrabold tracking-[0.04em] text-[#2ec4b6]",
+    image: "/images/weibo/section3/brand-weilife.jpg",
   },
   {
-    name: "smasmall 昔馬",
-    tag: "個人理容",
-    image: "/images/accessories/星座系列電動刮鬍刀禮盒/01.jpg",
+    name: "smasmall® 昔馬",
+    logoClass:
+      "text-[16px] md:text-[18px] font-bold tracking-[0.04em] text-slate-900",
+    image: "/images/weibo/section3/brand-smasmall.jpg",
   },
   {
-    name: "FRAMULA 芬樂",
-    tag: "香氛生活",
-    image: "/images/weibo/brand-framula.jpg",
+    name: "FRAMULA",
+    sub: "芬乘®",
+    logoClass:
+      "text-[16px] md:text-[18px] font-extrabold tracking-[0.1em] text-slate-900",
+    image: "/images/weibo/section3/brand-framula.jpg",
   },
   {
     name: "WiWU",
-    tag: "3C 配件",
-    image: "/images/weibo/brand-wiwu.jpg",
+    logoClass:
+      "text-[17px] md:text-[19px] font-extrabold tracking-[0.04em] text-[#1e3a8a]",
+    image: "/images/weibo/section3/brand-wiwu.jpg",
   },
   {
     name: "ACEFAST",
-    tag: "潮流耳機",
-    image: "/images/weibo/brand-acefast.jpg",
+    logoClass:
+      "text-[16px] md:text-[18px] font-extrabold italic tracking-[0.04em] text-[#22c55e]",
+    image: "/images/weibo/section3/brand-acefast.jpg",
   },
 ];
 
+/** 代理品牌輪播（已排除設計稿劃掉的 XROUND / ZUA） */
+const AGENCY_BRANDS = [
+  {
+    name: "WEIBO",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold tracking-[0.14em] text-slate-800",
+  },
+  {
+    name: "WiWU",
+    style:
+      "text-[16px] md:text-[17px] font-extrabold tracking-[0.04em] text-[#1e3a8a]",
+  },
+  {
+    name: "ACEFAST",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold italic tracking-[0.04em] text-[#22c55e]",
+  },
+  {
+    name: "BOSE",
+    style:
+      "text-[16px] md:text-[17px] font-extrabold tracking-[0.2em] text-slate-900",
+  },
+  {
+    name: "harman/kardon",
+    style:
+      "text-[13px] md:text-[14px] font-semibold italic tracking-[0.02em] text-slate-800",
+  },
+  {
+    name: "Audio-Technica",
+    style:
+      "text-[13px] md:text-[14px] font-bold tracking-[0.02em] text-slate-900",
+  },
+  {
+    name: "G-PLUS",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold tracking-[0.04em] text-[#e11d48]",
+  },
+  {
+    name: "FANTECH",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold tracking-[0.1em] text-slate-900",
+  },
+  {
+    name: "WEILIFE",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold tracking-[0.04em] text-[#2ec4b6]",
+  },
+  {
+    name: "smasmall",
+    style:
+      "text-[15px] md:text-[16px] font-bold tracking-[0.04em] text-slate-900",
+  },
+  {
+    name: "FRAMULA",
+    style:
+      "text-[15px] md:text-[16px] font-extrabold tracking-[0.1em] text-slate-900",
+  },
+];
+
+/** 核心業務四卡（底圖暫代，之後可替換） */
 const CORE_BUSINESS = [
   {
     no: "01",
     title: "品牌代理",
     desc: "總代理各國原創品牌，原廠授權引進與通路管理。",
-    Icon: Building2,
-    image: "/images/weibo/core-agency.jpg",
+    image: "/images/index/banner-01.png",
   },
   {
     no: "02",
     title: "國際外銷",
     desc: "從台灣零售延伸至香港、新加坡等海外市場。",
-    Icon: Ship,
-    image: "/images/weibo/core-export.jpg",
+    image: "/images/index/banner-02.png",
   },
   {
     no: "03",
     title: "台灣全通路推廣",
-    desc: "台灣通路、百貨櫃位、連鎖 3C 賣場與電商平台，完整佈局線上線下全通路整合。",
-    Icon: Store,
-    image: "/images/weibo/core-retail.jpg",
+    desc: "台灣通路、百貨櫃位、連鎖3C賣場與電商平台完整佈局線上線下全通路整合。",
+    image: "/images/index/banner-03.png",
   },
   {
     no: "04",
     title: "企業採購",
     desc: "提供企業專案與大宗採購的選品與客製服務。",
-    Icon: Globe2,
-    image: "/images/weibo/core-enterprise.jpg",
+    image: "/images/index/banner-04.png",
   },
 ];
+
+/**
+ * 日系排版字級／間距（只統一文字尺度，不改桌面構圖）
+ * eyebrow → h2 → body 階梯；行高偏鬆、字距微開
+ */
+const TYPO = {
+  eyebrow:
+    "text-[11px] md:text-xs font-medium uppercase tracking-[0.28em] text-[#c4a574]",
+  h2: "text-[26px] md:text-[32px] font-bold tracking-[0.04em] leading-[1.4] text-slate-900",
+  body: "text-[14px] md:text-[15px] leading-[1.95] tracking-[0.03em] text-slate-600",
+  bodyMuted:
+    "text-[14px] md:text-[15px] leading-[1.95] tracking-[0.03em] text-[#666666]",
+  cardTitle:
+    "text-[16px] md:text-[17px] font-bold tracking-[0.06em] leading-snug",
+  cardBody:
+    "text-[13px] md:text-[14px] leading-[1.9] tracking-[0.04em] text-slate-500",
+  year: "text-[24px] md:text-[34px] font-bold tracking-[0.02em] text-[#4d5aff]",
+  cta: "text-[13px] md:text-sm font-bold tracking-[0.06em]",
+};
+
+const SECTION_PAD = "py-20 md:py-28";
+const SECTION_X = "px-6 lg:px-16";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -142,12 +237,13 @@ function Reveal({ children, delay = 0, className = "" }) {
 
 export default function WeiboClient() {
   return (
-    <div className="w-full bg-white text-slate-900 font-sans antialiased overflow-hidden">
+    <div className="w-full bg-white text-slate-900 font-sans antialiased overflow-hidden tracking-[0.02em]">
       <HeroSection />
       <IntroSection />
       <ImportExportSection />
       <TimelineSection />
-      <CoreBusinessSection />
+      <OurBrandsSection />
+      <CloudWarrantySection />
     </div>
   );
 }
@@ -157,7 +253,7 @@ export default function WeiboClient() {
    ============================================================================ */
 function HeroSection() {
   return (
-    <section className="relative w-full h-[78vh] min-h-[520px] bg-[#05070d] overflow-hidden flex items-end">
+    <section className="relative flex h-[68vh] min-h-[440px] w-full items-end overflow-hidden bg-[#05070d] md:h-[78vh] md:min-h-[520px]">
       {/* 科技辦公桌情境背景照片 */}
       <div className="absolute inset-0">
         <Image
@@ -165,21 +261,18 @@ function HeroSection() {
           alt="網羅全球創意與設計的品牌"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-[70%_center] md:object-center"
         />
         <div className="absolute inset-0 bg-[#05070d]/55" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_15%,rgba(56,132,255,0.35),transparent_55%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#05070d] via-[#05070d]/55 to-transparent" />
       </div>
 
-      <div className="relative z-10 max-w-[1600px] w-full mx-auto px-6 lg:px-16 pb-16 md:pb-20">
-        <Reveal>
-          <span className="inline-block text-[11px] md:text-xs tracking-[0.35em] text-blue-300/80 font-medium mb-6">
-            WEIBO TECHNOLOGY
-          </span>
-        </Reveal>
+      <div
+        className={`relative z-10 mx-auto w-full max-w-[1600px] pb-12 md:pb-20 ${SECTION_X}`}
+      >
         <Copy>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-[1.15] tracking-tight text-white">
+          <h1 className="max-w-[18em] text-[28px] font-bold leading-[1.35] tracking-[0.02em] text-white md:max-w-none md:text-5xl md:leading-[1.3] lg:text-6xl">
             網羅全球創意
             <br />
             與設計的品牌
@@ -199,52 +292,136 @@ function HeroSection() {
    ============================================================================ */
 function IntroSection() {
   return (
-    <section className="relative w-full bg-[#f5f6f8] py-24 md:py-32 overflow-hidden">
-      {/* 裝飾大字：背景層 */}
-      <span className="pointer-events-none select-none absolute -top-2 right-4 md:right-10 text-[13vw] md:text-[7vw] font-extrabold text-slate-300/50 tracking-tight whitespace-nowrap">
-        NEW BEGINNINGS
-      </span>
-      <span className="pointer-events-none select-none absolute bottom-2 left-4 md:left-10 text-[11vw] md:text-[6vw] font-extrabold text-slate-300/50 tracking-tight whitespace-nowrap">
-        HEARTFELT CONNECTIONS
-      </span>
+    <section>
+      {" "}
+      <section
+        className={`relative w-full bg-[#f5f6f8] ${SECTION_PAD} overflow-hidden`}
+      >
+        {/* 裝飾大字：背景層（手機縮小，避免壓過內文） */}
+        <span className="pointer-events-none absolute -top-1 right-2 select-none whitespace-nowrap text-[12vw] font-extrabold tracking-[0.04em] text-slate-300/40 md:-top-2 md:right-10 md:text-[7vw] md:text-slate-300/50">
+          NEW BEGINNINGS
+        </span>
+        <span className="pointer-events-none absolute bottom-1 left-2 select-none whitespace-nowrap text-[10vw] font-extrabold tracking-[0.04em] text-slate-300/35 md:bottom-2 md:left-10 md:text-[6vw] md:text-slate-300/50">
+          HEARTFELT CONNECTIONS
+        </span>
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
-          {/* 左：Logo + 說明文字 */}
-          <Reveal>
-            <div className="flex items-center gap-4 mb-8">
-              <Image
-                src="/images/logo/weibo-logo.png"
-                alt="WEIBO 威柏科技"
-                width={64}
-                height={64}
-                className="w-14 h-14 md:w-16 md:h-16 object-contain"
-              />
-              <div>
-                <p className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 leading-none">
-                  WEIBO
-                </p>
-                <p className="text-sm md:text-base text-slate-500 font-medium tracking-wide">
-                  威柏科技
-                </p>
+        <div className={`relative z-10 max-w-[1400px] mx-auto ${SECTION_X}`}>
+          <div className="grid grid-cols-1 items-center gap-10 md:gap-14 lg:grid-cols-2 lg:gap-14">
+            {/* 左：Logo + 說明文字 */}
+            <Reveal>
+              <div className="relative">
+                {/* 淺黃發散模糊圓球背景 */}
+                <div
+                  className="pointer-events-none absolute -left-10 -top-8 h-56 w-56 rounded-full bg-[#fde9a8]/70 blur-3xl md:-left-14 md:h-72 md:w-72"
+                  aria-hidden
+                />
+                <div
+                  className="pointer-events-none absolute left-24 top-16 h-40 w-40 rounded-full bg-[#fff1c4]/80 blur-[48px] md:left-32 md:h-52 md:w-52"
+                  aria-hidden
+                />
+                <div
+                  className="pointer-events-none absolute -bottom-6 left-8 h-36 w-36 rounded-full bg-[#f6d98a]/55 blur-3xl md:h-44 md:w-44"
+                  aria-hidden
+                />
+
+                <div className="relative z-10">
+                  <div className="mb-7 flex items-center gap-4 md:mb-8">
+                    <Image
+                      src="/images/logo/weibo-logo.png"
+                      alt="WEIBO 威柏科技"
+                      width={64}
+                      height={64}
+                      className="h-14 w-14 object-contain md:h-16 md:w-16"
+                    />
+                    <div>
+                      <p className="text-[20px] font-bold leading-none tracking-[0.06em] text-slate-900 md:text-[22px]">
+                        WEIBO
+                      </p>
+                      <p className="mt-1.5 text-[13px] font-medium tracking-[0.12em] text-slate-500 md:text-[14px]">
+                        威柏科技
+                      </p>
+                    </div>
+                  </div>
+                  <p className={`max-w-xl ${TYPO.body}`}>
+                    威柏科技貿易有限公司成立於 2015
+                    年，立足全球視野、深耕台灣市場，網羅世界各地具創意與設計感的品牌，致力於將優質生活提案帶給台灣消費者，我們堅信科技產品經過我們的淬煉，能精準有感的帶給消費者更好的生活體驗。
+                  </p>
+                </div>
               </div>
-            </div>
-            <p className="text-[15px] md:text-base text-slate-600 leading-relaxed max-w-xl">
-              威柏科技貿易有限公司成立於 2015
-              年，立足全球視野、深耕台灣市場，網羅世界各地具創意與設計感的品牌，致力於將優質生活提案帶給台灣消費者，我們堅信科技產品經過我們的淬煉，能精準有感的帶給消費者更好的生活體驗。
-            </p>
+            </Reveal>
+
+            {/* 右：全球網絡視覺卡片 */}
+            <Reveal delay={0.12}>
+              <div className="relative rounded-2xl bg-[#0a1330] p-3 md:p-4 shadow-xl">
+                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-[#0a1330]">
+                  <GlobalNetworkArt />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+      <section
+        className={`relative w-full overflow-hidden bg-[#f3f4f6] ${SECTION_X} ${SECTION_PAD}`}
+      >
+        {/* 左下藍三角 */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 z-0 h-[72px] w-[120px] bg-[#4d5aff] md:h-[96px] md:w-[160px]"
+          style={{ clipPath: "polygon(0 0, 0 100%, 100% 100%)" }}
+          aria-hidden
+        />
+
+        <div className="relative z-10 mx-auto max-w-[1400px]">
+          <Reveal>
+            <h2 className={`mb-10 md:mb-12 ${TYPO.h2}`}>核心業務</h2>
           </Reveal>
 
-          {/* 右：全球網絡視覺卡片 */}
-          <Reveal delay={0.12}>
-            <div className="relative rounded-2xl bg-[#0a1330] p-3 md:p-4 shadow-xl">
-              <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-[#0a1330]">
-                <GlobalNetworkArt />
-              </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 md:gap-5">
+            {CORE_BUSINESS.map((item, idx) => (
+              <Reveal key={item.no} delay={0.06 * idx}>
+                <article className="relative min-h-[260px] overflow-hidden rounded-lg shadow-[0_2px_12px_rgba(15,23,42,0.06)] sm:min-h-[280px] md:min-h-[340px]">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                  />
+                  {/* 淡底圖白霧，對齊設計稿 */}
+                  <div className="absolute inset-0 bg-white/78" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-white/50" />
+
+                  <div className="relative z-10 flex h-full min-h-[260px] flex-col px-5 py-5 sm:min-h-[280px] md:min-h-[340px] md:px-6 md:py-6">
+                    <span className="text-[36px] font-extrabold leading-none tracking-[0.02em] text-[#9bb5ff] md:text-[44px]">
+                      {item.no}
+                    </span>
+                    <h3
+                      className={`mt-5 text-center text-[#5b7fd6] md:mt-8 ${TYPO.cardTitle}`}
+                    >
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 text-center text-[13px] leading-[1.9] tracking-[0.04em] text-white md:mt-4 md:text-[14px]">
+                      {item.desc}
+                    </p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.15}>
+            <div className="mt-10 flex flex-col items-center md:mt-12 lg:items-end">
+              <a
+                href="/contact"
+                className={`inline-flex w-full max-w-[280px] items-center justify-center gap-2 rounded-full bg-[#22d3ee] px-8 py-3.5 text-white shadow-md transition-colors hover:bg-cyan-400 sm:w-auto ${TYPO.cta}`}
+              >
+                立即聯繫
+                <span aria-hidden>→</span>
+              </a>
             </div>
           </Reveal>
         </div>
-      </div>
+      </section>
     </section>
   );
 }
@@ -271,7 +448,14 @@ function GlobalNetworkArt() {
           <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect x="0" y="0" width="100" height="62" fill="url(#glow)" opacity="0.5" />
+      <rect
+        x="0"
+        y="0"
+        width="100"
+        height="62"
+        fill="url(#glow)"
+        opacity="0.5"
+      />
       {/* 經緯線構成的簡化地球 */}
       <g stroke="#2f6fb8" strokeWidth="0.25" fill="none" opacity="0.6">
         <ellipse cx="50" cy="31" rx="42" ry="20" />
@@ -283,9 +467,11 @@ function GlobalNetworkArt() {
       {/* 連線 */}
       <g stroke="#38bdf8" strokeWidth="0.35" opacity="0.7">
         {nodes.map((n, i) =>
-          nodes.slice(i + 1).map((m, j) => (
-            <line key={`${i}-${j}`} x1={n.x} y1={n.y} x2={m.x} y2={m.y} />
-          ))
+          nodes
+            .slice(i + 1)
+            .map((m, j) => (
+              <line key={`${i}-${j}`} x1={n.x} y1={n.y} x2={m.x} y2={m.y} />
+            )),
         )}
       </g>
       {/* 節點光點 */}
@@ -300,194 +486,249 @@ function GlobalNetworkArt() {
 }
 
 /* ============================================================================
-   SECTION 3 — 從進出口到總代理 + PHILOSOPHY + 品牌矩陣
+   SECTION 3 — 從進出口到總代理視覺 + PHILOSOPHY + 品牌矩陣
    ============================================================================ */
 function ImportExportSection() {
   return (
-    <section className="relative w-full overflow-hidden">
-      {/* 上半：藍色情境區塊 */}
-      <div className="relative bg-gradient-to-br from-[#1c4fd8] via-[#1740b8] to-[#122f8c] pt-20 md:pt-28 pb-28 md:pb-36">
-        {/* 側邊直排裝飾字 */}
-        <span className="hidden md:block absolute top-1/3 left-3 [writing-mode:vertical-rl] text-white/25 text-xs tracking-[0.5em] font-bold">
-          IMPORT
-        </span>
-        <span className="hidden md:block absolute top-1/3 right-3 [writing-mode:vertical-rl] text-white/25 text-xs tracking-[0.5em] font-bold">
-          EXPORT
-        </span>
+    <section>
+      {/* —— 手機／平板：色塊為底、圖片蓋上（桌面隱藏） —— */}
+      <section className="relative w-full overflow-hidden  lg:hidden">
+        <div className="relative aspect-[5/4] w-full sm:aspect-[16/10]">
+          {/* 底層色塊 */}
+          <Image
+            src="/images/weibo/section3/昔馬網站_威柏頁面-3.png"
+            alt=""
+            fill
+            className="object-cover object-[68%_center]"
+            sizes="100vw"
+            aria-hidden
+          />
+          {/* 圖片蓋在色塊上面 */}
+          <div className="absolute inset-x-[5%] top-[8%] z-10 aspect-[4/3] overflow-hidden rounded-sm shadow-[0_16px_48px_rgba(0,0,0,0.4)] sm:inset-x-[8%] sm:top-[10%]">
+            <Image
+              src="/images/70dd8cb7-02b3-49ab-916d-7bca6184ba43.png"
+              alt="從進出口到總代理"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 92vw, 800px"
+            />
+          </div>
+        </div>
+        <div className="relative z-10 px-6 pb-12 pt-4 sm:px-10 sm:pb-14">
+          <Reveal>
+            <h2 className="text-[24px] font-bold leading-[1.45] tracking-[0.04em]  sm:text-[28px]">
+              從進出口到總代理
+            </h2>
+            <p className="mt-5 max-w-xl text-[14px] leading-[2] tracking-[0.04em] text-white/88 sm:text-[15px]">
+              從主要經營進口業務一路發展到台，產品囊括生活家電、消費性電子、手機周邊、筆電配件、車用百貨等等——銷售市場從台灣零售店、百貨櫃位延伸至新加坡、香港等國際外銷業務，打造完整通路舞台，讓好產品淋漓發揮。
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
-        <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-16">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-            {/* 左：情境圖 */}
-            <Reveal>
-              <div className="relative w-full h-[220px] md:h-[300px] rounded-2xl overflow-hidden shadow-xl">
+      {/* —— 桌面：原排版；isolate 避免絕對定位蓋住下方 PHILOSOPHY —— */}
+      <section className="relative z-0 isolate hidden w-full overflow-hidden lg:block">
+        <div className="relative h-screen overflow-hidden">
+          <div className="absolute right-[-130px] top-[20%] z-20 h-[600px] w-[1900px]">
+            <div className="flex h-[500px]">
+              <div className="relative w-1/2 overflow-hidden bg-gray-800">
                 <Image
-                  src="/images/weibo/team-collab.jpg"
-                  alt="威柏科技團隊協作"
+                  src="/images/70dd8cb7-02b3-49ab-916d-7bca6184ba43.png"
+                  alt=""
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
               </div>
-            </Reveal>
-
-            {/* 右：標題與說明 */}
-            <Reveal delay={0.1}>
-              <h2 className="text-2xl md:text-4xl font-bold text-white tracking-tight mb-6">
-                從進出口到總代理
-              </h2>
-              <p className="text-white/85 text-[14px] md:text-[15px] leading-relaxed mb-4">
-                從主要經營進口業務，一路發展到台灣代理各國品牌，至今旗下囊括眾多來自美國、日本、中國等地的原創品牌。產品囊括生活家電、消費電子、手機周邊、筆電配件、車用百貨等等——
-              </p>
-              <p className="text-white/85 text-[14px] md:text-[15px] leading-relaxed">
-                銷售市場從台灣零售店、百貨櫃位，延伸至新加坡、香港等海外市場，打造完整通路服務，讓好產品被更多消費者看見。
-              </p>
-            </Reveal>
-          </div>
-        </div>
-      </div>
-
-      {/* 下半：白色區塊，PHILOSOPHY 卡片疊在接縫上 */}
-      <div className="relative bg-white pb-20 md:pb-28">
-        <Reveal delay={0.15}>
-          <div className="relative max-w-3xl mx-auto px-6 -mt-20 md:-mt-28">
-            {/* 虛線裝飾框（偏移於卡片左上方） */}
-            <div className="hidden sm:block absolute -top-3 -left-3 right-3 bottom-[-12px] border-2 border-dashed border-indigo-400/70 rounded-2xl" />
-            <div className="absolute -top-4 -left-4 w-9 h-9 bg-gradient-to-br from-purple-400 to-blue-500 rotate-45 rounded-sm shadow-lg z-10" />
-            <div className="relative bg-white rounded-2xl shadow-2xl px-8 md:px-14 py-10 md:py-12 text-center">
-              <span className="text-[11px] tracking-[0.3em] text-slate-400 font-semibold">
-                PHILOSOPHY
-              </span>
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mt-3 mb-5">
-                科技來自於人性
-              </h3>
-              <p className="text-slate-500 text-[13px] md:text-[14px] leading-relaxed">
-                威柏科技產品從無到有，經過研發、設計、溝通、推廣、銷售、體驗、服務，以最嚴格的標準要求每一款產品。消費者的每一個需求，都是我們開發新產品的動力；每一筆消費，都是對我們的信任。
-              </p>
+              <div className="w-1/2 max-w-[600px] p-10">
+                <h2 className="text-[26px] font-bold leading-[1.4] tracking-[0.04em] text-white md:text-[32px]">
+                  從進出口到總代理
+                </h2>
+                <p className="mt-6 text-[14px] leading-[1.95] tracking-[0.03em] text-white/90 md:text-[15px]">
+                  從主要經營進口業務一路發展到台
+                  <br />
+                  產品囊括生活家電、消費性電子、手機周邊、筆電配件、車用百貨等等——
+                  <br />
+                  銷售市場從台灣零售店、百貨櫃位延伸至新加圾、香港等國際外銷業務，打造完整通路舞台，讓好產品淋漓發揮。
+                </p>
+              </div>
             </div>
           </div>
-        </Reveal>
+          <div className="absolute right-[-130px] top-0 z-10 w-[110vw]">
+            <div className="flex">
+              <img
+                src="/images/weibo/section3/昔馬網站_威柏頁面-3.png"
+                className="w-full"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
-        {/* 品牌矩陣 */}
-        <div className="relative z-10 max-w-[1200px] mx-auto px-6 lg:px-16 mt-14 md:mt-16">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6">
-            {BRAND_LOGOS.map((brand, idx) => (
-              <Reveal key={brand.name} delay={0.05 * idx}>
-                <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
-                  <div className="relative w-full aspect-[4/3]">
-                    <Image
-                      src={brand.image}
-                      alt={brand.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="py-3 flex flex-col items-center justify-center text-center">
-                    <span className="text-sm md:text-base font-extrabold tracking-tight text-slate-800">
-                      {brand.name}
-                    </span>
-                    <span className="mt-0.5 text-[10px] text-slate-400 tracking-wide">
-                      {brand.tag}
-                    </span>
-                  </div>
-                </div>
-              </Reveal>
+      <section
+        className={`relative z-20 overflow-hidden bg-white ${SECTION_X} ${SECTION_PAD}`}
+      >
+        {/* 右下灰三角 */}
+        <div
+          className="pointer-events-none absolute bottom-0 right-0 z-0 h-[80px] w-[140px] bg-[#d4d4d4] md:h-[180px] md:w-[320px]"
+          style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }}
+          aria-hidden
+        />
+
+        <div className="relative z-10 mx-auto max-w-[1100px]">
+          <div className="mx-auto max-w-[720px] text-center">
+            <p className={TYPO.eyebrow}>PHILOSOPHY</p>
+            <h2 className={`mt-5 ${TYPO.h2}`}>科技來自於人性</h2>
+            <p className={`mt-6 ${TYPO.bodyMuted}`}>
+              威柏科技讓產品從無到有，經過研發、設計、選品、推廣、銷售、體驗、服務，以最嚴格的標準要求每一款產品。消費者的每一個需求，都是我們開發與推廣產品的動力；每一筆消費，都是對我們的信任。
+            </p>
+          </div>
+
+          {/* 手機：2 欄；sm+：上 3 下 2（桌面構圖不變） */}
+          <div className="mt-12 grid grid-cols-2 gap-5 sm:hidden">
+            {BRAND_LOGOS.map((brand, i) => (
+              <div
+                key={brand.name}
+                className={
+                  i === BRAND_LOGOS.length - 1 && BRAND_LOGOS.length % 2 === 1
+                    ? "col-span-2 mx-auto w-[calc(50%-0.625rem)]"
+                    : undefined
+                }
+              >
+                <BrandShowcaseCard brand={brand} />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-14 hidden grid-cols-1 gap-10 sm:mt-16 sm:grid sm:grid-cols-3 sm:gap-6 md:gap-8">
+            {BRAND_LOGOS.slice(0, 3).map((brand) => (
+              <BrandShowcaseCard key={brand.name} brand={brand} />
+            ))}
+          </div>
+
+          <div className="mt-10 hidden flex-col items-stretch justify-center gap-10 sm:mt-12 sm:flex sm:flex-row sm:gap-6 md:gap-8">
+            {BRAND_LOGOS.slice(3).map((brand) => (
+              <div
+                key={brand.name}
+                className="w-full sm:w-[calc((100%-1.5rem)/3)] md:w-[calc((100%-2rem)/3)]"
+              >
+                <BrandShowcaseCard brand={brand} />
+              </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
     </section>
   );
 }
 
+function BrandShowcaseCard({ brand }) {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-white">
+        <Image
+          src={brand.image}
+          alt={brand.name}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 100vw, 33vw"
+        />
+      </div>
+      <div className="mt-4 flex flex-col items-center md:mt-5">
+        {brand.name === "smasmall® 昔馬" ? (
+          <span className={brand.logoClass}>
+            smasmall<sup className="text-[10px]">®</sup>
+            <span className="ml-1.5">昔馬</span>
+          </span>
+        ) : (
+          <span className={brand.logoClass}>{brand.name}</span>
+        )}
+        {brand.sub ? (
+          <span className="mt-1.5 text-[12px] font-medium tracking-[0.12em] text-slate-600 md:text-[13px]">
+            {brand.sub}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /* ============================================================================
-   SECTION 4 — 歷史沿革 Timeline
+   SECTION 4 — 歷史沿革 Timeline（圖文交錯，下滑跳出）
    ============================================================================ */
 function TimelineSection() {
   return (
-    <section className="relative w-full bg-white py-24 md:py-32">
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-16">
+    <section
+      className={`relative w-full overflow-hidden bg-white ${SECTION_PAD}`}
+    >
+      {/* 背景浮水印 */}
+      <span
+        className="pointer-events-none absolute left-4 top-8 select-none text-[14vw] font-extrabold leading-none tracking-[0.04em] text-slate-100 md:left-10 md:top-12 md:text-[7vw]"
+        aria-hidden
+      >
+        MILESTONES
+      </span>
+
+      {/* 左側素材方匡圖（僅桌面／平板） */}
+      <div className="pointer-events-none absolute left-[-4%] top-[28%] z-[1] hidden w-[120px] md:block lg:w-[220px] xl:w-[320px]">
+        <Image
+          src="/images/weibo/section4/昔馬網站_威柏頁面-4.png"
+          alt=""
+          width={400}
+          height={400}
+          className="h-auto w-full select-none"
+          aria-hidden
+        />
+      </div>
+      {/* 右側素材方匡圖 */}
+      <div className="pointer-events-none absolute right-[-5%] top-[42%] z-[1] hidden w-[120px] md:block lg:w-[220px] xl:w-[320px]">
+        <Image
+          src="/images/weibo/section4/昔馬網站_威柏頁面-5.png"
+          alt=""
+          width={400}
+          height={400}
+          className="h-auto w-full select-none"
+          aria-hidden
+        />
+      </div>
+
+      {/* 右上藍三角 */}
+      <div
+        className="pointer-events-none absolute right-0 top-0 h-[72px] w-[96px] bg-[#4d5aff] md:h-[160px] md:w-[220px]"
+        style={{ clipPath: "polygon(40% 0, 100% 0, 100% 100%)" }}
+        aria-hidden
+      />
+      {/* 左下灰＋藍三角 */}
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 h-[72px] w-[120px] bg-[#d0d0d0] md:h-[160px] md:w-[280px]"
+        style={{ clipPath: "polygon(0 0, 0 100%, 100% 100%)" }}
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 h-[36px] w-[100px] bg-[#4d5aff] md:h-[72px] md:w-[220px]"
+        style={{ clipPath: "polygon(0 40%, 0 100%, 70% 100%)" }}
+        aria-hidden
+      />
+
+      <div className={`relative z-10 mx-auto max-w-[1100px] ${SECTION_X}`}>
         <Reveal>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-16 md:mb-20">
-            歷史沿革
-          </h2>
+          <h2 className={`mb-14 text-center md:mb-16 ${TYPO.h2}`}>歷史沿革</h2>
         </Reveal>
 
         <div className="relative">
-          {/* 中央時間軸線（桌機） */}
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-blue-200 -translate-x-1/2" />
-          {/* 左側時間軸線（手機） */}
-          <div className="md:hidden absolute left-[7px] top-2 bottom-2 w-px bg-blue-200" />
+          {/* 中央軸線 */}
+          <div className="absolute bottom-2 left-[11px] top-2 w-px bg-slate-200 md:left-1/2 md:-translate-x-1/2" />
 
-          <div className="space-y-10 md:space-y-4">
+          <div className="space-y-12 md:space-y-14">
             {TIMELINE.map((item, idx) => {
-              const isLeft = idx % 2 === 0;
-              const IconComp = item.icon === "logo" ? null : item.icon;
+              const isLeft = item.side === "left";
               return (
-                <Reveal key={item.year} delay={0.04 * idx}>
-                  <div className="relative md:grid md:grid-cols-2 md:gap-10 md:items-center">
-                    {/* 手機時間軸節點 */}
-                    <div className="md:hidden absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-600 ring-4 ring-white" />
-
-                    {/* 桌機中央節點 */}
-                    <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-blue-600 ring-4 ring-white z-10" />
-
-                    {isLeft ? (
-                      <>
-                        <div className="pl-8 md:pl-0 md:text-right md:pr-14">
-                          <div className="flex md:justify-end items-center gap-3 mb-2">
-                            <div className="hidden md:flex w-9 h-9 rounded-full bg-blue-50 items-center justify-center order-2">
-                              {IconComp ? (
-                                <IconComp className="w-4 h-4 text-blue-600" />
-                              ) : (
-                                <Image
-                                  src="/images/logo/weibo-logo.png"
-                                  alt="WEIBO"
-                                  width={20}
-                                  height={20}
-                                  className="w-[18px] h-[18px] object-contain"
-                                />
-                              )}
-                            </div>
-                            <span className="text-2xl md:text-3xl font-extrabold text-blue-600 tracking-tight order-1">
-                              {item.year}
-                            </span>
-                          </div>
-                          <p className="text-slate-500 text-[13px] md:text-[14px] leading-relaxed">
-                            {item.text}
-                          </p>
-                        </div>
-                        <div className="hidden md:block" />
-                      </>
-                    ) : (
-                      <>
-                        <div className="hidden md:block" />
-                        <div className="pl-8 md:pl-14">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="hidden md:flex w-9 h-9 rounded-full bg-blue-50 items-center justify-center">
-                              {IconComp ? (
-                                <IconComp className="w-4 h-4 text-blue-600" />
-                              ) : (
-                                <Image
-                                  src="/images/logo/weibo-logo.png"
-                                  alt="WEIBO"
-                                  width={20}
-                                  height={20}
-                                  className="w-[18px] h-[18px] object-contain"
-                                />
-                              )}
-                            </div>
-                            <span className="text-2xl md:text-3xl font-extrabold text-blue-600 tracking-tight">
-                              {item.year}
-                            </span>
-                          </div>
-                          <p className="text-slate-500 text-[13px] md:text-[14px] leading-relaxed">
-                            {item.text}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </Reveal>
+                <TimelineItem
+                  key={`${item.year}-${idx}`}
+                  item={item}
+                  isLeft={isLeft}
+                  index={idx}
+                />
               );
             })}
           </div>
@@ -497,65 +738,193 @@ function TimelineSection() {
   );
 }
 
-/* ============================================================================
-   SECTION 5 — 核心業務 + CTA
-   ============================================================================ */
-function CoreBusinessSection() {
+function TimelineItem({ item, isLeft, index }) {
   return (
-    <section className="relative w-full bg-[#f5f6f8] py-24 md:py-32 overflow-hidden">
-      {/* 左下角裝飾三角形 */}
-      <div
-        className="hidden md:block absolute left-6 bottom-10 w-0 h-0 border-t-[22px] border-b-[22px] border-l-[36px] border-t-transparent border-b-transparent border-l-blue-600/80"
-        aria-hidden
-      />
+    <motion.div
+      className="relative md:grid md:grid-cols-2 md:items-center md:gap-12"
+      initial={{ opacity: 0, y: -36, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: 0.65,
+        delay: 0.05 * (index % 4),
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      {/* 節點 */}
+      <div className="absolute left-[7px] top-3 z-10 h-2.5 w-2.5 rounded-full bg-[#4d5aff] ring-[5px] ring-white md:left-1/2 md:top-1/2 md:h-3 md:w-3 md:-translate-x-1/2 md:-translate-y-1/2" />
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-16">
-        <Reveal>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-14">
-            核心業務
-          </h2>
-        </Reveal>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
-          {CORE_BUSINESS.map(({ no, title, desc, image }, idx) => (
-            <Reveal key={no} delay={0.06 * idx}>
-              <div className="rounded-xl overflow-hidden bg-white shadow-sm h-full flex flex-col">
-                <div className="relative h-[150px]">
-                  <Image
-                    src={image}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-slate-900/45" />
-                  <span className="absolute top-4 left-5 text-3xl font-extrabold text-blue-300 tracking-tight drop-shadow">
-                    {no}
-                  </span>
-                  <h3 className="absolute bottom-4 left-5 right-5 text-lg font-bold text-white drop-shadow">
-                    {title}
-                  </h3>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <p className="text-slate-500 text-[13px] leading-relaxed">
-                    {desc}
+      {isLeft ? (
+        <>
+          <div className="pl-10 md:pl-0 md:pr-10 md:text-right">
+            <TimelineMedia item={item} align="right" />
+            {item.media === "weiz" ? (
+              <p className="mt-3 text-[15px] font-extrabold tracking-[0.2em] text-slate-800 md:text-[16px]">
+                WEIZ
+              </p>
+            ) : null}
+            <p className={`mt-3 ${TYPO.year}`}>{item.year}</p>
+            <p className={`mt-2.5 ${TYPO.body}`}>{item.text}</p>
+          </div>
+          <div className="hidden md:block" />
+        </>
+      ) : (
+        <>
+          <div className="hidden md:block" />
+          <div className="pl-10 md:pl-10">
+            {item.media === "logo" ? (
+              <div className="mb-3 flex items-center gap-2">
+                <Image
+                  src="/images/logo/weibo-logo.png"
+                  alt="WEIBO 威柏科技"
+                  width={40}
+                  height={40}
+                  className="h-9 w-9 object-contain"
+                />
+                <div>
+                  <p className="text-[13px] font-bold leading-none tracking-[0.06em] text-slate-900 md:text-[14px]">
+                    WEIBO
+                  </p>
+                  <p className="mt-1.5 text-[11px] tracking-[0.1em] text-slate-500">
+                    威柏科技
                   </p>
                 </div>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ) : null}
+            {item.media === "weiz" ? (
+              <p className="mb-2 text-[15px] font-extrabold tracking-[0.2em] text-slate-800 md:text-[16px]">
+                WEIZ
+              </p>
+            ) : null}
+            <p className={TYPO.year}>{item.year}</p>
+            <p className={`mt-2.5 ${TYPO.body}`}>{item.text}</p>
+            {item.media !== "logo" ? (
+              <div className="mt-4">
+                <TimelineMedia item={item} align="left" />
+              </div>
+            ) : null}
+          </div>
+        </>
+      )}
+    </motion.div>
+  );
+}
 
-        <Reveal delay={0.15}>
-          <div className="flex justify-center lg:justify-end">
-            <a
-              href="/contact"
-              className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 transition-colors text-white text-sm font-bold px-8 py-3.5 rounded-full shadow-md"
-            >
-              立即聯繫
-              <ArrowRight size={16} />
-            </a>
+function TimelineMedia({ item, align = "left" }) {
+  if (!item.image || item.media === "logo") return null;
+
+  const round = item.imageShape === "round";
+
+  return (
+    <div
+      className={`relative overflow-hidden bg-slate-100 shadow-sm ${
+        round
+          ? "mx-auto h-28 w-28 rounded-full sm:h-36 sm:w-36 md:h-40 md:w-40"
+          : "aspect-[16/10] w-full max-w-full rounded-xl sm:max-w-[280px] sm:rounded-2xl"
+      } ${align === "right" ? "md:ml-auto" : ""}`}
+    >
+      <Image
+        src={item.image}
+        alt={item.text}
+        fill
+        className="object-cover"
+        sizes="280px"
+      />
+    </div>
+  );
+}
+
+/* ============================================================================
+   SECTION 5 — OUR BRANDS 代理品牌輪播
+   ============================================================================ */
+function OurBrandsSection() {
+  const autoplay = useRef(
+    Autoplay({
+      delay: 2800,
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      playOnInit: true,
+    }),
+  );
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "start",
+      dragFree: true,
+      containScroll: false,
+      duration: 35,
+    },
+    [autoplay.current],
+  );
+
+  // 複製兩份讓輪播更順
+  const slides = [...AGENCY_BRANDS, ...AGENCY_BRANDS];
+
+  return (
+    <section
+      className={`relative w-full overflow-hidden bg-[#faf8f4] ${SECTION_PAD}`}
+    >
+      <div className={`relative z-10 mx-auto max-w-[1200px] ${SECTION_X}`}>
+        <Reveal>
+          <div className="mx-auto max-w-[720px] text-center">
+            <p className={TYPO.eyebrow}>OUR BRANDS</p>
+            <h2 className={`mt-5 ${TYPO.h2}`}>代理品牌</h2>
           </div>
         </Reveal>
+
+        <div className="mt-12 md:mt-14">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
+              {slides.map((brand, i) => (
+                <div
+                  key={`${brand.name}-${i}`}
+                  className="min-w-0 shrink-0 grow-0 basis-[46%] px-2 sm:basis-[30%] md:basis-[20%] lg:basis-[16.66%]"
+                >
+                  <div className="flex h-[88px] items-center justify-center rounded-xl bg-white px-4 shadow-[0_2px_14px_rgba(15,23,42,0.06)] md:h-[100px]">
+                    <span className={`text-center ${brand.style}`}>
+                      {brand.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================================
+   SECTION 6 — CLOUD WARRANTY 貼心服務，隨身保固
+   ============================================================================ */
+function CloudWarrantySection() {
+  return (
+    <section
+      className={`relative w-full overflow-hidden bg-gradient-to-r from-[#faf8f4] via-[#f6f1e8] to-[#efe6d6] ${SECTION_PAD}`}
+    >
+      <div className={`relative z-10 mx-auto max-w-[1200px] ${SECTION_X}`}>
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:gap-16">
+          <Reveal>
+            <p className={TYPO.eyebrow}>CLOUD WARRANTY</p>
+            <h2 className={`mt-5 ${TYPO.h2}`}>貼心服務，隨身保固</h2>
+            <p className={`mt-6 max-w-[560px] ${TYPO.body}`}>
+              於威柏科技 LINE
+              官方帳號完成登入或加入會員，即可進入「保固登錄」表單，上傳產品資料與購買憑證即可迅速完成保固。解鎖線上服務，簡單又貼心——無論在何處購買威柏代理產品，都能享受貼心高效的售後服務。
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="flex flex-col items-start lg:items-end">
+              <a
+                href="/support/warranty"
+                className={`inline-flex min-w-[180px] items-center justify-center rounded-md bg-[#c6a96e] px-10 py-4 text-slate-900 shadow-sm transition-colors hover:bg-[#b8975c] ${TYPO.cta}`}
+              >
+                保固登錄
+              </a>
+            </div>
+          </Reveal>
+        </div>
       </div>
     </section>
   );
