@@ -35,9 +35,8 @@ const CUBE_METAL_NAME = "立方體";
 const CUBE_BODY_MATCH_NAME = "立方體.001";
 const BODY_MATERIAL_SOURCE_NAME = "挤压";
 
-/** 拖曳旋轉固定繞「世界座標軸」轉，不會因目前視角本身帶有傾斜角而讓拖曳方向跟著歪掉 */
+/** 左右拖曳固定繞世界豎直軸（turntable 感），上下拖曳則繞「鏡頭當下的螢幕右方向」 */
 const WORLD_UP_AXIS = new THREE.Vector3(0, 1, 0);
-const WORLD_RIGHT_AXIS = new THREE.Vector3(1, 0, 0);
 
 /**
  * 五個特寫視角設定。之後要微調某個特寫的角度／位置，只需要調整這裡的數字：
@@ -427,7 +426,6 @@ export default function HomeScrollSequence01() {
   const lookTweenRef = useRef(null);
   const rafRef = useRef(null);
   const cubeMetalMaterialsRef = useRef([]);
-  const dragPitchRef = useRef(0);
   const dragStateRef = useRef({
     dragging: false,
     lastX: 0,
@@ -579,7 +577,13 @@ export default function HomeScrollSequence01() {
         modelSizeRef.current = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
         model.position.sub(center);
-        // 螢幕正中，不額外偏移
+
+        // 把置中後的模型包進 pivot 群組：pivot 原點正好位於機身幾何中心，
+        // 之後所有旋轉（視角切換、拖曳）都作用在 pivot 上，模型才會「原地自轉」。
+        // 若直接旋轉 gltf.scene，因為它的原點已被 position.sub(center) 偏移，
+        // 旋轉軸心會偏離機身中心，拖曳時整台機身會繞著偏掉的點畫弧甩動。
+        const pivot = new THREE.Group();
+        pivot.add(model);
 
         lidPartsRef.current = collectLidParts(model);
         lidRestPosRef.current = lidPartsRef.current.map((p) =>
@@ -589,12 +593,12 @@ export default function HomeScrollSequence01() {
           p.rotation.clone(),
         );
 
-        modelRef.current = model;
-        scene.add(model);
+        modelRef.current = pivot;
+        scene.add(pivot);
 
         const framed = computeViewFrame(
           camera,
-          model,
+          pivot,
           VIEWS[activeRef.current],
         );
         applyFrameInstant(camera, framed);
@@ -606,10 +610,9 @@ export default function HomeScrollSequence01() {
       },
     );
 
-    // 拖曳可 360° 旋轉產品（左右拖曳自由旋轉、上下拖曳有限幅度俯仰）。
-    // 用 Pointer Events 統一處理滑鼠／觸控／觸控筆，手機用手指拖曳也能轉動模型。
+    // 拖曳可 360° 旋轉產品（左右、上下皆可自由旋轉，無角度限制）。
+    // 用 Pointer Events 統一處理滑鼠／觸控筆；觸控在 onPointerDown 直接略過。
     const ROTATE_SPEED = 0.0055;
-    const PITCH_LIMIT = 1.1;
     const drag = dragStateRef.current;
 
     function onPointerDown(e) {
@@ -633,19 +636,23 @@ export default function HomeScrollSequence01() {
       drag.lastY = e.clientY;
       const model = modelRef.current;
 
-      // 繞世界座標軸旋轉（quaternion），而不是直接疊加 Euler rotation.x / rotation.y。
-      // 目前視角本身可能帶有傾斜角，疊加 Euler 會讓拖曳方向跟著歪掉、軸線感覺很怪；
-      // 用 rotateOnWorldAxis 就能固定「左右永遠繞世界豎直軸、上下永遠繞世界水平軸」。
+      // 繞世界／鏡頭軸旋轉（quaternion），而不是直接疊加 Euler rotation.x / rotation.y：
+      // 左右拖曳固定繞世界豎直軸（像轉盤一樣直覺）；
+      // 上下拖曳繞「鏡頭當下的螢幕右方向」，即使該視角鏡頭帶有 yaw／pitch 側拍角，
+      // 拖曳方向也永遠跟手指移動方向一致，不會歪斜。
       model.rotateOnWorldAxis(WORLD_UP_AXIS, dx * ROTATE_SPEED);
 
-      const nextPitch = THREE.MathUtils.clamp(
-        dragPitchRef.current + dy * ROTATE_SPEED,
-        -PITCH_LIMIT,
-        PITCH_LIMIT,
-      );
-      const appliedPitch = nextPitch - dragPitchRef.current;
-      dragPitchRef.current = nextPitch;
-      model.rotateOnWorldAxis(WORLD_RIGHT_AXIS, appliedPitch);
+      // 上下拖曳不設限，可自由 360° 翻轉
+      const appliedPitch = dy * ROTATE_SPEED;
+      const camera = cameraRef.current;
+      if (camera && appliedPitch !== 0) {
+        const screenRight = new THREE.Vector3();
+        camera.getWorldDirection(screenRight);
+        screenRight.cross(camera.up).normalize();
+        if (screenRight.lengthSq() > 0.0001) {
+          model.rotateOnWorldAxis(screenRight, appliedPitch);
+        }
+      }
     }
     function onPointerUp(e) {
       if (!drag.dragging) return;
@@ -719,7 +726,6 @@ export default function HomeScrollSequence01() {
       lidRestPosRef.current = [];
       lidRestRotRef.current = [];
       cubeMetalMaterialsRef.current = [];
-      dragPitchRef.current = 0;
     };
   }, []);
 
@@ -742,9 +748,6 @@ export default function HomeScrollSequence01() {
       lidRestPos,
       lidRestRot,
     );
-    // 切換視角時模型會被重新設定為該視角的基準角度，拖曳累積的俯仰角要跟著歸零
-    dragPitchRef.current = 0;
-
     camTweenRef.current?.kill();
     lookTweenRef.current?.kill();
 
