@@ -4,10 +4,10 @@
  * 對應前台：src/components/S3GroomingPrecision.jsx
  *
  * - 左側選單：首頁產品介紹
- * - 管理：左下規格、熱點特色（背景圖切換／熱點位置／放大倍率）、副標
+ * - 管理：左下規格、熱點特色（資訊卡縮圖／熱點位置／放大倍率）、副標
  * - 前台行為：
- *   · 規格（specs）→ 左下「產品資訊」卡片
- *   · 特色（features）→ 上一個／下一個切換 + 背景換成該特色 image；白點熱點在 top/left；點擊後依 bgScale 放大，右下顯示標題與說明
+ *   · 規格（specs）→ 左下「產品資訊」卡片（無上一個／下一個）
+ *   · 特色（features）→ 固定單張背景；所有白點一開始全部顯示並閃爍；點擊白點依 bgScale 放大，右下彈出資訊卡（縮圖用該特色 image）
  * - 公開 REST：GET /wp-json/smasmall/v1/home-product-intro
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
@@ -31,6 +31,37 @@ function smasmall_home_product_intro_sanitize_image_url($url): string
     }
     return esc_url_raw($url);
 }
+
+/**
+ * 接收後台裁切彈窗（Cropper.js）依原圖解析度輸出的 16:9 圖片，
+ * 存進媒體庫並回傳 URL；不強制縮放像素尺寸。
+ */
+add_action('wp_ajax_smasmall_shpi_crop_upload', function () {
+    check_ajax_referer('smasmall_shpi_crop', 'nonce');
+
+    if (!current_user_can('upload_files')) {
+        wp_send_json_error(['message' => '沒有上傳權限。'], 403);
+    }
+    if (empty($_FILES['image']) || !is_array($_FILES['image'])) {
+        wp_send_json_error(['message' => '未收到圖片。'], 400);
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+
+    $attachment_id = media_handle_upload('image', 0);
+    if (is_wp_error($attachment_id)) {
+        wp_send_json_error(['message' => $attachment_id->get_error_message()], 500);
+    }
+
+    $url = wp_get_attachment_url($attachment_id);
+    if (!$url) {
+        wp_send_json_error(['message' => '無法取得圖片網址。'], 500);
+    }
+
+    wp_send_json_success(['url' => esc_url_raw($url), 'id' => (int) $attachment_id]);
+});
 
 function smasmall_home_product_intro_defaults(): array
 {
@@ -332,7 +363,7 @@ function smasmall_home_product_intro_render_spec_row(array $spec, $index): void
             name="product_intro[specs][<?php echo esc_attr($index_key); ?>][value]"
             value="<?php echo esc_attr($spec['value'] ?? ''); ?>" placeholder="例如：S3 旗艦版刮鬍刀" style="margin-top:8px" />
         <?php if ((int) $index === 0) : ?>
-        <p class="description">第一項顯示在左下卡片上方（較大字）。其餘規格以兩欄顯示。前台「核心功能」標題會改顯示目前切換到的特色名稱，不必把「核心功能」再寫進規格。</p>
+        <p class="description">第一項顯示在左下卡片上方（較大字）。其餘規格以兩欄顯示。</p>
         <?php endif; ?>
     </td>
 </tr>
@@ -368,17 +399,17 @@ function smasmall_home_product_intro_render_feature_card(array $feature, $index)
                 <button type="button" class="button shpi-pick-feature-image">選擇特色背景圖</button>
                 <button type="button" class="button-link-delete shpi-clear-feature-image">清除</button>
             </p>
-            <p class="description">前台用「上一個／下一個」切到此特色時，全螢幕背景會換成這張圖。</p>
+            <p class="description">點擊此白點後，背景會換成這張圖並顯示於資訊卡（選填）。<br />選圖後會開啟裁切視窗，可自行拖曳選取範圍（固定 16:9）；輸出沿用裁切範圍的原始解析度，不放大、不縮小，原圖保留。</p>
         </div>
 
         <div class="shpi-feature-fields">
             <p>
-                <label>標題（左下「核心功能」＋點擊後右下大標）</label><br />
+                <label>標題（點擊白點後右下資訊卡大標）</label><br />
                 <input type="text" class="large-text" name="product_intro[features][<?php echo esc_attr($index_key); ?>][title]"
                     value="<?php echo esc_attr($feature['title'] ?? ''); ?>" placeholder="例如：專利防水推式開關" />
             </p>
             <p>
-                <label>說明（點擊白點放大後，右下顯示）</label><br />
+                <label>說明（點擊白點後，右下資訊卡內文）</label><br />
                 <textarea class="large-text" rows="3" name="product_intro[features][<?php echo esc_attr($index_key); ?>][description]"
                     placeholder="例如：獨家防水推動設計，有效防止誤觸，操作更安心。"><?php echo esc_textarea($feature['description'] ?? ''); ?></textarea>
             </p>
@@ -424,7 +455,7 @@ function smasmall_home_product_intro_render_page(): void
     ?>
 <div class="wrap shpi-admin">
     <h1>首頁產品介紹</h1>
-    <p class="description">對應前台 <code>S3GroomingPrecision</code>：左下規格＋上／下一個、白點熱點、點擊放大後右下說明。儲存後約 1 分鐘同步前台。</p>
+    <p class="description">對應前台 <code>S3GroomingPrecision</code>：固定背景＋左下規格卡、白點全部顯示並閃爍、點擊白點放大並於右下彈出資訊卡。儲存後約 1 分鐘同步前台。</p>
 
     <?php if ($updated) : ?>
     <div class="notice notice-success is-dismissible">
@@ -461,16 +492,16 @@ function smasmall_home_product_intro_render_page(): void
                             <button type="button" class="button" id="shpi-pick-bg">選擇背景圖</button>
                             <button type="button" class="button-link-delete" id="shpi-clear-bg">清除</button>
                         </p>
-                        <p class="description">當目前特色沒有上傳圖片時，才用這張當全螢幕背景。有上傳特色圖時以特色圖為主。</p>
+                        <p class="description">全螢幕固定背景（不會隨熱點切換）。所有白點位置都以這張圖為準。<br />選圖後會開啟裁切視窗，可自行拖曳選取範圍（固定 16:9）；輸出沿用裁切範圍的原始解析度，不放大、不縮小，裁切圖會另存至媒體庫，原圖保留。</p>
                     </div>
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="shpi-subtitle">副標（放大後右下小字）</label></th>
+                <th scope="row"><label for="shpi-subtitle">副標（資訊卡編號旁小字）</label></th>
                 <td>
                     <input type="text" class="regular-text" id="shpi-subtitle" name="product_intro[subtitle]"
                         value="<?php echo esc_attr($data['subtitle'] ?? ''); ?>" placeholder="產品特寫" />
-                    <p class="description">點擊白點放大後，右下角上方的灰色小標（預設「產品特寫」）。</p>
+                    <p class="description">點擊白點後，右下資訊卡標題上方的灰色小標（例：「2. 產品特寫」）。</p>
                 </td>
             </tr>
             <tr>
@@ -492,15 +523,15 @@ function smasmall_home_product_intro_render_page(): void
         </table>
 
         <h2>產品資訊卡片（最多 4 項）</h2>
-        <p class="description">對應左下角半透明「產品資訊」卡片（適用機型、磁吸結構、機身材質等）。切換特色時「核心功能」會自動帶入該特色標題。</p>
+        <p class="description">對應左下角半透明「產品資訊」卡片（適用機型、磁吸結構、機身材質等）。</p>
         <table class="form-table" role="presentation">
             <?php foreach (array_slice($specs, 0, 4) as $i => $spec) :
                 smasmall_home_product_intro_render_spec_row(is_array($spec) ? $spec : [], $i);
             endforeach; ?>
         </table>
 
-        <h2>熱點特色（上一個／下一個＋白點放大）</h2>
-        <p class="description">每一項 = 一張背景圖＋左側核心功能名稱＋白點位置。前台最多約 8 項，可新增／刪除。</p>
+        <h2>熱點特色（白點全部顯示＋點擊彈出資訊卡）</h2>
+        <p class="description">每一項 = 一個白點（位置＋放大倍率）＋資訊卡（縮圖／標題／說明）。所有白點會同時顯示並閃爍。前台最多約 8 項，可新增／刪除。</p>
         <div class="shpi-toolbar">
             <button type="button" class="button button-primary" id="shpi-add-feature">+ 新增特色</button>
             <span>共 <strong id="shpi-feature-count"><?php echo count($features); ?></strong> 項</span>
@@ -610,6 +641,20 @@ add_action('admin_enqueue_scripts', function ($hook) {
         return;
     }
     wp_enqueue_media();
+    // 後台互動式裁切（Cropper.js）
+    wp_enqueue_style(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css',
+        [],
+        '1.6.2'
+    );
+    wp_enqueue_script(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js',
+        [],
+        '1.6.2',
+        true
+    );
 });
 
 add_action('admin_footer', function () {
@@ -618,10 +663,182 @@ add_action('admin_footer', function () {
         return;
     }
     ?>
+<div id="shpi-crop-overlay" class="shpi-crop-overlay" style="display:none">
+    <div class="shpi-crop-modal">
+        <div class="shpi-crop-head">
+            <strong>裁切圖片（比例固定 16:9）</strong>
+            <button type="button" class="button-link" id="shpi-crop-cancel-x" aria-label="關閉">✕</button>
+        </div>
+        <div class="shpi-crop-body">
+            <img id="shpi-crop-image" src="" alt="" />
+        </div>
+        <div class="shpi-crop-foot">
+            <span class="description">拖曳／縮放選取範圍；依原圖裁切範圍的解析度輸出。</span>
+            <span class="shpi-crop-actions">
+                <button type="button" class="button button-primary" id="shpi-crop-confirm">裁切並使用</button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<style>
+.shpi-crop-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+}
+.shpi-crop-modal {
+    display: flex;
+    flex-direction: column;
+    width: min(960px, 94vw);
+    max-height: 92vh;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+.shpi-crop-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dcdcde;
+}
+.shpi-crop-head .button-link { font-size: 16px; text-decoration: none; }
+.shpi-crop-body {
+    flex: 1;
+    min-height: 320px;
+    max-height: calc(92vh - 130px);
+    background: #1d2327;
+}
+.shpi-crop-body img {
+    display: block;
+    max-width: 100%;
+}
+.shpi-crop-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid #dcdcde;
+}
+.shpi-crop-actions { display: flex; gap: 8px; }
+.shpi-crop-loading .shpi-crop-actions .button { pointer-events: none; opacity: 0.6; }
+</style>
+
 <script>
 jQuery(function($) {
     var $list = $('#shpi-features-list');
     var $tmpl = $('#tmpl-shpi-feature');
+
+    /* ============ 互動式裁切彈窗 ============ */
+    var CROP_NONCE = '<?php echo esc_js(wp_create_nonce('smasmall_shpi_crop')); ?>';
+    var cropper = null;
+    var cropSourceUrl = '';
+    var cropMime = 'image/jpeg';
+    var cropCallback = null;
+    var $overlay = $('#shpi-crop-overlay');
+    var $cropImg = $('#shpi-crop-image');
+
+    function openCropModal(url, cb, mime) {
+        cropSourceUrl = url;
+        cropMime = ['image/jpeg', 'image/png', 'image/webp'].indexOf(mime) !== -1
+            ? mime
+            : 'image/jpeg';
+        cropCallback = cb;
+        $overlay.show();
+        $cropImg.attr('src', url);
+
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        if (typeof Cropper === 'undefined') {
+            alert('裁切工具載入失敗，請重新整理頁面後再試。');
+            closeCropModal(null);
+            return;
+        }
+
+        cropper = new Cropper($cropImg[0], {
+            aspectRatio: 16 / 9,
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false,
+            responsive: true
+        });
+    }
+
+    function closeCropModal(resultUrl) {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        $overlay.hide().removeClass('shpi-crop-loading');
+        $cropImg.attr('src', '');
+        var cb = cropCallback;
+        cropCallback = null;
+        if (cb && typeof resultUrl === 'string') {
+            cb(resultUrl);
+        }
+    }
+
+    $('#shpi-crop-cancel-x').on('click', function(e) {
+        e.preventDefault();
+        closeCropModal(null); // 取消：不套用
+    });
+
+    $('#shpi-crop-confirm').on('click', function(e) {
+        e.preventDefault();
+        if (!cropper) {
+            closeCropModal(null);
+            return;
+        }
+        // 不指定 width／height：沿用原圖裁切區域的實際像素尺寸
+        var canvas = cropper.getCroppedCanvas();
+        if (!canvas) {
+            alert('裁切失敗，請重試。');
+            return;
+        }
+        $overlay.addClass('shpi-crop-loading');
+        canvas.toBlob(function(blob) {
+            if (!blob) {
+                $overlay.removeClass('shpi-crop-loading');
+                alert('裁切輸出失敗，請重試。');
+                return;
+            }
+            var fd = new FormData();
+            var extension = cropMime === 'image/png'
+                ? 'png'
+                : (cropMime === 'image/webp' ? 'webp' : 'jpg');
+            fd.append('action', 'smasmall_shpi_crop_upload');
+            fd.append('nonce', CROP_NONCE);
+            fd.append('image', blob, 'smasmall-crop-' + Date.now() + '.' + extension);
+
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function(res) {
+                if (res && res.success && res.data && res.data.url) {
+                    closeCropModal(res.data.url);
+                } else {
+                    $overlay.removeClass('shpi-crop-loading');
+                    alert((res && res.data && res.data.message) || '上傳裁切圖失敗。');
+                }
+            }).fail(function() {
+                $overlay.removeClass('shpi-crop-loading');
+                alert('上傳裁切圖失敗，請重試。');
+            });
+        }, cropMime, 1);
+    });
+    /* ============ /互動式裁切彈窗 ============ */
 
     function setBg(url) {
         url = url || '';
@@ -649,7 +866,9 @@ jQuery(function($) {
         });
         frame.on('select', function() {
             var attachment = frame.state().get('selection').first().toJSON();
-            setBg(attachment.url || '');
+            if (attachment.url) {
+                openCropModal(attachment.url, setBg, attachment.mime);
+            }
         });
         frame.open();
     });
@@ -714,7 +933,11 @@ jQuery(function($) {
             });
             frame.on('select', function() {
                 var attachment = frame.state().get('selection').first().toJSON();
-                setFeatureImage($card, attachment.url || '');
+                if (attachment.url) {
+                    openCropModal(attachment.url, function(url) {
+                        setFeatureImage($card, url);
+                    }, attachment.mime);
+                }
             });
             frame.open();
         });

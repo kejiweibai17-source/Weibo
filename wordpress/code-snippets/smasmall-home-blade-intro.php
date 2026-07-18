@@ -16,6 +16,37 @@ if (!defined('ABSPATH')) {
 
 const SMASMALL_HOME_BLADE_INTRO_OPTION = 'smasmall_home_blade_intro';
 
+/**
+ * 接收後台裁切彈窗（Cropper.js）輸出的圖片，
+ * 存進媒體庫並回傳 URL；輸出沿用裁切範圍的原始解析度。
+ */
+add_action('wp_ajax_smasmall_shbi_crop_upload', function () {
+    check_ajax_referer('smasmall_shbi_crop', 'nonce');
+
+    if (!current_user_can('upload_files')) {
+        wp_send_json_error(['message' => '沒有上傳權限。'], 403);
+    }
+    if (empty($_FILES['image']) || !is_array($_FILES['image'])) {
+        wp_send_json_error(['message' => '未收到圖片。'], 400);
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+
+    $attachment_id = media_handle_upload('image', 0);
+    if (is_wp_error($attachment_id)) {
+        wp_send_json_error(['message' => $attachment_id->get_error_message()], 500);
+    }
+
+    $url = wp_get_attachment_url($attachment_id);
+    if (!$url) {
+        wp_send_json_error(['message' => '無法取得圖片網址。'], 500);
+    }
+
+    wp_send_json_success(['url' => esc_url_raw($url), 'id' => (int) $attachment_id]);
+});
+
 function smasmall_home_blade_intro_defaults(): array
 {
     return [
@@ -287,7 +318,7 @@ function smasmall_home_blade_intro_render_item_row(array $item, $index): void
 
             <div class="shbi-images-block">
                 <label>圓形小圖（可多張，拖曳排序）</label>
-                <p class="description" style="margin:4px 0 8px;">前台手風琴展開後會以圓形小圖列顯示。建議上傳正方形產品圖。</p>
+                <p class="description" style="margin:4px 0 8px;">前台手風琴展開後會以圓形小圖列顯示。選圖後會開啟裁切視窗（固定 1:1 正方形），輸出沿用原圖解析度。</p>
                 <ul class="shbi-images-list">
                     <?php foreach ($images as $img_url) :
                         if (!is_string($img_url) || trim($img_url) === '') {
@@ -381,6 +412,7 @@ function smasmall_home_blade_intro_render_page(): void
                                 <button type="button" class="button" id="shbi-pick-bg">選擇背景圖</button>
                                 <button type="button" class="button-link-delete" id="shbi-clear-bg">清除</button>
                             </p>
+                            <p class="description">選圖後會開啟裁切視窗，可自行拖曳選取範圍（固定 16:9）；輸出沿用裁切範圍的原始解析度，不放大、不縮小，原圖保留。</p>
                         </div>
                     </td>
                 </tr>
@@ -456,6 +488,20 @@ add_action('admin_enqueue_scripts', function ($hook) {
     }
     wp_enqueue_media();
     wp_enqueue_script('jquery-ui-sortable', false, ['jquery', 'jquery-ui-core', 'jquery-ui-mouse', 'jquery-ui-widget'], false, true);
+    // 後台互動式裁切（Cropper.js）
+    wp_enqueue_style(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css',
+        [],
+        '1.6.2'
+    );
+    wp_enqueue_script(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js',
+        [],
+        '1.6.2',
+        true
+    );
 });
 
 add_action('admin_footer', function () {
@@ -464,10 +510,200 @@ add_action('admin_footer', function () {
         return;
     }
     ?>
+    <div id="shbi-crop-overlay" class="shbi-crop-overlay" style="display:none">
+        <div class="shbi-crop-modal">
+            <div class="shbi-crop-head">
+                <strong id="shbi-crop-title">裁切圖片</strong>
+                <button type="button" class="button-link" id="shbi-crop-cancel-x" aria-label="關閉">✕</button>
+            </div>
+            <div class="shbi-crop-body">
+                <img id="shbi-crop-image" src="" alt="" />
+            </div>
+            <div class="shbi-crop-foot">
+                <span class="description" id="shbi-crop-hint">拖曳／縮放選取範圍；依原圖解析度輸出。</span>
+                <span class="shbi-crop-actions">
+                    <button type="button" class="button button-primary" id="shbi-crop-confirm">裁切並使用</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .shbi-crop-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.72);
+        }
+        .shbi-crop-modal {
+            display: flex;
+            flex-direction: column;
+            width: min(960px, 94vw);
+            max-height: 92vh;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+        .shbi-crop-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dcdcde;
+        }
+        .shbi-crop-head .button-link { font-size: 16px; text-decoration: none; }
+        .shbi-crop-body {
+            flex: 1;
+            min-height: 320px;
+            max-height: calc(92vh - 130px);
+            background: #1d2327;
+        }
+        .shbi-crop-body img { display: block; max-width: 100%; }
+        .shbi-crop-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            border-top: 1px solid #dcdcde;
+        }
+        .shbi-crop-actions { display: flex; gap: 8px; }
+        .shbi-crop-loading .shbi-crop-actions .button { pointer-events: none; opacity: 0.6; }
+    </style>
+
     <script>
     jQuery(function ($) {
         var $list = $('#shbi-items-list');
         var $tmpl = $('#tmpl-shbi-item');
+
+        /* ============ 互動式裁切彈窗 ============ */
+        var CROP_NONCE = '<?php echo esc_js(wp_create_nonce('smasmall_shbi_crop')); ?>';
+        var cropper = null;
+        var cropSourceUrl = '';
+        var cropMime = 'image/jpeg';
+        var cropCallback = null;
+        var $overlay = $('#shbi-crop-overlay');
+        var $cropImg = $('#shbi-crop-image');
+
+        /**
+         * @param {string} url 原圖網址
+         * @param {Function} cb 完成回呼（傳入結果 URL；取消時不呼叫）
+         * @param {string} mime 原圖 MIME
+         * @param {number} aspect 裁切比例（16/9 或 1）
+         * @param {string} title 彈窗標題
+         */
+        function openCropModal(url, cb, mime, aspect, title) {
+            cropSourceUrl = url;
+            cropMime = ['image/jpeg', 'image/png', 'image/webp'].indexOf(mime) !== -1
+                ? mime
+                : 'image/jpeg';
+            cropCallback = cb;
+            $('#shbi-crop-title').text(title || '裁切圖片');
+            $overlay.show();
+            $cropImg.attr('src', url);
+
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (typeof Cropper === 'undefined') {
+                alert('裁切工具載入失敗，請重新整理頁面後再試。');
+                closeCropModal(null);
+                return;
+            }
+
+            cropper = new Cropper($cropImg[0], {
+                aspectRatio: aspect || 16 / 9,
+                viewMode: 1,
+                autoCropArea: 1,
+                background: false,
+                responsive: true
+            });
+        }
+
+        function closeCropModal(resultUrl) {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            $overlay.hide().removeClass('shbi-crop-loading');
+            $cropImg.attr('src', '');
+            var cb = cropCallback;
+            cropCallback = null;
+            if (cb && typeof resultUrl === 'string') {
+                cb(resultUrl);
+            }
+        }
+
+        $('#shbi-crop-cancel-x').on('click', function (e) {
+            e.preventDefault();
+            closeCropModal(null); // 取消：不套用
+        });
+
+        $('#shbi-crop-confirm').on('click', function (e) {
+            e.preventDefault();
+            if (!cropper) {
+                closeCropModal(null);
+                return;
+            }
+            // 不指定 width／height：沿用原圖裁切區域的實際像素尺寸
+            var canvas = cropper.getCroppedCanvas();
+            if (!canvas) {
+                alert('裁切失敗，請重試。');
+                return;
+            }
+            $overlay.addClass('shbi-crop-loading');
+            canvas.toBlob(function (blob) {
+                if (!blob) {
+                    $overlay.removeClass('shbi-crop-loading');
+                    alert('裁切輸出失敗，請重試。');
+                    return;
+                }
+                var fd = new FormData();
+                var extension = cropMime === 'image/png'
+                    ? 'png'
+                    : (cropMime === 'image/webp' ? 'webp' : 'jpg');
+                fd.append('action', 'smasmall_shbi_crop_upload');
+                fd.append('nonce', CROP_NONCE);
+                fd.append('image', blob, 'smasmall-crop-' + Date.now() + '.' + extension);
+
+                $.ajax({
+                    url: ajaxurl,
+                    method: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function (res) {
+                    if (res && res.success && res.data && res.data.url) {
+                        closeCropModal(res.data.url);
+                    } else {
+                        $overlay.removeClass('shbi-crop-loading');
+                        alert((res && res.data && res.data.message) || '上傳裁切圖失敗。');
+                    }
+                }).fail(function () {
+                    $overlay.removeClass('shbi-crop-loading');
+                    alert('上傳裁切圖失敗，請重試。');
+                });
+            }, cropMime, 1);
+        });
+
+        /** 多張圖逐張裁切（圓形小圖 1:1） */
+        function cropQueue(entries, onEach) {
+            if (!entries.length) return;
+            var rest = entries.slice(1);
+            var first = entries[0];
+            openCropModal(first.url, function (resultUrl) {
+                onEach(resultUrl);
+                if (rest.length) {
+                    cropQueue(rest, onEach);
+                }
+            }, first.mime, 1, '裁切圓形小圖（1:1）');
+        }
+        /* ============ /互動式裁切彈窗 ============ */
 
         function setBg(url) {
             url = url || '';
@@ -495,7 +731,9 @@ add_action('admin_footer', function () {
             });
             frame.on('select', function () {
                 var attachment = frame.state().get('selection').first().toJSON();
-                setBg(attachment.url || '');
+                if (attachment.url) {
+                    openCropModal(attachment.url, setBg, attachment.mime, 16 / 9, '裁切背景圖（16:9）');
+                }
             });
             frame.open();
         });
@@ -571,14 +809,20 @@ add_action('admin_footer', function () {
                 });
                 frame.on('select', function () {
                     var $imagesList = $card.find('.shbi-images-list');
+                    var entries = [];
                     frame.state().get('selection').each(function (attachment) {
                         var data = attachment.toJSON();
-                        var url = data.url || '';
-                        if (!url) return;
-                        $imagesList.append(makeImageItem(url, itemIndex));
+                        if (data.url) {
+                            entries.push({ url: data.url, mime: data.mime });
+                        }
                     });
-                    reindexItems();
-                    initImagesSortable($card);
+                    if (!entries.length) return;
+                    // 每張圖各裁切一次（固定 1:1），裁完即加入列表
+                    cropQueue(entries, function (resultUrl) {
+                        $imagesList.append(makeImageItem(resultUrl, itemIndex));
+                        reindexItems();
+                        initImagesSortable($card);
+                    });
                 });
                 frame.open();
             });

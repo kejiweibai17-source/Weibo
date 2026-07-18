@@ -298,6 +298,93 @@ function applyFrameInstant(camera, framed) {
 }
 
 /**
+ * 粒子星光背景：在模型後方的大球殼內灑滿點粒子，
+ * 用自訂 shader 讓每顆星星以不同相位緩慢閃爍（twinkle），
+ * 加法混色（AdditiveBlending）讓星點呈現柔和發光感。
+ */
+function createStarField() {
+  const STAR_COUNT = 900;
+  const positions = new Float32Array(STAR_COUNT * 3);
+  const scales = new Float32Array(STAR_COUNT);
+  const phases = new Float32Array(STAR_COUNT);
+  const colors = new Float32Array(STAR_COUNT * 3);
+
+  // 星色：白、薰衣草紫、淡金，呼應紫色調機身
+  const palette = [
+    new THREE.Color("#ffffff"),
+    new THREE.Color("#c4b5fd"),
+    new THREE.Color("#f5e6b8"),
+    new THREE.Color("#a5b4fc"),
+  ];
+
+  for (let i = 0; i < STAR_COUNT; i++) {
+    // 均勻分佈在半徑 7～20 的球殼上（模型只有 1～2 單位大，星星永遠在後景）
+    const radius = 7 + Math.random() * 13;
+    const theta = Math.random() * Math.PI * 2;
+    const cosPhi = Math.random() * 2 - 1;
+    const sinPhi = Math.sqrt(1 - cosPhi * cosPhi);
+    positions[i * 3] = radius * sinPhi * Math.cos(theta);
+    positions[i * 3 + 1] = radius * cosPhi;
+    positions[i * 3 + 2] = radius * sinPhi * Math.sin(theta);
+
+    scales[i] = 0.5 + Math.random() * 1.6;
+    phases[i] = Math.random() * Math.PI * 2;
+
+    const color = palette[Math.floor(Math.random() * palette.length)];
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("aScale", new THREE.BufferAttribute(scales, 1));
+  geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+  geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+
+  const material = new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
+    },
+    vertexShader: /* glsl */ `
+      attribute float aScale;
+      attribute float aPhase;
+      attribute vec3 aColor;
+      uniform float uTime;
+      uniform float uPixelRatio;
+      varying float vTwinkle;
+      varying vec3 vColor;
+
+      void main() {
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        // 每顆星各自的閃爍節奏（0.35～1.0 之間呼吸）
+        vTwinkle = 0.35 + 0.65 * (0.5 + 0.5 * sin(uTime * (0.6 + fract(aPhase) * 0.9) + aPhase));
+        vColor = aColor;
+        gl_PointSize = aScale * uPixelRatio * (36.0 / -mvPosition.z);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      varying float vTwinkle;
+      varying vec3 vColor;
+
+      void main() {
+        // 柔和圓形光暈：中心亮、邊緣淡出
+        float d = distance(gl_PointCoord, vec2(0.5));
+        float alpha = smoothstep(0.5, 0.05, d);
+        gl_FragColor = vec4(vColor, alpha * vTwinkle);
+      }
+    `,
+  });
+
+  return new THREE.Points(geometry, material);
+}
+
+/**
  * 從「刀頭特寫」(上蓋飛開) 切到其他視角時，若直接用當下模型外框計算對焦點，
  * 蓋子還飄在飛開的半路上，外框會偏高／偏移，算出來的鏡頭位置就會跟著跑掉。
  * 這裡在量測外框前，先暫時把蓋子物件搬回「關閉」的基準位置，量完再搬回原位，
@@ -421,6 +508,11 @@ export default function HomeScrollSequence01() {
       },
     );
 
+    // 粒子星光背景（純 three.js Points + shader，不需額外函式庫）
+    const starField = createStarField();
+    scene.add(starField);
+    const clock = new THREE.Clock();
+
     scene.add(new THREE.AmbientLight(0xffffff, 0.35));
     const mainLight = new THREE.DirectionalLight(0xfff4e8, 1.25);
     mainLight.position.set(2.4, 3.5, 3.2);
@@ -522,6 +614,8 @@ export default function HomeScrollSequence01() {
 
     function onPointerDown(e) {
       if (!modelRef.current) return;
+      // 手機／平板觸控不啟用拖曳旋轉，讓手指可以順利往下滾動頁面
+      if (e.pointerType === "touch") return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
       drag.dragging = true;
       drag.moved = false;
@@ -567,6 +661,10 @@ export default function HomeScrollSequence01() {
 
     function animate() {
       rafRef.current = requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+      starField.material.uniforms.uTime.value = elapsed;
+      // 星空整體極緩慢漂移，增加空間深度感
+      starField.rotation.y = elapsed * 0.012;
       renderer.render(scene, camera);
     }
     animate();
@@ -608,6 +706,9 @@ export default function HomeScrollSequence01() {
       cancelAnimationFrame(rafRef.current);
       camTweenRef.current?.kill();
       lookTweenRef.current?.kill();
+      scene.remove(starField);
+      starField.geometry.dispose();
+      starField.material.dispose();
       pmrem.dispose();
       renderer.dispose();
       if (scene.environment?.dispose) scene.environment.dispose();
@@ -746,7 +847,7 @@ export default function HomeScrollSequence01() {
 
       <div
         ref={containerRef}
-        className="absolute inset-0 z-0 h-full w-full touch-none select-none"
+        className="absolute inset-0 z-0 h-full w-full select-none touch-pan-y md:touch-none"
       />
 
       {/* 手機版：文字上下錯開，避免跟下方特寫細節、底部按鈕互相重疊；桌機維持左右對稱置中 */}
@@ -785,7 +886,8 @@ export default function HomeScrollSequence01() {
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-3 pb-8 md:gap-4 md:pb-12">
         <p className="px-6 text-center text-[11px] tracking-[0.2em] text-white/45 uppercase">
-          拖曳畫面可 360° 旋轉查看 ・ 選擇特寫視角
+          <span className="hidden md:inline">拖曳畫面可 360° 旋轉查看 ・ </span>
+          選擇特寫視角
         </p>
         <div className="pointer-events-auto flex w-full gap-3 overflow-x-auto px-6 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-proximity md:w-auto md:flex-wrap md:justify-center md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
           {VIEW_ORDER.map((key) => {

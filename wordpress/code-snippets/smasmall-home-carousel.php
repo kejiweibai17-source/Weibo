@@ -14,6 +14,34 @@ if (!defined('ABSPATH')) {
 
 const SMASMALL_HOME_CAROUSEL_OPTION = 'smasmall_home_carousel_slides';
 
+/** 接收後台依原圖比例裁切的圖片並存入媒體庫。 */
+add_action('wp_ajax_smasmall_smhc_carousel_crop_upload', function () {
+    check_ajax_referer('smasmall_smhc_carousel_crop', 'nonce');
+
+    if (!current_user_can('upload_files')) {
+        wp_send_json_error(['message' => '沒有上傳權限。'], 403);
+    }
+    if (empty($_FILES['image']) || !is_array($_FILES['image'])) {
+        wp_send_json_error(['message' => '未收到圖片。'], 400);
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+
+    $attachment_id = media_handle_upload('image', 0);
+    if (is_wp_error($attachment_id)) {
+        wp_send_json_error(['message' => $attachment_id->get_error_message()], 500);
+    }
+
+    $url = wp_get_attachment_url($attachment_id);
+    if (!$url) {
+        wp_send_json_error(['message' => '無法取得圖片網址。'], 500);
+    }
+
+    wp_send_json_success(['url' => esc_url_raw($url), 'id' => (int) $attachment_id]);
+});
+
 /** ---------- Admin menu ---------- */
 add_action('admin_menu', function () {
     add_menu_page(
@@ -101,7 +129,7 @@ function smasmall_home_carousel_render_page(): void
     ?>
     <div class="wrap smasmall-home-carousel-admin">
         <h1>首頁底部圖片輪播</h1>
-        <p class="description">管理官網首頁底部 Embla 輪播圖。儲存後約 1 分鐘內同步至前台（Next.js 快取）。</p>
+        <p class="description">管理官網首頁底部 Embla 輪播圖。圖片選取後會使用與原圖相同的比例裁切，輸出沿用原圖裁切範圍解析度。儲存後約 1 分鐘內同步至前台（Next.js 快取）。</p>
 
         <?php if ($updated) : ?>
             <div class="notice notice-success is-dismissible"><p>已儲存輪播設定。</p></div>
@@ -223,10 +251,154 @@ function smasmall_home_carousel_admin_footer_script(): void
         return;
     }
     ?>
+    <div id="smhc-carousel-crop-overlay" class="smhc-carousel-crop-overlay" style="display:none">
+        <div class="smhc-carousel-crop-modal">
+            <div class="smhc-carousel-crop-head">
+                <strong>裁切輪播圖片（維持原圖比例）</strong>
+                <button type="button" class="button-link" id="smhc-carousel-crop-cancel" aria-label="關閉">✕</button>
+            </div>
+            <div class="smhc-carousel-crop-body">
+                <img id="smhc-carousel-crop-image" src="" alt="" />
+            </div>
+            <div class="smhc-carousel-crop-foot">
+                <span class="description">裁切框會鎖定原圖比例；拖曳／縮放後依原始解析度輸出。</span>
+                <button type="button" class="button button-primary" id="smhc-carousel-crop-confirm">裁切並使用</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .smhc-carousel-crop-overlay {
+            position: fixed; inset: 0; z-index: 200000; display: flex;
+            align-items: center; justify-content: center; background: rgba(0, 0, 0, .72);
+        }
+        .smhc-carousel-crop-modal {
+            display: flex; flex-direction: column; width: min(960px, 94vw); max-height: 92vh;
+            overflow: hidden; border-radius: 8px; background: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .4);
+        }
+        .smhc-carousel-crop-head, .smhc-carousel-crop-foot {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; padding: 12px 16px;
+        }
+        .smhc-carousel-crop-head { border-bottom: 1px solid #dcdcde; }
+        .smhc-carousel-crop-foot { border-top: 1px solid #dcdcde; }
+        .smhc-carousel-crop-head .button-link { font-size: 16px; text-decoration: none; }
+        .smhc-carousel-crop-body {
+            flex: 1; min-height: 320px; max-height: calc(92vh - 130px); background: #1d2327;
+        }
+        .smhc-carousel-crop-body img { display: block; max-width: 100%; }
+        .smhc-carousel-crop-loading #smhc-carousel-crop-confirm { pointer-events: none; opacity: .6; }
+    </style>
+
     <script>
     jQuery(function ($) {
         var $list = $('#smhc-slides-list');
         var $tmpl = $('#tmpl-smhc-slide-row');
+        var cropper = null;
+        var cropMime = 'image/jpeg';
+        var cropTargetCard = null;
+        var $cropOverlay = $('#smhc-carousel-crop-overlay');
+        var $cropImage = $('#smhc-carousel-crop-image');
+        var CROP_NONCE = '<?php echo esc_js(wp_create_nonce('smasmall_smhc_carousel_crop')); ?>';
+
+        function closeCropModal() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropTargetCard = null;
+            $cropOverlay.hide().removeClass('smhc-carousel-crop-loading');
+            $cropImage.attr('src', '');
+        }
+
+        function openCropModal(url, mime, $card) {
+            cropMime = ['image/jpeg', 'image/png', 'image/webp'].indexOf(mime) !== -1
+                ? mime
+                : 'image/jpeg';
+            cropTargetCard = $card;
+            $cropOverlay.show();
+            $cropImage.attr('src', url);
+
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (typeof Cropper === 'undefined') {
+                alert('裁切工具載入失敗，請重新整理頁面後再試。');
+                closeCropModal();
+                return;
+            }
+
+            cropper = new Cropper($cropImage[0], {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 1,
+                background: false,
+                responsive: true,
+                ready: function () {
+                    var data = cropper.getImageData();
+                    if (data.naturalWidth > 0 && data.naturalHeight > 0) {
+                        cropper.setAspectRatio(data.naturalWidth / data.naturalHeight);
+                    }
+                }
+            });
+        }
+
+        $('#smhc-carousel-crop-cancel').on('click', function (e) {
+            e.preventDefault();
+            closeCropModal();
+        });
+
+        $('#smhc-carousel-crop-confirm').on('click', function (e) {
+            e.preventDefault();
+            if (!cropper || !cropTargetCard) return;
+
+            var canvas = cropper.getCroppedCanvas();
+            if (!canvas) {
+                alert('裁切失敗，請重試。');
+                return;
+            }
+
+            $cropOverlay.addClass('smhc-carousel-crop-loading');
+            canvas.toBlob(function (blob) {
+                if (!blob) {
+                    $cropOverlay.removeClass('smhc-carousel-crop-loading');
+                    alert('裁切輸出失敗，請重試。');
+                    return;
+                }
+
+                var extension = cropMime === 'image/png'
+                    ? 'png'
+                    : (cropMime === 'image/webp' ? 'webp' : 'jpg');
+                var fd = new FormData();
+                fd.append('action', 'smasmall_smhc_carousel_crop_upload');
+                fd.append('nonce', CROP_NONCE);
+                fd.append('image', blob, 'smasmall-carousel-crop-' + Date.now() + '.' + extension);
+
+                $.ajax({
+                    url: ajaxurl,
+                    method: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function (res) {
+                    if (res && res.success && res.data && res.data.url) {
+                        var $card = cropTargetCard;
+                        $card.find('.smhc-image-url').val(res.data.url);
+                        $card.find('.smhc-thumb').html($('<img>', { src: res.data.url, alt: '' }));
+                        $card.find('.smhc-pick-image').text('更換圖片');
+                        closeCropModal();
+                    } else {
+                        $cropOverlay.removeClass('smhc-carousel-crop-loading');
+                        alert((res && res.data && res.data.message) || '上傳裁切圖失敗。');
+                    }
+                }).fail(function () {
+                    $cropOverlay.removeClass('smhc-carousel-crop-loading');
+                    alert('上傳裁切圖失敗，請重試。');
+                });
+            }, cropMime, 1);
+        });
 
         function reindexSlides() {
             $list.find('.smhc-slide-card').each(function (i) {
@@ -252,16 +424,15 @@ function smasmall_home_carousel_admin_footer_script(): void
                 }
                 var frame = wp.media({
                     title: '選擇輪播圖',
-                    button: { text: '使用這張圖片' },
+                    button: { text: '進入裁切' },
                     multiple: false,
                     library: { type: 'image' }
                 });
                 frame.on('select', function () {
                     var attachment = frame.state().get('selection').first().toJSON();
-                    var url = attachment.url || '';
-                    $card.find('.smhc-image-url').val(url);
-                    $card.find('.smhc-thumb').html($('<img>', { src: url, alt: '' }));
-                    $card.find('.smhc-pick-image').text('更換圖片');
+                    if (attachment.url) {
+                        openCropModal(attachment.url, attachment.mime, $card);
+                    }
                 });
                 frame.open();
             });
@@ -356,6 +527,19 @@ add_action('admin_enqueue_scripts', function ($hook) {
     }
     wp_enqueue_media();
     wp_enqueue_script('jquery-ui-sortable', false, ['jquery', 'jquery-ui-core', 'jquery-ui-mouse', 'jquery-ui-widget'], false, true);
+    wp_enqueue_style(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css',
+        [],
+        '1.6.2'
+    );
+    wp_enqueue_script(
+        'smasmall-cropperjs',
+        'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js',
+        [],
+        '1.6.2',
+        true
+    );
 });
 
 add_action('admin_footer', 'smasmall_home_carousel_admin_footer_script');

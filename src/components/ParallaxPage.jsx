@@ -33,12 +33,11 @@ const ParallaxPage = ({ productIntroSection = null }) => {
   return (
     <div className="relative w-full bg-black font-sans">
       {productIntroSection ? (
-        <div className="sticky top-0 z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+        <div className="relative z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
           <S3GroomingPrecision section={productIntroSection} />
         </div>
       ) : null}
 
-      {/* 接續區塊：z-10 滑過 sticky 層 */}
       <div className="relative z-10 w-full bg-[#f5f5f5] text-black">
         {/* <div className="mx-auto flex max-w-4xl flex-col items-center px-6 pt-20 pb-8 text-center md:px-8 md:pt-28 md:pb-10">
           <Copy>

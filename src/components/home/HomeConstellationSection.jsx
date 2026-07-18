@@ -79,7 +79,7 @@ export default function HomeConstellationSection({ section }) {
               placeholder="empty"
               loading="lazy"
               width={1920}
-              height={800}
+              height={1080}
               unoptimized={imageSrc.startsWith("http")}
             />
           </div>
