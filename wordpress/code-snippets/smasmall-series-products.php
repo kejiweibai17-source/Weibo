@@ -1498,6 +1498,9 @@ function smasmall_series_render_block_body(string $type, array $block, int $inde
 function smasmall_series_render_showcase_feature_row(string $prefix, int $pidx, int $fidx, array $feature): void
 {
     $pos = sanitize_key($feature['boxPosition'] ?? 'top_left');
+    if (!in_array($pos, ['top_left', 'bottom_left', 'bottom_right', 'top_right'], true)) {
+        $pos = 'top_left';
+    }
     ?>
     <div class="sms-sub-row sms-feature-row">
         <p><label>賣點標題</label><br />
@@ -1505,12 +1508,14 @@ function smasmall_series_render_showcase_feature_row(string $prefix, int $pidx, 
         <p><label>賣點條列（每行一項）</label><br />
             <textarea class="large-text" rows="3" name="<?php echo esc_attr($prefix); ?>[items][<?php echo esc_attr((string) $pidx); ?>][features][<?php echo esc_attr((string) $fidx); ?>][bullets]"><?php echo esc_textarea(is_array($feature['bullets'] ?? null) ? implode("\n", $feature['bullets']) : ($feature['bullets'] ?? '')); ?></textarea></p>
         <p><label>方塊位置</label><br />
-            <select name="<?php echo esc_attr($prefix); ?>[items][<?php echo esc_attr((string) $pidx); ?>][features][<?php echo esc_attr((string) $fidx); ?>][boxPosition]">
+            <select class="sms-box-position" name="<?php echo esc_attr($prefix); ?>[items][<?php echo esc_attr((string) $pidx); ?>][features][<?php echo esc_attr((string) $fidx); ?>][boxPosition]">
                 <option value="top_left" <?php selected($pos, 'top_left'); ?>>左上</option>
+                <option value="top_right" <?php selected($pos, 'top_right'); ?>>右上</option>
                 <option value="bottom_left" <?php selected($pos, 'bottom_left'); ?>>左下</option>
                 <option value="bottom_right" <?php selected($pos, 'bottom_right'); ?>>右下</option>
-                <option value="top_right" <?php selected($pos, 'top_right'); ?>>右上</option>
-            </select></p>
+            </select>
+            <span class="description">同一配件內，每個賣點請選不同角落，否則前台會重疊。</span>
+        </p>
         <p><button type="button" class="button-link-delete sms-remove-sub">移除此賣點</button></p>
         <hr />
     </div>
@@ -1533,6 +1538,13 @@ function smasmall_series_render_showcase_row(string $prefix, int $pidx, array $i
         <?php smasmall_series_render_image_field($prefix . '[items][' . $pidx . '][mainUrl]', (string) ($item['mainUrl'] ?? ''), '主圖', true); ?>
         <div class="sms-showcase-features">
             <p><strong>賣點標註</strong></p>
+            <p class="description" style="margin:0 0 10px;">
+                前台會依「方塊位置」把資訊匡固定在產品四周四個角落（左上／右上／左下／右下）。
+                <strong>同一配件最多 4 個賣點，且每個位置只能用一次</strong>；選到重複位置時，資訊匡會互相堆疊。
+            </p>
+            <div class="sms-box-dup-warn" style="display:none;margin:0 0 10px;padding:8px 10px;border-left:3px solid #d63638;background:#fcf0f1;color:#b32d2e;font-size:12px;">
+                偵測到重複的方塊位置，請改成四個不同角落再儲存。
+            </div>
             <?php foreach ($features as $fidx => $feature) : ?>
                 <?php smasmall_series_render_showcase_feature_row($prefix, $pidx, (int) $fidx, is_array($feature) ? $feature : []); ?>
             <?php endforeach; ?>
@@ -2037,9 +2049,38 @@ add_action('admin_footer', function () {
             setUploadStatus($field, 'idle');
         });
 
+        function checkShowcaseBoxPositions($featuresWrap) {
+            var $wrap = $($featuresWrap);
+            var seen = {};
+            var hasDup = false;
+            $wrap.find('.sms-box-position').each(function () {
+                var val = $(this).val() || 'top_left';
+                if (seen[val]) {
+                    hasDup = true;
+                }
+                seen[val] = true;
+            });
+            $wrap.find('.sms-box-dup-warn').toggle(hasDup);
+            return !hasDup;
+        }
+
+        function checkAllShowcaseBoxPositions() {
+            $('.sms-showcase-features').each(function () {
+                checkShowcaseBoxPositions(this);
+            });
+        }
+
+        $(document).on('change', '.sms-box-position', function () {
+            checkShowcaseBoxPositions($(this).closest('.sms-showcase-features'));
+        });
+
         $(document).on('click', '.sms-remove-sub', function (e) {
             e.preventDefault();
+            var $features = $(this).closest('.sms-showcase-features');
             $(this).closest('.sms-sub-row').remove();
+            if ($features.length) {
+                checkShowcaseBoxPositions($features);
+            }
         });
 
         $(document).on('click', '.sms-add-showcase', function (e) {
@@ -2057,12 +2098,24 @@ add_action('admin_footer', function () {
             var pidx = $(this).data('product-index');
             var $wrap = $(this).closest('.sms-showcase-features');
             var fidx = $wrap.find('.sms-feature-row').length;
+            // 自動帶入尚未使用的角落，減少重疊機率
+            var used = {};
+            $wrap.find('.sms-box-position').each(function () {
+                used[$(this).val() || 'top_left'] = true;
+            });
+            var slots = ['top_left', 'top_right', 'bottom_left', 'bottom_right'];
+            var nextPos = slots.find(function (s) { return !used[s]; }) || 'top_left';
             var html = $('#tmpl-sms-showcase-feature').html()
                 .replace(/__INDEX__/g, String(idx))
                 .replace(/__PIDX__/g, String(pidx))
                 .replace(/__FIDX__/g, String(fidx));
-            $(this).parent().before(html.trim());
+            var $row = $(html.trim());
+            $row.find('.sms-box-position').val(nextPos);
+            $(this).parent().before($row);
+            checkShowcaseBoxPositions($wrap);
         });
+
+        checkAllShowcaseBoxPositions();
 
         $(document).on('click', '.sms-add-timeline', function (e) {
             e.preventDefault();

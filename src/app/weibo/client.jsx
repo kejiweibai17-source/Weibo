@@ -11,64 +11,68 @@ import Copy from "@/components/Copy";
 // 威柏科技 WEIBO 企業介紹頁 — 資料設定
 // ============================================================================
 
-/** 歷史沿革：圖文時間軸（圖片暫代，之後可替換） */
+/** 編碼中文／空白路徑，供 next/image 使用 */
+const asset = (path) => encodeURI(`/images/素材/${path}`);
+const brandLogo = (path) => encodeURI(`/images/素材/各品牌logo/${path}`);
+const agencyLogo = (path) =>
+  encodeURI(`/images/素材/各品牌logo/－代理經銷品牌 logo－/${path}`);
+
+/** 歷史沿革：圖文時間軸 */
 const TIMELINE = [
   {
     year: "2015",
     side: "right",
     text: "威柏科技貿易公司籌備處成立",
     media: "logo",
-    image: "/images/logo/weibo-logo.png",
+    image: brandLogo("威柏.png"),
   },
   {
     year: "2016",
     side: "left",
     text: "成為國內各大連鎖 3C 賣場通路供應商",
-    image: "/images/index/banner-01.png",
+    image: asset("歷史2016.jpg"),
   },
   {
     year: "2016",
     side: "right",
     text: "成立電子商務部門，並於國內電商平台上架",
-    image: "/images/index/banner-02.png",
+    image: asset("歷史2016 02.jpg"),
     imageShape: "round",
   },
   {
     year: "2017",
     side: "left",
     text: "線上客服與檢修部門成立",
-    image: "/images/index/banner-03.png",
+    image: asset("歷史2017.jpg"),
   },
   {
     year: "2018",
     side: "right",
     text: "專案業務部成立",
-    image: "/images/index/banner-04.png",
   },
   {
     year: "2019",
     side: "left",
     text: "WEIZ 通路品牌成立",
     media: "weiz",
-    image: "/images/index/banner-05.png",
+    image: brandLogo("weiz.jpg"),
   },
   {
     year: "2022",
     side: "right",
     text: "打造台灣 OMO 整合系統，深度服務全通路顧客",
-    image: "/images/002.png",
+    image: asset("歷史2022.jpg"),
   },
   {
     year: "2024",
     side: "left",
     text: "打造線上新零售，提供代理品牌全台消費者線上、線下體驗及售後服務",
-    image: "/images/003.png",
+    image: asset("歷史2024.jpg"),
   },
   {
     year: "2025",
     side: "right",
     text: "WEIZ 佈局三家中南部旗艦體驗店：高雄、台南、台中",
-    image: "/images/001.png",
   },
 ];
 
@@ -77,119 +81,83 @@ const BRAND_LOGOS = [
     name: "WEILIFE",
     logoClass:
       "text-[17px] md:text-[19px] font-extrabold tracking-[0.04em] text-[#2ec4b6]",
-    image: "/images/weibo/section3/brand-weilife.jpg",
+    image: asset("P4 WEILIFE.jpg"),
+    logo: brandLogo("weilife.png"),
   },
   {
     name: "smasmall® 昔馬",
     logoClass:
       "text-[16px] md:text-[18px] font-bold tracking-[0.04em] text-slate-900",
-    image: "/images/weibo/section3/brand-smasmall.jpg",
+    image: asset("P4 昔馬.jpg"),
+    logo: brandLogo("昔馬.png"),
   },
   {
     name: "FRAMULA",
     sub: "芬乘®",
     logoClass:
       "text-[16px] md:text-[18px] font-extrabold tracking-[0.1em] text-slate-900",
-    image: "/images/weibo/section3/brand-framula.jpg",
+    image: asset("P4 芬乘.jpg"),
+    logo: brandLogo("芬乘FRAMULA_LOGO_黑.png"),
   },
   {
     name: "WiWU",
     logoClass:
       "text-[17px] md:text-[19px] font-extrabold tracking-[0.04em] text-[#1e3a8a]",
-    image: "/images/weibo/section3/brand-wiwu.jpg",
+    image: asset("P4 WIWU.jpg"),
+    logo: brandLogo("WiWU Logo去背.png"),
   },
   {
     name: "ACEFAST",
     logoClass:
       "text-[16px] md:text-[18px] font-extrabold italic tracking-[0.04em] text-[#22c55e]",
-    image: "/images/weibo/section3/brand-acefast.jpg",
+    image: asset("P4 ACEFAST.jpg"),
+    logo: brandLogo("ACEFAST logo.png"),
   },
 ];
 
 /** 代理品牌輪播（已排除設計稿劃掉的 XROUND / ZUA） */
 const AGENCY_BRANDS = [
-  {
-    name: "WEIBO",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold tracking-[0.14em] text-slate-800",
-  },
-  {
-    name: "WiWU",
-    style:
-      "text-[16px] md:text-[17px] font-extrabold tracking-[0.04em] text-[#1e3a8a]",
-  },
-  {
-    name: "ACEFAST",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold italic tracking-[0.04em] text-[#22c55e]",
-  },
-  {
-    name: "BOSE",
-    style:
-      "text-[16px] md:text-[17px] font-extrabold tracking-[0.2em] text-slate-900",
-  },
-  {
-    name: "harman/kardon",
-    style:
-      "text-[13px] md:text-[14px] font-semibold italic tracking-[0.02em] text-slate-800",
-  },
+  { name: "WEIBO", logo: brandLogo("威柏.png") },
+  { name: "WiWU", logo: brandLogo("WiWU Logo去背.png") },
+  { name: "ACEFAST", logo: brandLogo("ACEFAST logo.png") },
+  { name: "BOSE", logo: agencyLogo("LOGO_沃福仕_BOSE.png") },
+  { name: "harman/kardon", logo: agencyLogo("LOGO_世貨_Harman Kardon.png") },
   {
     name: "Audio-Technica",
-    style:
-      "text-[13px] md:text-[14px] font-bold tracking-[0.02em] text-slate-900",
+    logo: agencyLogo("LOGO_澎湃_鐵三角audio-technica.png"),
   },
-  {
-    name: "G-PLUS",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold tracking-[0.04em] text-[#e11d48]",
-  },
-  {
-    name: "FANTECH",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold tracking-[0.1em] text-slate-900",
-  },
-  {
-    name: "WEILIFE",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold tracking-[0.04em] text-[#2ec4b6]",
-  },
-  {
-    name: "smasmall",
-    style:
-      "text-[15px] md:text-[16px] font-bold tracking-[0.04em] text-slate-900",
-  },
-  {
-    name: "FRAMULA",
-    style:
-      "text-[15px] md:text-[16px] font-extrabold tracking-[0.1em] text-slate-900",
-  },
+  { name: "G-PLUS", logo: agencyLogo("LOGO_拓勤_GPLUS.png") },
+  { name: "FANTECH", logo: agencyLogo("LOGO_聿鑫_FANTECH.png") },
+  { name: "WEILIFE", logo: brandLogo("weilife.png") },
+  { name: "smasmall", logo: brandLogo("昔馬.png") },
+  { name: "FRAMULA", logo: brandLogo("芬乘FRAMULA_LOGO_黑.png") },
 ];
 
-/** 核心業務四卡（底圖暫代，之後可替換） */
+/** 核心業務四卡 */
 const CORE_BUSINESS = [
   {
     no: "01",
     title: "品牌代理",
     desc: "總代理各國原創品牌，原廠授權引進與通路管理。",
-    image: "/images/index/banner-01.png",
+    image: asset("P2核心業務01.jpg"),
   },
   {
     no: "02",
     title: "國際外銷",
     desc: "從台灣零售延伸至香港、新加坡等海外市場。",
-    image: "/images/index/banner-02.png",
+    image: asset("P2核心業務02.jpg"),
   },
   {
     no: "03",
     title: "台灣全通路推廣",
     desc: "台灣通路、百貨櫃位、連鎖3C賣場與電商平台完整佈局線上線下全通路整合。",
-    image: "/images/index/banner-03.png",
+    image: asset("P2核心業務03.jpg"),
   },
   {
     no: "04",
     title: "企業採購",
     desc: "提供企業專案與大宗採購的選品與客製服務。",
-    image: "/images/index/banner-04.png",
+    image: asset("P2核心業務04.jpg"),
   },
 ];
 
@@ -257,7 +225,7 @@ function HeroSection() {
       {/* 科技辦公桌情境背景照片 */}
       <div className="absolute inset-0">
         <Image
-          src="/images/weibo/hero-desk.jpg"
+          src={asset("0大圖.jpg")}
           alt="網羅全球創意與設計的品牌"
           fill
           priority
@@ -327,7 +295,7 @@ function IntroSection() {
                 <div className="relative z-10">
                   <div className="mb-7 flex items-center gap-4 md:mb-8">
                     <Image
-                      src="/images/logo/weibo-logo.png"
+                      src={brandLogo("威柏.png")}
                       alt="WEIBO 威柏科技"
                       width={64}
                       height={64}
@@ -354,7 +322,13 @@ function IntroSection() {
             <Reveal delay={0.12}>
               <div className="relative rounded-2xl bg-[#0a1330] p-3 md:p-4 shadow-xl">
                 <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-[#0a1330]">
-                  <GlobalNetworkArt />
+                  <Image
+                    src={asset("P1右側.jpg")}
+                    alt="全球品牌網絡"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
                 </div>
               </div>
             </Reveal>
@@ -426,65 +400,6 @@ function IntroSection() {
   );
 }
 
-/** 抽象全球連線網絡視覺（取代實拍世界地圖照片） */
-function GlobalNetworkArt() {
-  const nodes = [
-    { x: 22, y: 38 },
-    { x: 48, y: 22 },
-    { x: 72, y: 34 },
-    { x: 60, y: 60 },
-    { x: 34, y: 66 },
-    { x: 84, y: 58 },
-  ];
-  return (
-    <svg
-      viewBox="0 0 100 62"
-      className="absolute inset-0 w-full h-full"
-      preserveAspectRatio="xMidYMid slice"
-    >
-      <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect
-        x="0"
-        y="0"
-        width="100"
-        height="62"
-        fill="url(#glow)"
-        opacity="0.5"
-      />
-      {/* 經緯線構成的簡化地球 */}
-      <g stroke="#2f6fb8" strokeWidth="0.25" fill="none" opacity="0.6">
-        <ellipse cx="50" cy="31" rx="42" ry="20" />
-        <ellipse cx="50" cy="31" rx="42" ry="10" />
-        <ellipse cx="50" cy="31" rx="24" ry="20" />
-        <line x1="8" y1="31" x2="92" y2="31" />
-        <line x1="50" y1="11" x2="50" y2="51" />
-      </g>
-      {/* 連線 */}
-      <g stroke="#38bdf8" strokeWidth="0.35" opacity="0.7">
-        {nodes.map((n, i) =>
-          nodes
-            .slice(i + 1)
-            .map((m, j) => (
-              <line key={`${i}-${j}`} x1={n.x} y1={n.y} x2={m.x} y2={m.y} />
-            )),
-        )}
-      </g>
-      {/* 節點光點 */}
-      {nodes.map((n, i) => (
-        <g key={i}>
-          <circle cx={n.x} cy={n.y} r="2.6" fill="#38bdf8" opacity="0.18" />
-          <circle cx={n.x} cy={n.y} r="1" fill="#7dd3fc" />
-        </g>
-      ))}
-    </svg>
-  );
-}
-
 /* ============================================================================
    SECTION 3 — 從進出口到總代理視覺 + PHILOSOPHY + 品牌矩陣
    ============================================================================ */
@@ -506,7 +421,7 @@ function ImportExportSection() {
           {/* 圖片蓋在色塊上面 */}
           <div className="absolute inset-x-[5%] top-[8%] z-10 aspect-[4/3] overflow-hidden rounded-sm shadow-[0_16px_48px_rgba(0,0,0,0.4)] sm:inset-x-[8%] sm:top-[10%]">
             <Image
-              src="/images/70dd8cb7-02b3-49ab-916d-7bca6184ba43.png"
+              src={asset("P3左側.jpg")}
               alt="從進出口到總代理"
               fill
               className="object-cover"
@@ -533,7 +448,7 @@ function ImportExportSection() {
             <div className="flex h-[500px]">
               <div className="relative w-1/2 overflow-hidden bg-gray-800">
                 <Image
-                  src="/images/70dd8cb7-02b3-49ab-916d-7bca6184ba43.png"
+                  src={asset("P3左側.jpg")}
                   alt=""
                   fill
                   className="object-cover"
@@ -635,7 +550,17 @@ function BrandShowcaseCard({ brand }) {
         />
       </div>
       <div className="mt-4 flex flex-col items-center md:mt-5">
-        {brand.name === "smasmall® 昔馬" ? (
+        {brand.logo ? (
+          <div className="relative h-8 w-[140px] md:h-9 md:w-[160px]">
+            <Image
+              src={brand.logo}
+              alt={brand.name}
+              fill
+              className="object-contain"
+              sizes="160px"
+            />
+          </div>
+        ) : brand.name === "smasmall® 昔馬" ? (
           <span className={brand.logoClass}>
             smasmall<sup className="text-[10px]">®</sup>
             <span className="ml-1.5">昔馬</span>
@@ -758,11 +683,6 @@ function TimelineItem({ item, isLeft, index }) {
         <>
           <div className="pl-10 md:pl-0 md:pr-10 md:text-right">
             <TimelineMedia item={item} align="right" />
-            {item.media === "weiz" ? (
-              <p className="mt-3 text-[15px] font-extrabold tracking-[0.2em] text-slate-800 md:text-[16px]">
-                WEIZ
-              </p>
-            ) : null}
             <p className={`mt-3 ${TYPO.year}`}>{item.year}</p>
             <p className={`mt-2.5 ${TYPO.body}`}>{item.text}</p>
           </div>
@@ -775,7 +695,7 @@ function TimelineItem({ item, isLeft, index }) {
             {item.media === "logo" ? (
               <div className="mb-3 flex items-center gap-2">
                 <Image
-                  src="/images/logo/weibo-logo.png"
+                  src={brandLogo("威柏.png")}
                   alt="WEIBO 威柏科技"
                   width={40}
                   height={40}
@@ -790,11 +710,6 @@ function TimelineItem({ item, isLeft, index }) {
                   </p>
                 </div>
               </div>
-            ) : null}
-            {item.media === "weiz" ? (
-              <p className="mb-2 text-[15px] font-extrabold tracking-[0.2em] text-slate-800 md:text-[16px]">
-                WEIZ
-              </p>
             ) : null}
             <p className={TYPO.year}>{item.year}</p>
             <p className={`mt-2.5 ${TYPO.body}`}>{item.text}</p>
@@ -814,21 +729,26 @@ function TimelineMedia({ item, align = "left" }) {
   if (!item.image || item.media === "logo") return null;
 
   const round = item.imageShape === "round";
+  const isLogo = item.media === "weiz";
 
   return (
     <div
-      className={`relative overflow-hidden bg-slate-100 shadow-sm ${
-        round
-          ? "mx-auto h-28 w-28 rounded-full sm:h-36 sm:w-36 md:h-40 md:w-40"
-          : "aspect-[16/10] w-full max-w-full rounded-xl sm:max-w-[280px] sm:rounded-2xl"
-      } ${align === "right" ? "md:ml-auto" : ""}`}
+      className={`relative overflow-hidden ${
+        isLogo
+          ? "flex h-20 w-full max-w-[220px] items-center justify-center bg-transparent sm:h-24 sm:max-w-[280px] md:h-28 md:max-w-[320px]"
+          : round
+            ? "mx-auto h-28 w-28 rounded-full bg-slate-100 shadow-sm sm:h-36 sm:w-36 md:h-40 md:w-40"
+            : "aspect-[16/10] w-full max-w-full rounded-xl bg-slate-100 shadow-sm sm:max-w-[280px] sm:rounded-2xl"
+      } ${align === "right" ? "md:ml-auto" : ""} ${
+        isLogo && align === "right" ? "md:justify-end" : ""
+      } ${isLogo && align === "left" ? "md:justify-start" : ""}`}
     >
       <Image
         src={item.image}
         alt={item.text}
         fill
-        className="object-cover"
-        sizes="280px"
+        className={isLogo ? "object-contain" : "object-cover"}
+        sizes={isLogo ? "320px" : "280px"}
       />
     </div>
   );
@@ -881,9 +801,21 @@ function OurBrandsSection() {
                   className="min-w-0 shrink-0 grow-0 basis-[46%] px-2 sm:basis-[30%] md:basis-[20%] lg:basis-[16.66%]"
                 >
                   <div className="flex h-[88px] items-center justify-center rounded-xl bg-white px-4 shadow-[0_2px_14px_rgba(15,23,42,0.06)] md:h-[100px]">
-                    <span className={`text-center ${brand.style}`}>
-                      {brand.name}
-                    </span>
+                    {brand.logo ? (
+                      <div className="relative h-10 w-full max-w-[140px] md:h-12">
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          fill
+                          className="object-contain"
+                          sizes="140px"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-center text-[14px] font-bold tracking-[0.04em] text-slate-800">
+                        {brand.name}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}

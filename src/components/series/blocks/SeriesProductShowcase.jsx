@@ -5,28 +5,28 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const BOX_STYLES = {
   top_left: {
-    boxPos: "md:absolute md:top-[15%] md:left-[5%]",
+    boxPos: "md:absolute md:top-[12%] md:left-[4%]",
     lineClass:
       "hidden md:block top-[50%] left-full w-[150px] h-[1px] origin-left rotate-[15deg]",
     dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
   },
   bottom_left: {
-    boxPos: "md:absolute md:bottom-[15%] md:left-[8%]",
+    boxPos: "md:absolute md:bottom-[12%] md:left-[4%]",
     lineClass:
       "hidden md:block top-[20%] left-full w-[120px] h-[1px] origin-left rotate-[-20deg]",
     dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
   },
   bottom_right: {
-    boxPos: "md:absolute md:bottom-[20%] md:right-[10%]",
+    boxPos: "md:absolute md:bottom-[12%] md:right-[4%]",
     lineClass:
       "hidden md:block top-[50%] right-full w-[160px] h-[1px] origin-right rotate-[15deg]",
     dotClass: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
   },
   top_right: {
-    boxPos: "md:absolute md:top-[20%] md:left-[10%]",
+    boxPos: "md:absolute md:top-[12%] md:right-[4%]",
     lineClass:
-      "hidden md:block top-[50%] left-full w-[160px] h-[1px] origin-left rotate-[5deg]",
-    dotClass: "right-0 top-1/2 translate-x-1/2 -translate-y-1/2",
+      "hidden md:block top-[50%] right-full w-[160px] h-[1px] origin-right rotate-[-5deg]",
+    dotClass: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2",
   },
 };
 
