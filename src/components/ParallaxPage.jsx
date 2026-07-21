@@ -33,7 +33,7 @@ const ParallaxPage = ({ productIntroSection = null }) => {
   return (
     <div className="relative w-full bg-black font-sans">
       {productIntroSection ? (
-        <div className="relative z-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+        <div className="relative z-0 flex h-screen w-full touch-pan-y flex-col items-center justify-center overflow-hidden">
           <S3GroomingPrecision section={productIntroSection} />
         </div>
       ) : null}

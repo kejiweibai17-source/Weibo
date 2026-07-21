@@ -475,6 +475,12 @@ export default function HomeScrollSequence01() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     el.appendChild(renderer.domElement);
+    // 手機必須允許垂直滾動：canvas 預設常會吃掉 touch，明確設 pan-y
+    const canHover =
+      typeof window !== "undefined" &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    renderer.domElement.style.touchAction = canHover ? "none" : "pan-y";
+    renderer.domElement.style.display = "block";
     resizeToContainer(renderer, camera);
 
     // 先同步 RoomEnvironment，再換成 Poly Haven HDR 並綁到金屬材質
@@ -610,61 +616,64 @@ export default function HomeScrollSequence01() {
       },
     );
 
-    // 拖曳可 360° 旋轉產品（左右、上下皆可自由旋轉，無角度限制）。
-    // 用 Pointer Events 統一處理滑鼠／觸控筆；觸控在 onPointerDown 直接略過。
+    // 拖曳 360° 僅桌機（fine pointer）；手機完全不綁 pointer，避免卡住頁面滾動。
     const ROTATE_SPEED = 0.0055;
     const drag = dragStateRef.current;
+    let onPointerDown = null;
+    let onPointerMove = null;
+    let onPointerUp = null;
 
-    function onPointerDown(e) {
-      if (!modelRef.current) return;
-      // 手機／平板觸控不啟用拖曳旋轉，讓手指可以順利往下滾動頁面
-      if (e.pointerType === "touch") return;
-      if (e.pointerType === "mouse" && e.button !== 0) return;
-      drag.dragging = true;
-      drag.moved = false;
-      drag.lastX = e.clientX;
-      drag.lastY = e.clientY;
-      el.style.cursor = "grabbing";
-      el.setPointerCapture?.(e.pointerId);
-    }
-    function onPointerMove(e) {
-      if (!drag.dragging || !modelRef.current) return;
-      const dx = e.clientX - drag.lastX;
-      const dy = e.clientY - drag.lastY;
-      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) drag.moved = true;
-      drag.lastX = e.clientX;
-      drag.lastY = e.clientY;
-      const model = modelRef.current;
+    if (canHover) {
+      onPointerDown = (e) => {
+        if (!modelRef.current) return;
+        if (e.pointerType === "touch") return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        drag.dragging = true;
+        drag.moved = false;
+        drag.lastX = e.clientX;
+        drag.lastY = e.clientY;
+        el.style.cursor = "grabbing";
+        el.setPointerCapture?.(e.pointerId);
+      };
+      onPointerMove = (e) => {
+        if (!drag.dragging || !modelRef.current) return;
+        const dx = e.clientX - drag.lastX;
+        const dy = e.clientY - drag.lastY;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) drag.moved = true;
+        drag.lastX = e.clientX;
+        drag.lastY = e.clientY;
+        const model = modelRef.current;
 
-      // 繞世界／鏡頭軸旋轉（quaternion），而不是直接疊加 Euler rotation.x / rotation.y：
-      // 左右拖曳固定繞世界豎直軸（像轉盤一樣直覺）；
-      // 上下拖曳繞「鏡頭當下的螢幕右方向」，即使該視角鏡頭帶有 yaw／pitch 側拍角，
-      // 拖曳方向也永遠跟手指移動方向一致，不會歪斜。
-      model.rotateOnWorldAxis(WORLD_UP_AXIS, dx * ROTATE_SPEED);
+        // 左右繞世界豎直軸；上下繞鏡頭螢幕右方向，拖曳方向不歪斜。
+        model.rotateOnWorldAxis(WORLD_UP_AXIS, dx * ROTATE_SPEED);
 
-      // 上下拖曳不設限，可自由 360° 翻轉
-      const appliedPitch = dy * ROTATE_SPEED;
-      const camera = cameraRef.current;
-      if (camera && appliedPitch !== 0) {
-        const screenRight = new THREE.Vector3();
-        camera.getWorldDirection(screenRight);
-        screenRight.cross(camera.up).normalize();
-        if (screenRight.lengthSq() > 0.0001) {
-          model.rotateOnWorldAxis(screenRight, appliedPitch);
+        const appliedPitch = dy * ROTATE_SPEED;
+        const camera = cameraRef.current;
+        if (camera && appliedPitch !== 0) {
+          const screenRight = new THREE.Vector3();
+          camera.getWorldDirection(screenRight);
+          screenRight.cross(camera.up).normalize();
+          if (screenRight.lengthSq() > 0.0001) {
+            model.rotateOnWorldAxis(screenRight, appliedPitch);
+          }
         }
-      }
-    }
-    function onPointerUp(e) {
-      if (!drag.dragging) return;
-      drag.dragging = false;
+      };
+      onPointerUp = (e) => {
+        if (!drag.dragging) return;
+        drag.dragging = false;
+        el.style.cursor = "grab";
+        el.releasePointerCapture?.(e.pointerId);
+      };
       el.style.cursor = "grab";
-      el.releasePointerCapture?.(e.pointerId);
+      el.addEventListener("pointerdown", onPointerDown);
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", onPointerUp);
+      window.addEventListener("pointercancel", onPointerUp);
+    } else {
+      el.style.cursor = "default";
+      el.style.pointerEvents = "none";
+      renderer.domElement.style.pointerEvents = "none";
     }
-    el.style.cursor = "grab";
-    el.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    window.addEventListener("pointercancel", onPointerUp);
 
     function animate() {
       rafRef.current = requestAnimationFrame(animate);
@@ -706,10 +715,12 @@ export default function HomeScrollSequence01() {
     return () => {
       destroyed = true;
       window.removeEventListener("resize", onResize);
-      el.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      window.removeEventListener("pointercancel", onPointerUp);
+      if (onPointerDown) {
+        el.removeEventListener("pointerdown", onPointerDown);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerUp);
+      }
       cancelAnimationFrame(rafRef.current);
       camTweenRef.current?.kill();
       lookTweenRef.current?.kill();
@@ -832,7 +843,7 @@ export default function HomeScrollSequence01() {
 
   return (
     <section
-      className="relative h-[100svh] w-full overflow-hidden"
+      className="relative h-[100svh] w-full overflow-hidden touch-pan-y"
       style={{
         background:
           "linear-gradient(160deg, #0d0020 0%, #08001a 50%, #0a0015 100%)",
@@ -850,7 +861,7 @@ export default function HomeScrollSequence01() {
 
       <div
         ref={containerRef}
-        className="absolute inset-0 z-0 h-full w-full select-none touch-pan-y md:touch-none"
+        className="pointer-events-none absolute inset-0 z-0 h-full w-full select-none md:pointer-events-auto md:touch-none"
       />
 
       {/* 手機版：文字上下錯開，避免跟下方特寫細節、底部按鈕互相重疊；桌機維持左右對稱置中 */}
@@ -867,7 +878,7 @@ export default function HomeScrollSequence01() {
 
       <div
         key={active}
-        className="pointer-events-none absolute inset-x-0 bottom-[8.5rem] z-10 px-6 md:inset-0 md:bottom-auto md:flex md:items-center md:justify-end md:px-0"
+        className="pointer-events-none absolute inset-x-0 bottom-[8.5rem] z-10 px-6 md:inset-0 md:flex md:items-center md:justify-end md:px-0 md:translate-y-[6vh]"
       >
         <div className="max-w-[19rem] md:mr-[6%] md:max-w-[22rem] md:text-right lg:mr-[8%]">
           <p className="text-[11px] tracking-[0.2em] text-[#B79CFF]/80 uppercase">
@@ -892,7 +903,7 @@ export default function HomeScrollSequence01() {
           <span className="hidden md:inline">拖曳畫面可 360° 旋轉查看 ・ </span>
           選擇特寫視角
         </p>
-        <div className="pointer-events-auto flex w-full gap-3 overflow-x-auto px-6 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-proximity md:w-auto md:flex-wrap md:justify-center md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
+        <div className="pointer-events-auto flex w-full gap-3 overflow-x-auto overscroll-x-contain touch-manipulation px-6 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-proximity md:w-auto md:flex-wrap md:justify-center md:overflow-visible md:touch-auto md:px-0 [&::-webkit-scrollbar]:hidden">
           {VIEW_ORDER.map((key) => {
             const view = VIEWS[key];
             const isActive = active === key;
