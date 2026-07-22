@@ -158,11 +158,13 @@ add_action('init', function () {
                 'single'            => true,
                 'show_in_rest'      => true,
                 'description'       => $label,
-                'sanitize_callback' => in_array($key, [SMASMALL_META_YOUTUBE, SMASMALL_META_FACEBOOK, SMASMALL_META_INSTAGRAM], true)
-                    ? 'smasmall_sanitize_url_list_meta'
-                    : ($key === SMASMALL_META_SPECS || $key === SMASMALL_META_HIGHLIGHTS || $key === SMASMALL_META_AFTER_SALES
-                        ? 'smasmall_sanitize_textarea_meta'
-                        : 'smasmall_sanitize_json_string_meta'),
+                'sanitize_callback' => $key === SMASMALL_META_FACEBOOK
+                    ? 'smasmall_sanitize_facebook_list_meta'
+                    : (in_array($key, [SMASMALL_META_YOUTUBE, SMASMALL_META_INSTAGRAM], true)
+                        ? 'smasmall_sanitize_url_list_meta'
+                        : ($key === SMASMALL_META_SPECS || $key === SMASMALL_META_HIGHLIGHTS || $key === SMASMALL_META_AFTER_SALES
+                            ? 'smasmall_sanitize_textarea_meta'
+                            : 'smasmall_sanitize_json_string_meta')),
                 'auth_callback'     => function () {
                     return current_user_can('edit_products');
                 },
@@ -290,6 +292,11 @@ function smasmall_sanitize_social_url(string $url): string
         return '';
     }
 
+    // 無效 placeholder（例如 https://[]）
+    if (preg_match('#https?://\[\]#', $url) || preg_match('#://[\[\]]#', $url)) {
+        return '';
+    }
+
     // 補上缺少的 scheme
     if (!preg_match('#^https?://#i', $url)) {
         $url = 'https://' . ltrim($url, '/');
@@ -321,6 +328,77 @@ function smasmall_sanitize_social_url(string $url): string
     return '';
 }
 
+/**
+ * Facebook /share/p|v|r|g/ 短連結無法直接 embed，儲存時展開成正式 permalink。
+ */
+function smasmall_expand_facebook_share_url(string $url): string
+{
+    $url = trim($url);
+    if ($url === '') {
+        return '';
+    }
+
+    if (!preg_match('#facebook\.com/share/[pvrg]/#i', $url) && !preg_match('#fb\.watch/#i', $url) && !preg_match('#m\.facebook\.com/#i', $url)) {
+        return $url;
+    }
+
+    $response = wp_remote_get($url, [
+        'timeout'     => 20,
+        'redirection' => 8,
+        'sslverify'   => true,
+        'headers'     => [
+            'User-Agent'      => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language' => 'zh-TW,zh;q=0.9,en;q=0.8',
+        ],
+    ]);
+
+    if (is_wp_error($response)) {
+        return $url;
+    }
+
+    // 跟隨 redirect 後的最終網址
+    $http_response = isset($response['http_response']) ? $response['http_response'] : null;
+    if ($http_response && method_exists($http_response, 'get_response_object')) {
+        $obj = $http_response->get_response_object();
+        if ($obj && !empty($obj->url)) {
+            $final = (string) $obj->url;
+            if (
+                preg_match('#/(?:posts|videos|reel)/#i', $final) ||
+                preg_match('#permalink\.php#i', $final) ||
+                preg_match('#story\.php#i', $final)
+            ) {
+                return esc_url_raw(preg_replace('#\?.*$#', '', $final) ?: $final);
+            }
+        }
+    }
+
+    $body = (string) wp_remote_retrieve_body($response);
+    if ($body !== '') {
+        if (preg_match('/property=["\']og:url["\'][^>]*content=["\']([^"\']+)["\']/i', $body, $m)
+            || preg_match('/content=["\']([^"\']+)["\'][^>]*property=["\']og:url["\']/i', $body, $m)
+        ) {
+            return esc_url_raw(html_entity_decode($m[1], ENT_QUOTES));
+        }
+        if (preg_match('/rel=["\']canonical["\'][^>]*href=["\']([^"\']+)["\']/i', $body, $m)
+            || preg_match('/href=["\']([^"\']+)["\'][^>]*rel=["\']canonical["\']/i', $body, $m)
+        ) {
+            return esc_url_raw(html_entity_decode($m[1], ENT_QUOTES));
+        }
+    }
+
+    return $url;
+}
+
+function smasmall_sanitize_facebook_url(string $url): string
+{
+    $clean = smasmall_sanitize_social_url($url);
+    if ($clean === '') {
+        return '';
+    }
+    return smasmall_expand_facebook_share_url($clean);
+}
+
 function smasmall_sanitize_url_array(array $list): array
 {
     $out = [];
@@ -333,7 +411,7 @@ function smasmall_sanitize_url_array(array $list): array
     return array_values(array_unique($out));
 }
 
-/** REST / WC API 儲存 YouTube、Instagram、Facebook URL 列表用 */
+/** REST / WC API 儲存 YouTube、Instagram URL 列表用 */
 function smasmall_sanitize_url_list_meta($value): string
 {
     if (is_array($value)) {
@@ -358,6 +436,38 @@ function smasmall_sanitize_url_list_meta($value): string
     // 單一 URL 字串（舊格式相容）
     $one = smasmall_sanitize_social_url($trim);
     return $one !== '' ? smasmall_json_encode([$one]) : '[]';
+}
+
+/** REST / WC API：Facebook 列表，儲存時展開 /share/ 短連結 */
+function smasmall_sanitize_facebook_list_meta($value): string
+{
+    $list = [];
+    if (is_array($value)) {
+        $list = $value;
+    } elseif ($value instanceof \stdClass) {
+        $list = (array) $value;
+    } elseif (is_string($value)) {
+        $trim = trim($value);
+        if ($trim === '') {
+            return '[]';
+        }
+        $decoded = smasmall_json_decode_array($trim);
+        $list = $decoded !== [] ? $decoded : [$trim];
+    } else {
+        return '[]';
+    }
+
+    $out = [];
+    foreach ($list as $item) {
+        if (is_array($item) && isset($item['url'])) {
+            $item = $item['url'];
+        }
+        $clean = smasmall_sanitize_facebook_url(is_string($item) ? $item : '');
+        if ($clean !== '') {
+            $out[] = $clean;
+        }
+    }
+    return smasmall_json_encode(array_values(array_unique($out)));
 }
 
 function smasmall_is_youtube_shorts_url(string $url): bool
@@ -588,7 +698,7 @@ function smasmall_render_product_meta_box(\WP_Post $post): void
 
         <div class="smasmall-meta-section">
             <h4 class="smasmall-meta-heading">Facebook</h4>
-            <p class="description">貼上 Facebook 貼文或 Reels 連結，可新增多筆。手機分享短網址（/share/v/）也可，官網會自動展開。</p>
+            <p class="description">可貼完整貼文網址，或手機分享短連結（/share/p/、/share/v/、/share/g/）。儲存時會自動展開成正式網址；若展開失敗請改貼完整 posts 連結。前端：前 2 則直列顯示，第 3 則起進輪播。</p>
             <div class="smasmall-url-add-row">
                 <input type="url" class="widefat smasmall-url-input" data-platform="facebook" placeholder="https://www.facebook.com/..." />
                 <button type="button" class="button smasmall-add-url" data-platform="facebook">新增連結</button>
@@ -690,7 +800,7 @@ add_action('save_post_product', function ($post_id) {
     $facebook = [];
     if (isset($_POST['smasmall_facebook_urls']) && is_array($_POST['smasmall_facebook_urls'])) {
         foreach (wp_unslash($_POST['smasmall_facebook_urls']) as $url) {
-            $clean = smasmall_sanitize_social_url((string) $url);
+            $clean = smasmall_sanitize_facebook_url((string) $url);
             if ($clean !== '') {
                 $facebook[] = $clean;
             }

@@ -264,7 +264,7 @@ export default function AccessoryRightPanel({ panel }) {
             {socialSectionTitle || "影片與社群"}
           </h3>
 
-          {EMBED_GROUPS.map(({ platform, titleKey }) => {
+            {EMBED_GROUPS.map(({ platform, titleKey }) => {
             const items = socialEmbeds.filter((e) => e.platform === platform);
             if (items.length === 0) return null;
 
@@ -272,6 +272,7 @@ export default function AccessoryRightPanel({ panel }) {
             const isInstagram = platform === "instagram";
             const isYoutube = platform === "youtube";
             const useYoutubeCarousel = isYoutube && items.length > 1;
+            // FB / IG：同一行輪播，一次可視 2 則
             const useSocialCarousel = isFacebook || isInstagram;
 
             return (

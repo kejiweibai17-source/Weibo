@@ -224,7 +224,14 @@ function normalizeUrlList(value: any): string[] {
       })
       .filter((url): url is string => {
         if (!url) return false;
-        return !/^https:\/\/\[\]/.test(url);
+        try {
+          const parsed = new URL(url);
+          if (!/^https?:$/i.test(parsed.protocol)) return false;
+          if (!parsed.hostname || parsed.hostname.includes("[")) return false;
+          return true;
+        } catch {
+          return false;
+        }
       });
   }
   if (typeof value === "string" && value.trim()) {

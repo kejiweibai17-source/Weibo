@@ -1,7 +1,5 @@
 // app/ClientLayout.tsx
 "use client";
-import { ReactLenis } from "lenis/react";
-import "lenis/dist/lenis.css";
 
 import { ViewTransitions } from "next-view-transitions";
 import Navbar from "../components/Navbar/Navbar";
@@ -96,22 +94,20 @@ export default function ClientLayout({
         }
       `}</style>
 
-      <ReactLenis root>
-        <ScrollToTopOnNav />
+      <ScrollToTopOnNav />
 
-        {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
-        <div
-          className="fixed left-0 top-0 z-[999999999999999] w-screen"
-          style={{ viewTransitionName: "none" }}
-        >
-          <Navbar />
-        </div>
+      {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
+      <div
+        className="fixed left-0 top-0 z-[999999999999999] w-screen"
+        style={{ viewTransitionName: "none" }}
+      >
+        <Navbar />
+      </div>
 
-        <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen">{children}</main>
 
-        <CartDrawer />
-        <Footer />
-      </ReactLenis>
+      <CartDrawer />
+      <Footer />
     </ViewTransitions>
   );
 }

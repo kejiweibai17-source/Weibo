@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
 import Copy from "@/components/Copy";
 
 // ============================================================================
@@ -115,23 +113,82 @@ const BRAND_LOGOS = [
   },
 ];
 
-/** 代理品牌輪播（已排除設計稿劃掉的 XROUND / ZUA） */
-const AGENCY_BRANDS = [
-  { name: "WEIBO", logo: brandLogo("威柏.png") },
-  { name: "WiWU", logo: brandLogo("WiWU Logo去背.png") },
-  { name: "ACEFAST", logo: brandLogo("ACEFAST logo.png") },
-  { name: "BOSE", logo: agencyLogo("LOGO_沃福仕_BOSE.png") },
-  { name: "harman/kardon", logo: agencyLogo("LOGO_世貨_Harman Kardon.png") },
-  {
-    name: "Audio-Technica",
-    logo: agencyLogo("LOGO_澎湃_鐵三角audio-technica.png"),
-  },
-  { name: "G-PLUS", logo: agencyLogo("LOGO_拓勤_GPLUS.png") },
-  { name: "FANTECH", logo: agencyLogo("LOGO_聿鑫_FANTECH.png") },
-  { name: "WEILIFE", logo: brandLogo("weilife.png") },
-  { name: "smasmall", logo: brandLogo("昔馬.png") },
-  { name: "FRAMULA", logo: brandLogo("芬乘FRAMULA_LOGO_黑.png") },
+/** 代理品牌：資料夾內全部 logo，拆成三排跑馬燈 */
+const AGENCY_BRAND_FILES = [
+  "LOGO_三鍵客_Keychron.png",
+  "LOGO_世貨_Blue.png",
+  "LOGO_世貨_FOREO.png",
+  "LOGO_世貨_Harman Kardon.png",
+  "LOGO_世貨_SENNHEISER.png",
+  "LOGO_世貨_Ultimate Ears.png",
+  "LOGO_世貨_ag.png",
+  "LOGO_世貨_final.png",
+  "LOGO_和鑫_1more.png",
+  "LOGO_嘉友_MAIIN SOUND.png",
+  "LOGO_威柏_DeLUX.png",
+  "LOGO_威柏_MOFT.png",
+  "LOGO_拓勤_GPLUS.png",
+  "LOGO_旺德_Blaupunkt.png",
+  "LOGO_旺德_ISITO.png",
+  "LOGO_旺德_Karl Lagerfeld.png",
+  "LOGO_旺德_SABA.png",
+  "LOGO_旺德_TECO.png",
+  "LOGO_旺德_TUMI.png",
+  "LOGO_旺德_Thomson.png",
+  "LOGO_旺德_Wonder.png",
+  "LOGO_沃福仕_BOSE.png",
+  "LOGO_澎湃_鐵三角audio-technica.png",
+  "LOGO_瑞立_AUKEY.png",
+  "LOGO_瑞立_Adamoutdoor.png",
+  "LOGO_瑞立_COMITOK.png",
+  "LOGO_瑞立_Choetech.png",
+  "LOGO_瑞立_Energea.png",
+  "LOGO_瑞立_GUXON.png",
+  "LOGO_瑞立_KooPin.png",
+  "LOGO_瑞立_LAPO.png",
+  "LOGO_瑞立_MOZ.png",
+  "LOGO_瑞立_MR.COM.png",
+  "LOGO_瑞立_Momax.png",
+  "LOGO_瑞立_ORAIR.png",
+  "LOGO_瑞立_SCANDINAVIAN FOREST.png",
+  "LOGO_瑞立_SKINARMA.png",
+  "LOGO_瑞立_Solide.png",
+  "LOGO_瑞立_TORRAS.png",
+  "LOGO_瑞立_UAG.png",
+  "LOGO_瑞立_UNIQ.png",
+  "LOGO_瑞立_USAMS.png",
+  "LOGO_瑞立_Zumoji.png",
+  "LOGO_瑞立_alto.png",
+  "LOGO_瑞立_bitplay.png",
+  "LOGO_瑞立_樂米LARMi.png",
+  "LOGO_積進_MYCELL.png",
+  "LOGO_美極品_美極品.png",
+  "LOGO_聿鑫_Audioengine.png",
+  "LOGO_聿鑫_FANTECH.png",
+  "LOGO_聿鑫_FIFINE.png",
+  "LOGO_聿鑫_FiiO.png",
+  "LOGO_聿鑫_Kanto.png",
+  "LOGO_聿鑫_MACHENIKE.png",
+  "LOGO_聿鑫_NOWGO.png",
+  "LOGO_萬摩_Allite.png",
+  "LOGO_萬摩_Chipolo.png",
+  "LOGO_萬摩_OneMore.png",
+  "LOGO_行星_VAGO.png",
+  "LOGO_鉅誠_JC TECH.png",
 ];
+
+const AGENCY_BRANDS = AGENCY_BRAND_FILES.map((file) => {
+  const base = file.replace(/\.[^.]+$/, "");
+  const name = base.replace(/^LOGO_[^_]+_/, "");
+  return { name, logo: agencyLogo(file) };
+});
+
+function chunkBrands(list, rows) {
+  const size = Math.ceil(list.length / rows);
+  return Array.from({ length: rows }, (_, i) =>
+    list.slice(i * size, (i + 1) * size),
+  ).filter((row) => row.length > 0);
+}
 
 /** 核心業務四卡 */
 const CORE_BUSINESS = [
@@ -338,7 +395,9 @@ function IntroSection() {
 
         <div className="relative z-10 mx-auto max-w-[1400px]">
           <Reveal>
-            <h2 className={`mb-10 md:mb-12 ${TYPO.h2}`}>核心業務</h2>
+            <h2 className="mb-10 text-[32px] font-bold leading-[1.35] tracking-[0.04em] text-slate-900 md:mb-12 md:text-[40px]">
+              核心業務
+            </h2>
           </Reveal>
 
           {/* 卡片依設計稿：高矮交錯（01、03 較高，02、04 較矮），上緣切齊、整排與右側按鈕同寬 */}
@@ -357,18 +416,18 @@ function IntroSection() {
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 25vw"
                   />
-                  {/* 淡底圖白霧，對齊設計稿 */}
-                  <div className="absolute inset-0 bg-white/78" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-white/50" />
+                  {/* 半透明白遮罩＋輕微模糊：底圖仍可見，文字對比更清楚 */}
+                  <div className="absolute inset-0 bg-white/45 backdrop-blur-[2px]" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-white/40" />
 
-                  <div className="relative z-10 flex h-full flex-col px-5 py-4 md:px-6 md:py-5">
-                    <span className="text-[18px] font-bold leading-none tracking-[0.02em] text-[#3340d9] md:text-[20px]">
+                  <div className="relative z-10 flex h-full flex-col px-5 py-5 md:px-6 md:py-6">
+                    <span className="text-[24px] font-bold leading-none tracking-[0.02em] text-[#3340d9] md:text-[28px]">
                       {item.no}
                     </span>
-                    <h3 className="mt-4 text-center text-[19px] font-bold tracking-[0.06em] text-[#3340d9] md:mt-6 md:text-[21px]">
+                    <h3 className="mt-5 text-center text-[22px] font-bold tracking-[0.06em] text-[#3340d9] md:mt-7 md:text-[24px]">
                       {item.title}
                     </h3>
-                    <p className="mt-4 text-center text-[13px] font-medium leading-[1.9] tracking-[0.04em] text-[#1f2937] md:mt-6 md:text-[14px]">
+                    <p className="mt-5 text-center text-[15px] font-medium leading-[1.9] tracking-[0.04em] text-[#1f2937] md:mt-7 md:text-[16px]">
                       {item.desc}
                     </p>
                   </div>
@@ -506,7 +565,9 @@ function ImportExportSection() {
         <div className="relative z-10 mx-auto max-w-[1100px]">
           <div className="mx-auto max-w-[720px] text-center">
             <p className={TYPO.eyebrow}>PHILOSOPHY</p>
-            <h2 className={`mt-5 ${TYPO.h2}`}>科技來自於人性</h2>
+            <h2 className="mt-5 text-[32px] font-bold leading-[1.35] tracking-[0.04em] text-slate-900 md:text-[42px]">
+              科技來自於人性
+            </h2>
             <p className={`mt-6 ${TYPO.bodyMuted}`}>
               威柏科技讓產品從無到有，經過研發、設計、選品、推廣、銷售、體驗、服務，以最嚴格的標準要求每一款產品。消費者的每一個需求，都是我們開發與推廣產品的動力；每一筆消費，都是對我們的信任。
             </p>
@@ -562,15 +623,16 @@ function BrandShowcaseCard({ brand }) {
           sizes="(max-width: 640px) 100vw, 33vw"
         />
       </div>
-      <div className="mt-4 flex flex-col items-center md:mt-5">
+      <div className="mt-5 flex w-full flex-col items-center md:mt-6">
         {brand.logo ? (
-          <div className="relative h-8 w-[140px] md:h-9 md:w-[160px]">
+          // 固定高度容器 + object-contain：不同寬高比的 logo 視覺面積一致
+          <div className="relative h-[56px] w-full max-w-[240px] md:h-[68px] md:max-w-[280px]">
             <Image
               src={brand.logo}
               alt={brand.name}
               fill
-              className="object-contain"
-              sizes="160px"
+              className="object-contain object-center"
+              sizes="280px"
             />
           </div>
         ) : brand.name === "smasmall® 昔馬" ? (
@@ -768,74 +830,93 @@ function TimelineMedia({ item, align = "left" }) {
 }
 
 /* ============================================================================
-   SECTION 5 — OUR BRANDS 代理品牌輪播
+   SECTION 5 — OUR BRANDS 代理品牌三排無限跑馬燈
    ============================================================================ */
-function OurBrandsSection() {
-  const autoplay = useRef(
-    Autoplay({
-      delay: 2800,
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-      playOnInit: true,
-    }),
+function BrandMarqueeRow({ brands, reverse = false, duration = 48 }) {
+  // 複製兩份做無縫循環
+  const slides = [...brands, ...brands];
+  return (
+    <div className="overflow-hidden">
+      <div
+        className={`flex w-max gap-3 md:gap-4 ${
+          reverse ? "animate-weibo-marquee-reverse" : "animate-weibo-marquee"
+        }`}
+        style={{ animationDuration: `${duration}s` }}
+      >
+        {slides.map((brand, i) => (
+          <div
+            key={`${brand.name}-${i}`}
+            className="flex h-[72px] w-[140px] shrink-0 items-center justify-center rounded-xl bg-white px-4 shadow-[0_2px_14px_rgba(15,23,42,0.06)] sm:h-[80px] sm:w-[160px] md:h-[88px] md:w-[180px]"
+          >
+            <div className="relative h-9 w-full sm:h-10 md:h-11">
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                className="object-contain"
+                sizes="160px"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
-  const [emblaRef] = useEmblaCarousel(
-    {
-      loop: true,
-      align: "start",
-      dragFree: true,
-      containScroll: false,
-      duration: 35,
-    },
-    [autoplay.current],
-  );
+}
 
-  // 複製兩份讓輪播更順
-  const slides = [...AGENCY_BRANDS, ...AGENCY_BRANDS];
+function OurBrandsSection() {
+  const rows = chunkBrands(AGENCY_BRANDS, 3);
 
   return (
     <section
       className={`relative w-full overflow-hidden bg-[#faf8f4] ${SECTION_PAD}`}
     >
-      <div className={`relative z-10 mx-auto max-w-[1200px] ${SECTION_X}`}>
+      <div className={`relative z-10 mx-auto max-w-[1400px] ${SECTION_X}`}>
         <Reveal>
           <div className="mx-auto max-w-[720px] text-center">
             <p className={TYPO.eyebrow}>OUR BRANDS</p>
             <h2 className={`mt-5 ${TYPO.h2}`}>代理品牌</h2>
           </div>
         </Reveal>
-
-        <div className="mt-12 md:mt-14">
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex touch-pan-y">
-              {slides.map((brand, i) => (
-                <div
-                  key={`${brand.name}-${i}`}
-                  className="min-w-0 shrink-0 grow-0 basis-[46%] px-2 sm:basis-[30%] md:basis-[20%] lg:basis-[16.66%]"
-                >
-                  <div className="flex h-[88px] items-center justify-center rounded-xl bg-white px-4 shadow-[0_2px_14px_rgba(15,23,42,0.06)] md:h-[100px]">
-                    {brand.logo ? (
-                      <div className="relative h-10 w-full max-w-[140px] md:h-12">
-                        <Image
-                          src={brand.logo}
-                          alt={brand.name}
-                          fill
-                          className="object-contain"
-                          sizes="140px"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-center text-[14px] font-bold tracking-[0.04em] text-slate-800">
-                        {brand.name}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
+
+      <div className="relative z-10 mt-12 space-y-3 md:mt-14 md:space-y-4">
+        {rows.map((row, idx) => (
+          <BrandMarqueeRow
+            key={idx}
+            brands={row}
+            reverse={idx % 2 === 1}
+            duration={42 + idx * 8}
+          />
+        ))}
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes weibo-marquee {
+              from { transform: translateX(0); }
+              to { transform: translateX(-50%); }
+            }
+            @keyframes weibo-marquee-reverse {
+              from { transform: translateX(-50%); }
+              to { transform: translateX(0); }
+            }
+            .animate-weibo-marquee {
+              animation: weibo-marquee linear infinite;
+            }
+            .animate-weibo-marquee-reverse {
+              animation: weibo-marquee-reverse linear infinite;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .animate-weibo-marquee,
+              .animate-weibo-marquee-reverse {
+                animation: none !important;
+              }
+            }
+          `,
+        }}
+      />
     </section>
   );
 }

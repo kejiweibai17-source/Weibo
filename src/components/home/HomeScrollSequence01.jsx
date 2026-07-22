@@ -871,7 +871,7 @@ export default function HomeScrollSequence01() {
             小。很強大。
           </h2>
           <p className="mt-3 text-[0.85rem] font-light leading-6 tracking-wide text-white/70 md:mt-5 md:text-[1.05rem] md:leading-8">
-            昔馬捍衛者，把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
+            把刮鬍、修容、收納與快充，放進一個精巧而有份量的設計裡。
           </p>
         </div>
       </div>
