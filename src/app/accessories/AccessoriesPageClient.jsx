@@ -32,9 +32,11 @@ export default function AccessoriesPageClient({
   productFilters,
   accessoryFilters,
   filtersFromWoo = false,
+  initialQuery = "",
 }) {
   const [activeComp, setActiveComp] = useState("All");
   const [activeCats, setActiveCats] = useState(["All"]);
+  const [query] = useState(String(initialQuery || "").trim());
 
   const showProductFilters =
     !filtersFromWoo || productFilters.some((opt) => opt.value !== "All");
@@ -60,12 +62,29 @@ export default function AccessoriesPageClient({
   };
 
   const filteredProducts = useMemo(() => {
+    const q = query.toLowerCase();
     return products.filter((product) => {
       const matchComp = matchesProductFilter(product, activeComp);
       const matchCat = matchesAccessoryFilter(product, activeCats);
-      return matchComp && matchCat;
+      if (!matchComp || !matchCat) return false;
+      if (!q) return true;
+      const haystack = [
+        product.name,
+        product.title,
+        product.id,
+        product.slug,
+        product.category,
+        product.productGroup,
+        product.accessoryGroup,
+        ...(product.compatibility || []),
+        ...(product.wooCategorySlugs || []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
     });
-  }, [products, activeComp, activeCats]);
+  }, [products, activeComp, activeCats, query]);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans pt-32 pb-32">

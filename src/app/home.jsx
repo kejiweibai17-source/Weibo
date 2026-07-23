@@ -20,11 +20,18 @@ export default function Home({
   const pageContentRef = useRef(null);
 
   return (
-    <main ref={containerRef} className="relative    ">
+    <main ref={containerRef} className="relative" data-seo-speakable>
       <HomeHero pageContentRef={pageContentRef} />
 
-      {/* 僅移除 opacity-0，讓底下的 GSAP 能夠正常鎖定背景 */}
-      <div ref={pageContentRef} className="page-content z-10 relative">
+      {/*
+        主內容始終留在 DOM（不 display:none），供搜尋引擎解析。
+        Preloader 僅為視覺覆蓋層，結束後淡入動畫由 HomeHero 控制。
+      */}
+      <div
+        ref={pageContentRef}
+        className="page-content relative z-10"
+        id="main-content"
+      >
         <ConstellationProductScroll />
         <HomeConstellationSection section={constellationSection} />
         <EmblaCarousel slides={carouselSlides} options={OPTIONS} />

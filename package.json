@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "npx next-sitemap"
+    "postbuild": "echo sitemap-via-app-router"
   },
   "engines": {
     "node": "22.x"

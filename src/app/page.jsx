@@ -3,7 +3,7 @@ import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
 import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
 import { getSiteUrl, ogImageUrl } from "@/lib/seo/config";
-import { buildHomePageSchemas } from "@/lib/seo/schemas";
+import { buildHomePageSchemas, buildSiteNameSchema } from "@/lib/seo/schemas";
 import { getHomeBladeIntroSection } from "@/lib/homeBladeIntro.server";
 import { getHomeCarouselSlides } from "@/lib/homeCarousel.server";
 import { getHomeConstellationSection } from "@/lib/homeConstellation.server";
@@ -60,10 +60,20 @@ export const metadata = {
     "系列商品",
     "產品列表",
   ],
+  category: "shopping",
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    "max-image-preview": "large",
+    "max-snippet": -1,
+    "max-video-preview": -1,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   openGraph: {
     type: "website",
@@ -90,6 +100,12 @@ export const metadata = {
     images: [ogImageUrl("/images/og-1.jpg")],
   },
   alternates: { canonical: "/" },
+  other: {
+    "geo.region": "TW-CYQ",
+    "geo.placename": "太保市, 嘉義縣",
+    "geo.position": "23.4582;120.3289",
+    ICBM: "23.4582, 120.3289",
+  },
 };
 
 export const revalidate = 60;
@@ -110,10 +126,14 @@ export default async function Page() {
     getHomeProductIntroSection(),
     fetchSeriesNavItems(),
   ]);
-  const schemas = buildHomePageSchemas({
-    siteUrl: SITE_URL,
-    faqs: homeFAQs,
-  });
+  const schemas = [
+    buildSiteNameSchema(SITE_URL),
+    buildHomePageSchemas({
+      siteUrl: SITE_URL,
+      faqs: homeFAQs,
+      seriesLinks: seriesNavItems,
+    }),
+  ];
 
   return (
     <>

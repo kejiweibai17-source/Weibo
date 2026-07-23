@@ -259,7 +259,7 @@ export default function Navbar() {
                 <img
                   src="/images/SMASMALL-logo-white.png"
                   className=" max-w-[130px] md:max-w-[200px]"
-                  alt=""
+                  alt="昔馬電動刮鬍刀"
                 />
               </Link>
             </div>

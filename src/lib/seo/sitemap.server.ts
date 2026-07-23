@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { getSiteUrl } from "@/lib/seo/config";
+import { getSiteUrl, SITELINK_SITEMAP_PRIORITY } from "@/lib/seo/config";
 import {
   BLOG_CACHE_TAG,
   PRODUCTS_CACHE_TAG,
@@ -26,20 +26,67 @@ export type SitemapEntrySource = {
 
 const SITE_URL = getSiteUrl();
 
+function sitelinkPriority(path: string, fallback: number) {
+  const map = SITELINK_SITEMAP_PRIORITY as Record<string, number>;
+  return map[path] ?? fallback;
+}
+
+/** 靜態頁：Sitelinks 候選頁 priority 提高，加速收錄權重訊號 */
 const STATIC_PAGES: SitemapEntrySource[] = [
-  { path: "/", changeFrequency: "weekly", priority: 1.0 },
-  { path: "/series", changeFrequency: "weekly", priority: 0.95 },
-  { path: "/accessories", changeFrequency: "daily", priority: 0.9 },
-  { path: "/brand", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/about", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/stores", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/support", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/support/manuals", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/support/warranty", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/support/faq", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/", changeFrequency: "daily", priority: sitelinkPriority("/", 1.0) },
+  {
+    path: "/series",
+    changeFrequency: "weekly",
+    priority: sitelinkPriority("/series", 0.98),
+  },
+  {
+    path: "/accessories",
+    changeFrequency: "daily",
+    priority: sitelinkPriority("/accessories", 0.97),
+  },
+  {
+    path: "/brand",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/brand", 0.9),
+  },
+  {
+    path: "/blog",
+    changeFrequency: "daily",
+    priority: sitelinkPriority("/blog", 0.88),
+  },
+  {
+    path: "/stores",
+    changeFrequency: "weekly",
+    priority: sitelinkPriority("/stores", 0.86),
+  },
+  {
+    path: "/support",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/support", 0.86),
+  },
+  {
+    path: "/contact",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/contact", 0.85),
+  },
+  {
+    path: "/support/faq",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/support/faq", 0.82),
+  },
+  { path: "/support/manuals", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/support/warranty", changeFrequency: "monthly", priority: 0.7 },
   { path: "/support/policies", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/blog", changeFrequency: "daily", priority: 0.8 },
+  {
+    path: "/weibo",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/weibo", 0.75),
+  },
+  {
+    path: "/about",
+    changeFrequency: "monthly",
+    priority: sitelinkPriority("/about", 0.75),
+  },
 ];
 
 function parseDate(value: unknown): Date | undefined {

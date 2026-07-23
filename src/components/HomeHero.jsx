@@ -7,7 +7,6 @@ import { useGSAP } from "@gsap/react";
 import { useLenis } from "lenis/react";
 import Preloader from "./Preloader";
 import {
-  markPreloaderPlayedThisSession,
   shouldShowHomePreloader,
 } from "@/lib/preloaderSession";
 
@@ -25,6 +24,7 @@ function revealHomeWithoutPreloader(pageContentRef) {
 /**
  * HomeHero
  * 負責：Preloader 狀態、Lenis 滾動鎖定、Hero 影片區、GSAP 文字動畫、頁面內容淡入
+ * SEO：爬蟲略過 Preloader；主內容始終在 DOM（不 display:none）
  * @param {{ pageContentRef: React.RefObject }} props
  */
 export default function HomeHero({ pageContentRef }) {
@@ -33,7 +33,7 @@ export default function HomeHero({ pageContentRef }) {
   const [skipIntroAnimations, setSkipIntroAnimations] = useState(false);
   const lenis = useLenis();
 
-  // 重新整理 → 顯示 Preloader；站內再回首頁 → 略過
+  // 重新整理 → 顯示 Preloader；爬蟲／減少動態／站內再回 → 略過
   useEffect(() => {
     if (shouldShowHomePreloader()) {
       setPreloaderMounted(true);
@@ -44,13 +44,11 @@ export default function HomeHero({ pageContentRef }) {
     requestAnimationFrame(() => revealHomeWithoutPreloader(pageContentRef));
   }, [pageContentRef]);
 
-  // 🌟 Lenis 滾動鎖定 / 解鎖 (已修復：移除 overflow: hidden)
+  // Lenis 滾動鎖定 / 解鎖
   useEffect(() => {
     if (!introFinished) {
-      // 只要畫面還在 Preloader 或動畫中，就停用 Lenis 滾動
       if (lenis) lenis.stop();
     } else {
-      // 動畫結束，恢復滾動
       if (lenis) lenis.start();
     }
   }, [introFinished, lenis]);
@@ -78,7 +76,6 @@ export default function HomeHero({ pageContentRef }) {
           opacity: 1,
           duration: 1,
           onComplete: () => {
-            // 動畫播完後，強制重新計算所有 ScrollTrigger 觸發點
             ScrollTrigger.refresh();
           },
         },
@@ -86,7 +83,6 @@ export default function HomeHero({ pageContentRef }) {
       );
   }, [introFinished, skipIntroAnimations]);
 
-  // 圖片載入後再算一次 ScrollTrigger（避免監聽 body 造成 refresh 迴圈卡死）
   useEffect(() => {
     if (!introFinished || !pageContentRef.current) return;
 
@@ -127,24 +123,33 @@ export default function HomeHero({ pageContentRef }) {
     <>
       {preloaderMounted && <Preloader onComplete={handlePreloaderComplete} />}
 
-      <section className="relative w-full h-screen overflow-hidden bg-black z-0">
+      <section
+        className="relative z-0 h-screen w-full overflow-hidden bg-black"
+        aria-label="昔馬電動刮鬍刀首頁主視覺"
+      >
         <video
-          className="absolute inset-0 w-full h-full object-cover opacity-70"
+          className="absolute inset-0 h-full w-full object-cover opacity-70"
           src="/video/威柏.mp4"
           autoPlay
           loop
           muted
           playsInline
+          // 爬蟲不依賴影片；標題文字才是 SEO 主體
+          aria-hidden
         />
 
-        <div className="absolute inset-0 z-10 flex flex-col items-start justify-center pl-[13%] px-4 text-left pointer-events-none">
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-start justify-center px-4 pl-[13%] text-left">
           <div className="mt-3 flex flex-col items-start justify-start text-left">
-            <b className="text-white font-light  text-4xl xl:text-7xl">
-              秒懂男仕的禮物
-            </b>
-            <b className="text-white font-light text-[22px] xl:text-[26px]">
-              星座系列　重磅上市
-            </b>
+            {/* 首頁唯一 h1：給 SEO／無障礙；視覺維持原設計 */}
+            <h1 className="hero-title text-left font-light text-white">
+              <span className="block text-4xl xl:text-7xl">秒懂男仕的禮物</span>
+              <span className="hero-sub mt-1 block text-[22px] font-light xl:text-[26px]">
+                星座系列　重磅上市
+              </span>
+              <span className="sr-only">
+                ｜昔馬電動刮鬍刀 SMASMALL 台灣官方網站
+              </span>
+            </h1>
           </div>
         </div>
       </section>

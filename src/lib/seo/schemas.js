@@ -6,6 +6,7 @@ import {
   ogImageUrl,
   SEO_CONFIG,
   SITE_PRIMARY_NAV,
+  SITE_SITELINKS_NAV,
 } from "@/lib/seo/config";
 
 const SCHEMA_CONTEXT = "https://schema.org";
@@ -55,43 +56,88 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     url: orgUrl,
     logo: {
       "@type": "ImageObject",
+      "@id": `${siteUrl}/#organization-logo`,
       url: absoluteUrl(siteUrl, organization.logoPath),
+      contentUrl: absoluteUrl(siteUrl, organization.logoPath),
+      width: 512,
+      height: 512,
+      caption: organization.name,
     },
     image: absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage),
     description: organization.description,
     email: organization.email,
     telephone: organization.telephone,
+    faxNumber: organization.fax,
     address: postalAddress,
-    contactPoint,
+    contactPoint: [
+      contactPoint,
+      {
+        "@type": "ContactPoint",
+        contactType: "sales",
+        telephone: organization.telephone,
+        email: organization.email,
+        areaServed: SEO_CONFIG.areaServed,
+        availableLanguage: [SEO_CONFIG.inLanguage, "en"],
+      },
+    ],
     brand: { "@id": ids.brand },
     sameAs,
+    areaServed: {
+      "@type": "Country",
+      name: "Taiwan",
+      identifier: "TW",
+    },
+    knowsAbout: [
+      "電動刮鬍刀",
+      "男士理容",
+      "合金工藝",
+      "磁吸刀頭",
+      "IPX7防水",
+      "SMASMALL",
+    ],
   };
 
   const localBusinessNode = {
-    "@type": "Store",
+    "@type": ["Store", "LocalBusiness"],
     "@id": ids.localBusiness,
     name: `${organization.name}｜${brand.name}台灣總代理`,
+    alternateName: ["昔馬台灣總代理", "威柏科技太保營運據點"],
     description: organization.description,
     url: siteUrl,
     telephone: organization.telephone,
     email: organization.email,
-    image: absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage),
+    image: [
+      absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage),
+      absoluteUrl(siteUrl, brand.logoPath),
+    ],
     priceRange: "$$",
     currenciesAccepted: "TWD",
-    paymentAccepted: "Cash, Credit Card, Line Pay",
+    paymentAccepted: "Cash, Credit Card, Line Pay, Bank Transfer",
     address: postalAddress,
     geo: geoCoordinates,
     hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
       `${geo.addressRegion}${geo.addressLocality}${geo.streetAddress}`,
     )}`,
     openingHoursSpecification,
-    areaServed: {
-      "@type": "Country",
-      name: "Taiwan",
-    },
+    areaServed: [
+      {
+        "@type": "Country",
+        name: "Taiwan",
+        identifier: "TW",
+      },
+      {
+        "@type": "AdministrativeArea",
+        name: geo.addressRegion,
+      },
+      {
+        "@type": "City",
+        name: geo.addressLocality,
+      },
+    ],
     parentOrganization: { "@id": ids.organization },
     brand: { "@id": ids.brand },
     sameAs,
+    isAccessibleForFree: true,
   };
 
   const brandNode = {
@@ -101,12 +147,16 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     alternateName: brand.alternateName,
     logo: absoluteUrl(siteUrl, brand.logoPath),
     description: brand.description,
+    url: siteUrl,
+    slogan: "讓每天的儀容成為一種講究",
+    sameAs,
   };
 
   const websiteNode = {
     "@type": "WebSite",
     "@id": ids.website,
-    url: siteUrl,
+    // 與 canonical 首頁一致（含結尾 /），利於 Google Site Name
+    url: `${siteUrl}/`,
     name: SEO_CONFIG.siteName,
     alternateName: SEO_CONFIG.siteAlternateName,
     description: brand.description,
@@ -117,11 +167,43 @@ export function buildCoreEntityGraph(siteUrl = getSiteUrl()) {
     /** 搜尋結果站點圖示：用符合 Google 規範的正方形 192px icon */
     thumbnailUrl: absoluteUrl(siteUrl, "/icon-192.png"),
     image: absoluteUrl(siteUrl, "/icon-192.png"),
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteUrl}/accessories?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return {
     "@context": SCHEMA_CONTEXT,
     "@graph": [websiteNode, organizationNode, localBusinessNode, brandNode],
+  };
+}
+
+/**
+ * Google Site Name 專用標記（官方建議放在首頁）
+ * name = 搜尋結果 favicon 旁顯示的網站名稱
+ */
+export function buildSiteNameSchema(siteUrl = getSiteUrl()) {
+  return {
+    "@context": SCHEMA_CONTEXT,
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    name: SEO_CONFIG.siteName,
+    alternateName: SEO_CONFIG.siteAlternateName,
+    url: `${siteUrl}/`,
+    inLanguage: SEO_CONFIG.inLanguage,
+    publisher: {
+      "@type": "Organization",
+      name: SEO_CONFIG.organization.name,
+      logo: {
+        "@type": "ImageObject",
+        url: absoluteUrl(siteUrl, SEO_CONFIG.brand.logoPath),
+      },
+    },
   };
 }
 
@@ -133,6 +215,7 @@ export function buildSiteNavigationNodes(siteUrl = getSiteUrl()) {
     "@type": "SiteNavigationElement",
     "@id": `${siteUrl}/#nav${item.path.replace(/\//g, "-") || "-home"}`,
     name: item.name,
+    description: item.description || undefined,
     url: absoluteUrl(siteUrl, item.path),
     isPartOf: { "@id": ids.website },
     position: index + 1,
@@ -154,7 +237,41 @@ export function buildSiteNavigationNodes(siteUrl = getSiteUrl()) {
     })),
   };
 
-  return { navigationList, navigationElements };
+  /** 專給 Google Sitelinks 的精簡 ItemList（短名稱、高權重頁） */
+  const sitelinksElements = SITE_SITELINKS_NAV.map((item, index) => ({
+    "@type": "SiteNavigationElement",
+    "@id": `${siteUrl}/#sitelink${item.path.replace(/\//g, "-")}`,
+    name: item.name,
+    description: item.description,
+    url: absoluteUrl(siteUrl, item.path),
+    isPartOf: { "@id": ids.website },
+    position: index + 1,
+  }));
+
+  const sitelinksList = {
+    "@type": "ItemList",
+    "@id": `${siteUrl}/#sitelinks`,
+    name: "SMASMALL 昔馬 網站快速連結",
+    description:
+      "官方網站主要服務入口：系列商品、產品列表、品牌介紹、文章、門市、支援與聯絡",
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: sitelinksElements.length,
+    itemListElement: sitelinksElements.map((element, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: element.name,
+      description: element.description,
+      url: element.url,
+      item: absoluteUrl(siteUrl, SITE_SITELINKS_NAV[index].path),
+    })),
+  };
+
+  return {
+    navigationList,
+    navigationElements,
+    sitelinksList,
+    sitelinksElements,
+  };
 }
 
 /** 首頁主要導覽（SiteNavigationElement + ItemList，協助搜尋引擎理解站內重要頁面） */
@@ -493,14 +610,39 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
 export function buildHomePageSchemas({
   siteUrl = getSiteUrl(),
   faqs = [],
+  seriesLinks = [],
 } = {}) {
   const ids = entityIds(siteUrl);
   const core = buildCoreEntityGraph(siteUrl);
-  const { navigationList, navigationElements } = buildSiteNavigationNodes(siteUrl);
+  const {
+    navigationList,
+    navigationElements,
+    sitelinksList,
+    sitelinksElements,
+  } = buildSiteNavigationNodes(siteUrl);
 
+  const sitelinkUrls = SITE_SITELINKS_NAV.map((item) =>
+    absoluteUrl(siteUrl, item.path),
+  );
   const navUrls = SITE_PRIMARY_NAV.map((item) =>
     absoluteUrl(siteUrl, item.path),
   );
+
+  const seriesLinkUrls = (Array.isArray(seriesLinks) ? seriesLinks : [])
+    .slice(0, 8)
+    .map((item) => {
+      if (typeof item?.href === "string" && item.href.startsWith("http")) {
+        return item.href;
+      }
+      if (typeof item?.href === "string" && item.href.startsWith("/")) {
+        return absoluteUrl(siteUrl, item.href);
+      }
+      if (item?.slug) {
+        return absoluteUrl(siteUrl, `/series/${encodeURIComponent(item.slug)}`);
+      }
+      return null;
+    })
+    .filter(Boolean);
 
   const homepageTitle =
     "昔馬 SMASMALL 電動刮鬍刀禮盒｜送禮首選・原廠保固 - 威柏 WEIBO";
@@ -508,39 +650,69 @@ export function buildHomePageSchemas({
     "讓每天的儀容成為一種講究。昔馬 SMASMALL 全機鋅合金電動刮鬍刀，森田愛用、2024 網路熱門刮鬍刀領導品牌，多款禮盒附質感包裝，送禮自用皆宜，享原廠 12 個月保固。台灣總代理威柏科技，營運據點嘉義縣太保市。";
 
   const webPage = {
-    "@type": "WebPage",
+    "@type": ["WebPage", "CollectionPage"],
     "@id": `${siteUrl}/#webpage`,
     url: siteUrl,
     name: homepageTitle,
+    headline: homepageTitle,
     description: homepageDescription,
     inLanguage: SEO_CONFIG.inLanguage,
     isPartOf: { "@id": ids.website },
     about: [{ "@id": ids.brand }, { "@id": ids.localBusiness }],
+    mentions: [
+      { "@id": ids.brand },
+      { "@id": ids.organization },
+      { "@id": ids.localBusiness },
+    ],
     publisher: { "@id": ids.organization },
+    author: { "@id": ids.organization },
+    copyrightHolder: { "@id": ids.organization },
     primaryImageOfPage: {
       "@type": "ImageObject",
       url: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
       width: 1200,
       height: 630,
+      caption: "SMASMALL 昔馬全合金電動刮鬍刀",
     },
+    image: absoluteUrl(siteUrl, ogImageUrl("/images/og-1.jpg")),
+    dateModified: new Date().toISOString().slice(0, 10),
     speakable: {
       "@type": "SpeakableSpecification",
-      cssSelector: ["h1", "h2", "[data-seo-speakable]"],
+      cssSelector: ["h1", "h2", "[data-seo-speakable]", "[data-sitelinks-nav]"],
     },
     spatialCoverage: {
       "@type": "Country",
       name: "Taiwan",
+      identifier: "TW",
     },
-    relatedLink: navUrls,
+    contentLocation: {
+      "@type": "Place",
+      name: `${SEO_CONFIG.geo.addressRegion}${SEO_CONFIG.geo.addressLocality}`,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: SEO_CONFIG.geo.addressLocality,
+        addressRegion: SEO_CONFIG.geo.addressRegion,
+        addressCountry: "TW",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: SEO_CONFIG.geo.latitude,
+        longitude: SEO_CONFIG.geo.longitude,
+      },
+    },
+    relatedLink: [...new Set([...sitelinkUrls, ...navUrls, ...seriesLinkUrls])],
     significantLink: [
-      absoluteUrl(siteUrl, "/series"),
-      absoluteUrl(siteUrl, "/accessories"),
-      absoluteUrl(siteUrl, "/brand"),
-      absoluteUrl(siteUrl, "/support"),
-      absoluteUrl(siteUrl, "/contact"),
-      ...navigationElements.map((el) => ({ "@id": el["@id"] })),
+      ...sitelinkUrls,
+      ...sitelinksElements.map((el) => ({ "@id": el["@id"] })),
     ],
-    hasPart: { "@id": ids.siteNavigation },
+    hasPart: [
+      { "@id": `${siteUrl}/#sitelinks` },
+      { "@id": ids.siteNavigation },
+    ],
+    mainContentOfPage: {
+      "@type": "WebPageElement",
+      cssSelector: "[data-seo-speakable], main, h1",
+    },
   };
 
   const breadcrumb = buildBreadcrumbList(siteUrl, [
@@ -552,7 +724,10 @@ export function buildHomePageSchemas({
       return {
         ...node,
         mainEntity: { "@id": `${siteUrl}/#webpage` },
-        hasPart: { "@id": ids.siteNavigation },
+        hasPart: [
+          { "@id": `${siteUrl}/#sitelinks` },
+          { "@id": ids.siteNavigation },
+        ],
       };
     }
     return node;
@@ -560,6 +735,8 @@ export function buildHomePageSchemas({
 
   const graph = [
     ...enhancedGraph,
+    sitelinksList,
+    ...sitelinksElements,
     navigationList,
     ...navigationElements,
     webPage,
@@ -578,7 +755,9 @@ export function buildHomePageSchemas({
         acceptedAnswer: { "@type": "Answer", text: faq.answer },
       })),
     });
-    webPage.mainEntity = { "@id": `${siteUrl}/#faq` };
+    webPage.mainEntity = [{ "@id": `${siteUrl}/#faq` }, { "@id": `${siteUrl}/#sitelinks` }];
+  } else {
+    webPage.mainEntity = { "@id": `${siteUrl}/#sitelinks` };
   }
 
   return {

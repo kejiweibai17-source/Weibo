@@ -91,7 +91,7 @@ const BRAND_LOGOS = [
   },
   {
     name: "FRAMULA",
-    sub: "芬乘®",
+    sub: "",
     logoClass:
       "text-[16px] md:text-[18px] font-extrabold tracking-[0.1em] text-slate-900",
     image: asset("P4 芬乘.jpg"),

@@ -70,7 +70,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AccessoriesPage() {
+export default async function AccessoriesPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string };
+}) {
   let products = [];
   let productFilters = COMPATIBILITY_OPTIONS;
   let accessoryFilters = CATEGORY_OPTIONS;
@@ -88,6 +92,8 @@ export default async function AccessoriesPage() {
   }
 
   const schemas = buildAccessoriesCollectionSchemas(products, SITE_URL);
+  const initialQuery =
+    typeof searchParams?.q === "string" ? searchParams.q : "";
 
   return (
     <>
@@ -97,6 +103,7 @@ export default async function AccessoriesPage() {
         productFilters={productFilters}
         accessoryFilters={accessoryFilters}
         filtersFromWoo={filtersFromWoo}
+        initialQuery={initialQuery}
       />
     </>
   );

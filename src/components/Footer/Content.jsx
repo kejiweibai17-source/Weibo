@@ -198,10 +198,11 @@ const Section2 = () => {
       <div className="max-w-[1400px] mx-auto">
         {/* 頂部 Logo (置中) */}
         <div className="flex justify-center mb-12 md:mb-20">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2" aria-label="昔馬電動刮鬍刀首頁">
             <span className="text-3xl font-light tracking-[0.25em] text-black uppercase">
               SMASMALL
             </span>
+            <span className="sr-only">昔馬電動刮鬍刀</span>
           </Link>
         </div>
 
@@ -213,6 +214,14 @@ const Section2 = () => {
               About us
             </h4>
             <ul className="space-y-3 md:space-y-4">
+              <li>
+                <Link
+                  href="/about"
+                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
+                >
+                  關於威柏科技
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/weibo"
