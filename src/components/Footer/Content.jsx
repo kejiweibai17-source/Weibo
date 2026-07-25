@@ -216,14 +216,6 @@ const Section2 = () => {
             <ul className="space-y-3 md:space-y-4">
               <li>
                 <Link
-                  href="/about"
-                  className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
-                >
-                  關於威柏科技
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/weibo"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
