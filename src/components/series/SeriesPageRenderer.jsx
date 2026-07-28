@@ -19,8 +19,10 @@ function renderBlock(block, index) {
     case "parallax_hero":
       return <SeriesParallaxHero key={`parallax-${index}`} {...block} />;
     case "text_banner":
+      if (block.enabled === false) return null;
       return <SeriesTextBanner key={`banner-${index}`} {...block} />;
     case "product_video":
+      if (block.enabled === false) return null;
       return <SeriesProductVideo key={`video-${index}`} {...block} />;
     default:
       return null;

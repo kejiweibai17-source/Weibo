@@ -189,10 +189,13 @@ function normalizeBlock(raw: unknown): SeriesBlock | null {
   }
 
   if (type === "text_banner") {
+    const enabled = row.enabled !== false && row.enabled !== 0 && row.enabled !== "0";
+    if (!enabled) return null;
     const body = typeof row.body === "string" ? row.body.trim() : "";
     if (!body) return null;
     return {
       type,
+      enabled: true,
       backgroundColor:
         typeof row.backgroundColor === "string" ? row.backgroundColor : "#ea580c",
       heading: typeof row.heading === "string" ? row.heading : "",
@@ -201,12 +204,15 @@ function normalizeBlock(raw: unknown): SeriesBlock | null {
   }
 
   if (type === "product_video") {
+    const enabled = row.enabled !== false && row.enabled !== 0 && row.enabled !== "0";
+    if (!enabled) return null;
     const productImage =
       typeof row.productImage === "string" ? row.productImage.trim() : "";
     const youtubeId = parseVideoId(row.youtubeId ?? row.videoUrl);
     if (!productImage || !youtubeId) return null;
     return {
       type,
+      enabled: true,
       sectionTitle: typeof row.sectionTitle === "string" ? row.sectionTitle : "CALIBRE AMB+",
       sectionSubtitle: typeof row.sectionSubtitle === "string" ? row.sectionSubtitle : "",
       productImage,

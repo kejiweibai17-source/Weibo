@@ -57,6 +57,8 @@ export type SeriesParallaxHeroBlock = {
 
 export type SeriesTextBannerBlock = {
   type: "text_banner";
+  /** 後台可關閉；缺省視為顯示 */
+  enabled?: boolean;
   backgroundColor?: string;
   heading?: string;
   body: string;
@@ -64,6 +66,8 @@ export type SeriesTextBannerBlock = {
 
 export type SeriesProductVideoBlock = {
   type: "product_video";
+  /** 後台可關閉；缺省視為顯示 */
+  enabled?: boolean;
   sectionTitle?: string;
   sectionSubtitle?: string;
   productImage: string;

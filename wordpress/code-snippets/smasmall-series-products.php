@@ -9,7 +9,8 @@
  *
  * 貼到 WordPress「Code Snippets」→ Run everywhere → 啟用
  *
- * 版本：1.5.0
+ * 版本：1.5.2
+ * - 背景文字、產品影片區塊可開關「前台顯示」
  * - 列表查詢不再用 meta_key，避免新系列被排除
  * - REST items 回傳 image / description（供 /series 列表主圖）
  * - 列表也回傳 featuredImage（不需 include_blocks）
@@ -149,6 +150,7 @@ function smasmall_series_default_block(string $type): array
         case 'text_banner':
             return [
                 'type'            => 'text_banner',
+                'enabled'         => true,
                 'backgroundColor' => '#ea580c',
                 'heading'         => '',
                 'body'            => '',
@@ -156,6 +158,7 @@ function smasmall_series_default_block(string $type): array
         case 'product_video':
             return [
                 'type'             => 'product_video',
+                'enabled'          => true,
                 'sectionTitle'     => 'CALIBRE AMB+',
                 'sectionSubtitle'  => '',
                 'productImage'     => '',
@@ -409,22 +412,28 @@ function smasmall_series_sanitize_blocks($input, bool $allow_empty = false): arr
                 break;
 
             case 'text_banner':
+                // 舊資料無 enabled 欄位時預設顯示；後台用 hidden+checkbox 確保取消勾選會送 0
+                $enabled = !array_key_exists('enabled', $block) || !empty($block['enabled']);
                 $body = sanitize_textarea_field($block['body'] ?? '');
-                if (!$allow_empty && $body === '') {
+                if (!$allow_empty && (!$enabled || $body === '')) {
                     continue 2;
                 }
+                $item['enabled'] = $enabled;
                 $item['backgroundColor'] = sanitize_hex_color($block['backgroundColor'] ?? '') ?: '#ea580c';
                 $item['heading'] = sanitize_text_field($block['heading'] ?? '');
                 $item['body'] = $body;
                 break;
 
             case 'product_video':
+                // 舊資料無 enabled 欄位時預設顯示；後台用 hidden+checkbox 確保取消勾選會送 0
+                $enabled = !array_key_exists('enabled', $block) || !empty($block['enabled']);
                 $product_image = esc_url_raw($block['productImage'] ?? '');
                 $video_raw = (string) ($block['videoUrl'] ?? ($block['youtubeId'] ?? ''));
                 $video_id = smasmall_series_parse_video_id($video_raw);
-                if (!$allow_empty && ($product_image === '' || $video_id === '')) {
+                if (!$allow_empty && (!$enabled || $product_image === '' || $video_id === '')) {
                     continue 2;
                 }
+                $item['enabled'] = $enabled;
                 $item['sectionTitle'] = sanitize_text_field($block['sectionTitle'] ?? 'CALIBRE AMB+');
                 $item['sectionSubtitle'] = sanitize_text_field($block['sectionSubtitle'] ?? '');
                 $item['productImage'] = $product_image;
@@ -1172,9 +1181,9 @@ function smasmall_series_block_help_text(string $type): string
         case 'parallax_hero':
             return '對應詳細頁視覺差滾動首段。需主標題與背景圖。';
         case 'text_banner':
-            return '對應詳細頁橘色背景文字區塊。';
+            return '對應詳細頁橘色背景文字區塊。可關閉「前台顯示」隱藏整段，不必清空內容。';
         case 'product_video':
-            return '對應詳細頁產品展示與影片彈窗。需產品主圖與 YouTube 網址。';
+            return '對應詳細頁產品展示與影片彈窗。需產品主圖與 YouTube 網址。可關閉「前台顯示」隱藏整段，不必清空內容。';
         default:
             return '';
     }
@@ -1460,7 +1469,15 @@ function smasmall_series_render_block_body(string $type, array $block, int $inde
     }
 
     if ($type === 'text_banner') {
+        $banner_enabled = !array_key_exists('enabled', $block) || !empty($block['enabled']);
         ?>
+        <p>
+            <input type="hidden" name="<?php echo esc_attr($prefix); ?>[enabled]" value="0" />
+            <label>
+                <input type="checkbox" name="<?php echo esc_attr($prefix); ?>[enabled]" value="1" <?php checked($banner_enabled); ?> />
+                在前台顯示此背景文字區塊
+            </label>
+        </p>
         <p><label>背景色</label><br />
             <input type="text"
                    class="sms-color-picker"
@@ -1476,7 +1493,15 @@ function smasmall_series_render_block_body(string $type, array $block, int $inde
     }
 
     if ($type === 'product_video') {
+        $video_enabled = !array_key_exists('enabled', $block) || !empty($block['enabled']);
         ?>
+        <p>
+            <input type="hidden" name="<?php echo esc_attr($prefix); ?>[enabled]" value="0" />
+            <label>
+                <input type="checkbox" name="<?php echo esc_attr($prefix); ?>[enabled]" value="1" <?php checked($video_enabled); ?> />
+                在前台顯示此影片區塊
+            </label>
+        </p>
         <p><label>區塊標題</label><br />
             <input type="text" class="regular-text" name="<?php echo esc_attr($prefix); ?>[sectionTitle]" value="<?php echo esc_attr($block['sectionTitle'] ?? 'CALIBRE AMB+'); ?>" /></p>
         <p><label>區塊副標</label><br />
