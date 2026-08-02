@@ -2,6 +2,10 @@ import {
   ARTICLE_PAGE_FALLBACK,
   type ArticlePageData,
 } from "@/data/articlePageFallback";
+import {
+  mediaUrlWithoutQuery,
+  normalizeMediaUrl,
+} from "@/lib/wordpress/normalizeMediaUrl";
 
 function stripHtml(html: string) {
   return html
@@ -18,11 +22,31 @@ function stripHtml(html: string) {
     .trim();
 }
 
-/** 清理文章主體 HTML：移除 &nbsp; 等特殊符號，但保留 HTML 標籤 */
+/** 清理文章主體 HTML：移除 &nbsp;、修正 img src 的 &#038; 實體 */
 function cleanBodyHtml(html: string) {
   return html
     .replace(/&nbsp;/gi, " ")
-    .replace(/\u00a0/g, " ");
+    .replace(/\u00a0/g, " ")
+    .replace(
+      /(<img\b[^>]*?\bsrc=["'])([^"']+)(["'])/gi,
+      (_, pre, src, post) => `${pre}${normalizeMediaUrl(src) || src}${post}`,
+    )
+    .replace(
+      /(<img\b[^>]*?\bsrcset=["'])([^"']+)(["'])/gi,
+      (_, pre, srcset, post) => {
+        const cleaned = srcset
+          .split(",")
+          .map((part: string) => {
+            const trimmed = part.trim();
+            if (!trimmed) return trimmed;
+            const [u, ...rest] = trimmed.split(/\s+/);
+            const fixed = normalizeMediaUrl(u) || u;
+            return [fixed, ...rest].join(" ");
+          })
+          .join(", ");
+        return `${pre}${cleaned}${post}`;
+      },
+    );
 }
 
 function getPostImage(post: {
@@ -47,7 +71,7 @@ function getPostImage(post: {
     if (imgMatch?.[1]) rawUrl = imgMatch[1];
   }
 
-  return rawUrl ? rawUrl.split("?")[0] : undefined;
+  return mediaUrlWithoutQuery(rawUrl);
 }
 
 /** 從 WordPress post 合併區塊資料；ACF 尚未設定時以假資料補齊 */
@@ -113,7 +137,10 @@ export function mapWordPressPostToArticlePage(
         wpExcerpt ||
         fallback.hero.description,
       footnote: (acf.hero_footnote as string) || fallback.hero.footnote,
-      image: (acf.hero_image as string) || featuredImage || fallback.hero.image,
+      image:
+        normalizeMediaUrl(acf.hero_image as string) ||
+        featuredImage ||
+        fallback.hero.image,
     },
     
   };

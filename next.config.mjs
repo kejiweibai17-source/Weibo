@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: false,
 
   images: {
+    // Vercel Image Optimization 已觸發 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED（402），
+    // 暫關閉優化，改由瀏覽器直接載入原圖，避免全站 next/image 變成死圖。
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

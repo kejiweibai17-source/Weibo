@@ -5,6 +5,7 @@ import {
   type BlogPostCard,
 } from "@/data/blogPageFallback";
 import { blogPostPath } from "@/lib/utils";
+import { mediaUrlWithoutQuery } from "@/lib/wordpress/normalizeMediaUrl";
 
 function decodeHtmlEntities(text: string) {
   return text
@@ -51,7 +52,7 @@ export function getPostImage(post: {
     if (imgMatch?.[1]) rawUrl = imgMatch[1];
   }
 
-  return rawUrl ? rawUrl.split("?")[0] : "/images/003-01.png";
+  return mediaUrlWithoutQuery(rawUrl) || "/images/003-01.png";
 }
 
 function truncateText(text: string, max: number) {

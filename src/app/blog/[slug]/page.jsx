@@ -13,6 +13,7 @@ import {
   blogPostPath,
   normalizeRouteSlug,
 } from "@/lib/utils";
+import { mediaUrlWithoutQuery } from "@/lib/wordpress/normalizeMediaUrl";
 
 const SITE_URL = getSiteUrl();
 
@@ -40,7 +41,7 @@ function getPostImage(post) {
     const imgMatch = post.content.rendered.match(/<img[^>]+src="([^">]+)"/);
     if (imgMatch?.[1]) rawUrl = imgMatch[1];
   }
-  return rawUrl ? rawUrl.split("?")[0] : SEO_CONFIG.defaultOgImage;
+  return mediaUrlWithoutQuery(rawUrl) || SEO_CONFIG.defaultOgImage;
 }
 
 function getPostTerms(post, taxonomy) {
@@ -169,7 +170,7 @@ function getRelatedPostImage(post) {
     featuredMedia?.media_details?.sizes?.medium?.source_url ||
     featuredMedia?.source_url ||
     "";
-  return rawUrl ? rawUrl.split("?")[0] : "/images/003-01.png";
+  return mediaUrlWithoutQuery(rawUrl) || "/images/003-01.png";
 }
 
 async function getRelatedPosts(currentSlug) {

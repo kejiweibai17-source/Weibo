@@ -206,6 +206,27 @@
   max-width: 100%;
   width: 100%;
 }
+/*
+ * WordPress 用 size-full / size-large 等表示「媒體尺寸」；
+ * Tailwind 的 .size-* 卻是 width+height utility（size-full = height:100%）。
+ * 兩者 class 名衝突會把 figure 撐成父層高度 → 文章破版、訂閱區疊圖。
+ */
+.wp-content .size-full,
+.wp-content .size-large,
+.wp-content .size-medium,
+.wp-content .size-thumbnail,
+.wp-content .wp-block-image[class*="size-"],
+.wp-content figure[class*="size-"] {
+  height: auto !important;
+  max-height: none !important;
+}
+.wp-content .wp-block-image.size-full,
+.wp-content .wp-block-image.size-large,
+.wp-content .wp-block-image.size-medium,
+.wp-content figure.wp-block-image {
+  width: 100%;
+  height: auto !important;
+}
 /* 內容圖滿欄寬；高度隨比例，不超出欄寬／不破版 */
 .wp-content .wp-block-image img {
   width: 100% !important;
@@ -256,12 +277,14 @@
 }
 /* 縮圖維持小尺寸；其餘內容圖滿欄寬 */
 .wp-content .size-thumbnail {
-  width: auto;
+  width: auto !important;
   max-width: min(150px, 100%);
+  height: auto !important;
 }
 .wp-content .size-thumbnail img {
   width: auto !important;
   max-width: min(150px, 100%) !important;
+  height: auto !important;
 }
 .wp-content .size-medium img,
 .wp-content .size-large img,

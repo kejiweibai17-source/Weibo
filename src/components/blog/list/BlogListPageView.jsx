@@ -8,10 +8,6 @@ import { blogPostPath } from "@/lib/utils";
 
 const ANKER_BLUE = "#1a5cff";
 
-function isRemoteImage(src) {
-  return typeof src === "string" && /^https?:\/\//.test(src);
-}
-
 function ConfidenceIcon({ type }) {
   const icons = {
     truck: (
@@ -71,7 +67,7 @@ function MomentsSection({ moments }) {
                 src={item.image}
                 alt={item.title || "理容場景"}
                 fill
-                unoptimized={isRemoteImage(item.image)}
+                unoptimized
                 quality={95}
                 className="object-cover"
                 sizes="(max-width: 768px) 85vw, 400px"
@@ -114,7 +110,7 @@ function MomentsSection({ moments }) {
                   src={item.image}
                   alt={item.title || "理容場景"}
                   fill
-                  unoptimized={isRemoteImage(item.image)}
+                  unoptimized
                   quality={95}
                   priority={i < 2}
                   className="object-cover"
@@ -162,7 +158,7 @@ function SelectionCard({ post }) {
           src={post.image}
           alt={post.title}
           fill
-          unoptimized={isRemoteImage(post.image)}
+          unoptimized
           quality={95}
           className="object-cover"
           sizes="(max-width: 768px) 100vw, 400px"

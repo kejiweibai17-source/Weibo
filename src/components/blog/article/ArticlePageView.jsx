@@ -6,6 +6,7 @@ import { Link } from "next-view-transitions";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { blogPostPath } from "@/lib/utils";
+import { normalizeMediaUrl } from "@/lib/wordpress/normalizeMediaUrl";
 import "./wp-content.css";
 
 const ACTION_BLUE = "#0071e3";
@@ -81,10 +82,12 @@ function extractImages(html, limit = 6) {
   const re = /<img[^>]+src="([^">]+)"/g;
   let m;
   while ((m = re.exec(html)) !== null) {
-    const url = m[1].split("?")[0];
-    if (!seen.has(url)) {
-      seen.add(url);
-      urls.push(m[1]);
+    const cleaned = normalizeMediaUrl(m[1]);
+    if (!cleaned) continue;
+    const key = cleaned.split("?")[0];
+    if (!seen.has(key)) {
+      seen.add(key);
+      urls.push(cleaned);
     }
     if (urls.length >= limit) break;
   }
@@ -99,6 +102,8 @@ function ProductGallery({ images, title }) {
   const goPrev = () => setIndex((i) => (i - 1 + total) % total);
   const goNext = () => setIndex((i) => (i + 1) % total);
 
+  if (!activeImage) return null;
+
   return (
     <div>
       <div className="relative aspect-square w-full overflow-hidden rounded-[20px] md:rounded-[28px]">
@@ -107,6 +112,7 @@ function ProductGallery({ images, title }) {
           alt={title}
           fill
           priority
+          unoptimized
           className="object-contain"
           sizes="(max-width: 1024px) 100vw, 60vw"
         />
@@ -187,6 +193,7 @@ function ProductGallery({ images, title }) {
                   src={img}
                   alt=""
                   fill
+                  unoptimized
                   className="object-contain"
                   sizes="72px"
                 />
@@ -295,14 +302,16 @@ function DuoCardsSection({ cards }) {
         {cards.map((card) => (
           <div
             key={card.title}
-            className="relative aspect-[4/4] overflow-hidden rounded-[28px] md:aspect-[4/4] md:rounded-[32px]"
+            className="relative aspect-[4/4] overflow-hidden rounded-[28px] bg-[#2a2a2a] md:aspect-[4/4] md:rounded-[32px]"
           >
-            <Image
+            {/* 靜態 public 圖直接用 img，避開正式站 /_next/image 402 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={card.image}
               alt={card.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
@@ -330,10 +339,6 @@ function DuoCardsSection({ cards }) {
       </div>
     </section>
   );
-}
-
-function isRemoteImage(src) {
-  return typeof src === "string" && /^https?:\/\//.test(src);
 }
 
 function formatBlogDate(dateStr) {
@@ -380,7 +385,7 @@ function RelatedPostCard({ post }) {
             src={post.image}
             alt={post.title}
             fill
-            unoptimized={isRemoteImage(post.image)}
+            unoptimized
             className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 380px"
           />
@@ -656,7 +661,7 @@ function RelatedArticlesSidebar({ posts }) {
                   src={post.image}
                   alt={post.title}
                   fill
-                  unoptimized={isRemoteImage(post.image)}
+                  unoptimized
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   sizes="64px"
                 />
