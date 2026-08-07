@@ -138,7 +138,6 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={schemas} />
-      <HomeSiteLinksNav seriesItems={seriesNavItems} />
       <Client
         faqs={homeFAQs}
         carouselSlides={carouselSlides}
@@ -147,6 +146,8 @@ export default async function Page() {
         bladeIntroSection={bladeIntroSection}
         productIntroSection={productIntroSection}
       />
+      {/* 可見快速連結：放在首頁主內容後、Footer 前，強化 Sitelinks 訊號 */}
+      <HomeSiteLinksNav seriesItems={seriesNavItems} />
     </>
   );
 }

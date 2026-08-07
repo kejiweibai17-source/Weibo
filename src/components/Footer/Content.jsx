@@ -227,7 +227,7 @@ const Section2 = () => {
                   href="/brand"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  昔馬品牌故事
+                  品牌介紹
                 </Link>
               </li>
               <li>
@@ -235,7 +235,7 @@ const Section2 = () => {
                   href="/blog"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  最新消息與專欄
+                  精選文章
                 </Link>
               </li>
             </ul>
@@ -276,7 +276,7 @@ const Section2 = () => {
                   href="/support"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  客戶支援中心
+                  客戶支援
                 </Link>
               </li>
             </ul>
