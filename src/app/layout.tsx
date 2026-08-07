@@ -1,11 +1,13 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import { GoogleTagManager } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import "./globals.css"; // CSS 在這裡引入
 import ClientLayout from "./ClientLayout"; // 引入剛剛拆分出去的組件
 import { getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+/** GA4 Measurement ID（可被 NEXT_PUBLIC_GA_ID 覆寫） */
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-F9BE74MJ8H";
 
 const SITE_URL = getSiteUrl();
 
@@ -107,6 +109,7 @@ export default function RootLayout({
     <html lang="zh-Hant">
       <body className="min-h-screen bg-white font-sans text-slate-900 antialiased">
         {GTM_ID ? <GoogleTagManager gtmId={GTM_ID} /> : null}
+        {GA_ID ? <GoogleAnalytics gaId={GA_ID} /> : null}
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
