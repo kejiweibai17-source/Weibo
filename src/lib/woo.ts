@@ -1,4 +1,5 @@
 import "server-only";
+import { toPublicProductSlug } from "@/lib/productPublicSlug";
 import { normalizeRouteSlug, productFetchCacheTag } from "@/lib/utils";
 
 export type WooImage = { id: number; src: string; alt?: string };
@@ -13,6 +14,7 @@ export type WooProduct = {
   id: number;
   name: string;
   slug: string;
+  sku?: string;
   permalink: string;
   price: string;
   regular_price?: string;
@@ -65,6 +67,7 @@ const mapWoo = (p: any): WooProduct => {
     id: p.id,
     name: p.name,
     slug: p.slug,
+    sku: typeof p.sku === "string" ? p.sku : "",
     permalink: p.permalink,
     price: p.price || p.regular_price || "0",
     regular_price: p.regular_price,
@@ -168,7 +171,11 @@ export async function fetchProductBySlug(slug: string) {
   const res = await fetch(url, {
     next: {
       revalidate: 60,
-      tags: ["products-all", productFetchCacheTag(normalizedSlug), "sitemap"],
+      tags: [
+        "products-all",
+        productFetchCacheTag(toPublicProductSlug(normalizedSlug)),
+        "sitemap",
+      ],
     },
   });
   if (!res.ok) return null;

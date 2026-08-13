@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import JsonLd from "@/components/seo/JsonLd";
 import { buildAccessoryCatalog } from "@/data/accessories.server";
 import {
+  ACCESSORY_PAGE_REVALIDATE,
   fetchAccessoryDetailBySlug,
   fetchAccessoriesFromWoo,
 } from "@/lib/accessoriesWoo.server";
+import { isAsciiSlug, toPublicProductSlug } from "@/lib/productPublicSlug";
 import { absoluteUrl, getSiteUrl, SEO_CONFIG } from "@/lib/seo/config";
 import { accessoryDetailPath, normalizeRouteSlug } from "@/lib/utils";
 import { buildAccessoryDetailSchemas } from "@/lib/seo/schemas";
@@ -13,19 +15,20 @@ import AccessoryDetailClient from "./AccessoryDetailClient";
 
 const SITE_URL = getSiteUrl();
 
-/**
- * 中文 slug 不可走 ISR：Next.js 會把路徑寫進 x-next-cache-tags，
- * 非 ASCII 字元會觸發 ERR_INVALID_CHAR → 正式環境 500。
- * @see https://github.com/vercel/next.js/issues/93142
- */
-export const dynamic = "force-dynamic";
+/** SSG：建置時預產英文 slug；ISR：每小時背景更新；後台 webhook 可立刻刷新 */
+export const revalidate = ACCESSORY_PAGE_REVALIDATE;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   try {
     const products = await fetchAccessoriesFromWoo();
-    return products.map((item) => ({ id: item.id }));
+    return products
+      .map((item) => ({ id: toPublicProductSlug(item.id) }))
+      .filter((item) => isAsciiSlug(item.id));
   } catch {
-    return buildAccessoryCatalog().map((item) => ({ id: item.id }));
+    return buildAccessoryCatalog()
+      .map((item) => ({ id: toPublicProductSlug(item.id) }))
+      .filter((item) => isAsciiSlug(item.id));
   }
 }
 
@@ -50,7 +53,7 @@ export async function generateMetadata({
     detail.shortDesc ||
     `昔馬 SMASMALL ${detail.title}。由台灣總代理威柏科技原廠授權，提供完善保固與售後。`;
   const ogImage = detail.images?.[0] ?? SEO_CONFIG.defaultOgImage;
-  const pageUrl = accessoryDetailPath(id);
+  const pageUrl = accessoryDetailPath(detail.id);
   const keywords = [
     "昔馬",
     "SMASMALL",
@@ -64,10 +67,21 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(SITE_URL),
-    title,
+    title: { absolute: title },
     description,
     keywords,
     alternates: { canonical: pageUrl },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     openGraph: {
       type: "website",
       locale: "zh_TW",
@@ -102,14 +116,19 @@ export default async function AccessoryDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  if (normalizeRouteSlug(id) !== normalizeRouteSlug(detail.id)) {
+    permanentRedirect(accessoryDetailPath(detail.id));
+  }
+
   const schemaSeed = {
     id: detail.id,
     title: detail.title,
-    category: "Misc",
-    series: "Defender",
-    imageFiles: [],
+    category: detail.category || "",
+    series: detail.series || "",
+    imageFiles: detail.images ?? [],
     detail: {
       shortDesc: detail.shortDesc,
+      images: detail.images ?? [],
       imageFiles: detail.images ?? [],
       features: detail.features ?? [],
       details: detail.details ?? "",
@@ -119,11 +138,33 @@ export default async function AccessoryDetailPage({ params }: PageProps) {
     },
   };
   const schemas = buildAccessoryDetailSchemas(schemaSeed, SITE_URL);
+  const featureText = (detail.features ?? [])
+    .map((feature) => {
+      const body =
+        feature.bullets?.length > 0
+          ? feature.bullets.join("、")
+          : feature.content || "";
+      return body ? `${feature.title}：${body}` : feature.title;
+    })
+    .filter(Boolean);
 
   return (
     <>
       <JsonLd data={schemas} />
-      <AccessoryDetailClient productId={id} />
+      <noscript>
+        <article>
+          <h1>{detail.title}</h1>
+          {detail.shortDesc ? <p>{detail.shortDesc}</p> : null}
+          {featureText.length > 0 ? (
+            <ul>
+              {featureText.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          ) : null}
+        </article>
+      </noscript>
+      <AccessoryDetailClient productId={detail.id} initialProduct={detail} />
     </>
   );
 }

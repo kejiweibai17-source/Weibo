@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { LEGACY_PRODUCT_SLUGS } from "@/lib/seriesProducts.legacy";
+import { toPublicProductSlug } from "@/lib/productPublicSlug";
 import { productFetchCacheTag } from "@/lib/utils";
 
 export type RevalidateType = "product" | "series" | "blog" | "sitemap" | "all";
@@ -61,8 +62,12 @@ export function revalidateProductCache(slug = ""): RevalidateResult {
   const paths = ["/accessories", "/sitemap.xml"];
 
   if (slug) {
-    tags.push(productFetchCacheTag(slug));
-    paths.push(`/accessories/${pathSegment(slug)}`);
+    const publicSlug = toPublicProductSlug(slug);
+    tags.push(productFetchCacheTag(publicSlug));
+    paths.push(`/accessories/${publicSlug}`);
+    if (slug !== publicSlug) {
+      tags.push(productFetchCacheTag(slug));
+    }
   }
 
   for (const tag of unique(tags)) revalidateTag(tag);

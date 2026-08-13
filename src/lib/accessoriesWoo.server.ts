@@ -6,6 +6,8 @@ import {
   type WooCategory,
   type WooProduct,
 } from "@/lib/woo";
+import { toPublicProductSlug } from "@/lib/productPublicSlug";
+import { normalizeRouteSlug } from "@/lib/utils";
 import {
   normalizeAccordionContent,
   parseContentBullets,
@@ -27,8 +29,12 @@ const ACCESSORY_ROOT_SLUGS = ["accessories"];
 
 export type AccessoryFilterOption = { label: string; value: string };
 
+/** 配件內頁 ISR 秒數（與系列頁一致；公開 slug 為 ASCII 才可快取） */
+export const ACCESSORY_PAGE_REVALIDATE = 3600;
+
 export type AccessoryListItem = {
   id: string;
+  wooSlug?: string;
   title: string;
   price: number;
   compatibility: string[];
@@ -542,7 +548,8 @@ function mapWooToAccessoryListItem(
     resolveCategoryGroups(product, productRoot, accessoryRoot, categories);
 
   return {
-    id: product.slug,
+    id: toPublicProductSlug(product.slug),
+    wooSlug: product.slug,
     title: product.name,
     price: Number(product.price || 0),
     compatibility: productGroup ? [productGroup] : [series],
@@ -603,10 +610,15 @@ export async function mapWooToAccessoryDetail(product: WooProduct) {
     product.name;
 
   const yoastSeo = extractYoastSeoFromProduct(product);
+  const series = toSeriesKey(product?.name, product?.categories || []);
+  const category = toCategoryKey(product?.name, product?.categories || []);
 
   return {
-    id: product.slug,
+    id: toPublicProductSlug(product.slug),
+    wooSlug: product.slug,
     title: product.name,
+    series,
+    category,
     price: Number(product.price || 0),
     rating: Number(product.average_rating || 4.7),
     reviews: Number(product.rating_count || 0),
@@ -646,8 +658,35 @@ export async function fetchAccessoriesFromWoo() {
   return products;
 }
 
+function matchesPublicSlug(product: WooProduct, slug: string): boolean {
+  const publicSlug = toPublicProductSlug(product.slug);
+  const sku = String(product.sku || "").trim().toLowerCase();
+  return (
+    product.slug === slug ||
+    publicSlug === slug ||
+    (sku !== "" && sku === slug.toLowerCase())
+  );
+}
+
+async function findWooProductByAnySlug(slug: string): Promise<WooProduct | null> {
+  const normalized = normalizeRouteSlug(slug);
+  if (!normalized) return null;
+
+  const direct = await fetchProductBySlug(normalized);
+  if (direct) return direct;
+
+  try {
+    const products = await fetchAllProducts();
+    return (
+      products.find((product) => matchesPublicSlug(product, normalized)) ?? null
+    );
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchAccessoryDetailBySlug(slug: string) {
-  const product = await fetchProductBySlug(slug);
+  const product = await findWooProductByAnySlug(slug);
   if (!product) return null;
   return mapWooToAccessoryDetail(product);
 }

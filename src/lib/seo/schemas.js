@@ -8,6 +8,7 @@ import {
   SITE_PRIMARY_NAV,
   SITE_SITELINKS_NAV,
 } from "@/lib/seo/config";
+import { accessoryDetailPath } from "@/lib/utils";
 
 const SCHEMA_CONTEXT = "https://schema.org";
 
@@ -301,6 +302,47 @@ function accessorySeriesLabel(seriesKey) {
   return ACCESSORY_SERIES[seriesKey]?.label ?? seriesKey;
 }
 
+function accessoryAbsoluteUrl(siteUrl, slug) {
+  return absoluteUrl(siteUrl, accessoryDetailPath(slug));
+}
+
+/** Woo 圖是完整 URL；本地 catalog 才是檔名，需拼系列資料夾 */
+function resolveAccessorySchemaImages(item, siteUrl) {
+  const raw = [
+    ...(item.detail?.images ?? []),
+    ...(item.detail?.imageFiles ?? []),
+    ...(item.imageFiles ?? []),
+    ...(item.images ?? []),
+  ].filter(Boolean);
+
+  const urls = [];
+  const seen = new Set();
+  for (const src of raw) {
+    if (typeof src !== "string" || !src.trim()) continue;
+    const value = src.trim();
+    const abs =
+      value.startsWith("http") || value.startsWith("/")
+        ? absoluteUrl(siteUrl, value)
+        : null;
+    if (!abs || seen.has(abs)) continue;
+    seen.add(abs);
+    urls.push(abs);
+  }
+
+  if (urls.length) return urls;
+
+  const fromSeries = resolveSeriesImages(
+    item.series,
+    item.detail?.imageFiles ?? item.imageFiles ?? [],
+  )
+    .filter((src) => typeof src === "string" && !src.startsWith("http"))
+    .map((src) => absoluteUrl(siteUrl, src));
+
+  return fromSeries.length
+    ? fromSeries
+    : [absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage)];
+}
+
 /** 配件列表頁：CollectionPage + ItemList + Product 節點 */
 export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl()) {
   const ids = entityIds(siteUrl);
@@ -308,7 +350,7 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
   const core = buildCoreEntityGraph(siteUrl);
 
   const productNodes = products.map((product) => {
-    const productUrl = `${siteUrl}/accessories/${product.id}`;
+    const productUrl = accessoryAbsoluteUrl(siteUrl, product.id);
     const image = product.images?.[0]
       ? absoluteUrl(siteUrl, product.images[0])
       : absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage);
@@ -380,13 +422,16 @@ export function buildAccessoriesCollectionSchemas(products, siteUrl = getSiteUrl
       "@id": `${collectionUrl}#itemlist`,
       name: "昔馬 SMASMALL 產品列表",
       numberOfItems: products.length,
-      itemListElement: products.map((product, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: product.title,
-        url: `${siteUrl}/accessories/${product.id}`,
-        item: { "@id": `${siteUrl}/accessories/${product.id}#product` },
-      })),
+      itemListElement: products.map((product, index) => {
+        const productUrl = accessoryAbsoluteUrl(siteUrl, product.id);
+        return {
+          "@type": "ListItem",
+          position: index + 1,
+          name: product.title,
+          url: productUrl,
+          item: { "@id": `${productUrl}#product` },
+        };
+      }),
     },
     significantLink: [
       absoluteUrl(siteUrl, "/series"),
@@ -458,13 +503,10 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   if (!item) return [buildCoreEntityGraph(siteUrl)];
 
   const ids = entityIds(siteUrl);
-  const pageUrl = `${siteUrl}/accessories/${encodeURIComponent(item.id)}`;
+  const pageUrl = accessoryAbsoluteUrl(siteUrl, item.id);
   const core = buildCoreEntityGraph(siteUrl);
 
-  const images = resolveSeriesImages(
-    item.series,
-    item.detail?.imageFiles ?? item.imageFiles ?? [],
-  ).map((src) => absoluteUrl(siteUrl, src));
+  const images = resolveAccessorySchemaImages(item, siteUrl);
   const primaryImage =
     images[0] ?? absoluteUrl(siteUrl, SEO_CONFIG.defaultOgImage);
 
@@ -571,11 +613,17 @@ export function buildAccessoryDetailSchemas(item, siteUrl = getSiteUrl()) {
   const breadcrumb = buildBreadcrumbList(siteUrl, [
     { name: "首頁", path: "/" },
     { name: "產品列表", path: "/accessories" },
-    { name: item.title, path: `/accessories/${item.id}` },
+    { name: item.title, path: accessoryDetailPath(item.id) },
   ]);
 
   const featureList =
-    detail.features?.map((f) => `${f.title}：${f.content}`).join(" ") ?? "";
+    detail.features
+      ?.map((f) => {
+        const body = f.bullets?.length ? f.bullets.join("、") : f.content || "";
+        return body ? `${f.title}：${body}` : f.title;
+      })
+      .filter(Boolean)
+      .join(" ") ?? "";
 
   const additionalProperty = [];
   if (item.series) {

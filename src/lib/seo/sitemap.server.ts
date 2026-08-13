@@ -1,6 +1,8 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { getSiteUrl, SITELINK_SITEMAP_PRIORITY } from "@/lib/seo/config";
+import { accessoryDetailPath } from "@/lib/utils";
+import { toPublicProductSlug } from "@/lib/productPublicSlug";
 import {
   BLOG_CACHE_TAG,
   PRODUCTS_CACHE_TAG,
@@ -100,10 +102,10 @@ async function fetchAccessoryEntries(): Promise<SitemapEntrySource[]> {
     const { fetchProductsForSitemap } = await import("@/lib/woo");
     const products = await fetchProductsForSitemap();
     return products.map((product) => ({
-      path: `/accessories/${product.slug}`,
+      path: accessoryDetailPath(toPublicProductSlug(product.slug)),
       lastModified: parseDate(product.dateModified),
       changeFrequency: "weekly" as const,
-      priority: 0.8,
+      priority: 0.85,
     }));
   } catch {
     try {
@@ -111,9 +113,9 @@ async function fetchAccessoryEntries(): Promise<SitemapEntrySource[]> {
         "@/data/accessories.server"
       );
       return buildAccessoryCatalog().map((p) => ({
-        path: `/accessories/${p.id}`,
+        path: accessoryDetailPath(toPublicProductSlug(p.id)),
         changeFrequency: "weekly" as const,
-        priority: 0.8,
+        priority: 0.85,
       }));
     } catch {
       return [];
@@ -193,7 +195,7 @@ async function buildSitemapEntries(): Promise<SitemapEntrySource[]> {
 /** ISR + cache tags：後台 webhook 可立刻刷新 sitemap */
 export const getCachedSitemapEntries = unstable_cache(
   buildSitemapEntries,
-  ["sitemap-entries-v1"],
+  ["sitemap-entries-v3"],
   {
     revalidate: SITEMAP_REVALIDATE_SECONDS,
     tags: [

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import AccessoryRightPanel from "@/components/accessories/AccessoryRightPanel";
+import { Link } from "next-view-transitions";
 import { accessoryDetailPath, normalizeRouteSlug } from "@/lib/utils";
 import { getContentBullets } from "@/lib/productContentBullets";
 
@@ -38,12 +39,15 @@ function AccordionContent({ feature }) {
   );
 }
 
-export default function AccessoryDetailClient({ productId }) {
+/**
+ * @param {{ productId?: string, initialProduct?: object | null }} props
+ */
+export default function AccessoryDetailClient({ productId, initialProduct }) {
   const params = useParams();
   const id = normalizeRouteSlug(String(productId ?? params.id ?? ""));
   const apiPath = accessoryDetailPath(id);
   const router = useRouter();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState(initialProduct ?? null);
 
   const [mainImgIdx, setMainImgIdx] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
@@ -55,20 +59,8 @@ export default function AccessoryDetailClient({ productId }) {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadProduct() {
-      const res = await fetch(`/api${apiPath}/detail`);
-      if (!res.ok) {
-        router.push("/accessories");
-        return;
-      }
-      const targetProduct = await res.json();
-
-      setProduct(targetProduct);
-      setMainImgIdx(0);
-      setSlideDirection(1);
-      setActiveAccordion(null);
-
-      if (targetProduct.carouselFromFolders) {
+    async function enrichProduct(source) {
+      if (source?.carouselFromFolders) {
         try {
           const res = await fetch(`/api${apiPath}/carousel`);
           if (!res.ok || cancelled) return;
@@ -98,15 +90,35 @@ export default function AccessoryDetailClient({ productId }) {
             : prev,
         );
       } catch {
-        /* 保留 catalog 預設文案 */
+        /* 保留 catalog / SSR 文案 */
       }
+    }
+
+    async function loadProduct() {
+      if (initialProduct) {
+        await enrichProduct(initialProduct);
+        return;
+      }
+
+      const res = await fetch(`/api${apiPath}/detail`);
+      if (!res.ok) {
+        router.push("/accessories");
+        return;
+      }
+      const targetProduct = await res.json();
+      if (cancelled) return;
+      setProduct(targetProduct);
+      setMainImgIdx(0);
+      setSlideDirection(1);
+      setActiveAccordion(null);
+      await enrichProduct(targetProduct);
     }
 
     loadProduct();
     return () => {
       cancelled = true;
     };
-  }, [apiPath, router]);
+  }, [apiPath, router, initialProduct]);
 
   const imageCount = product?.images?.length ?? 0;
 
@@ -165,23 +177,20 @@ export default function AccessoryDetailClient({ productId }) {
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans pt-[60px] lg:pt-[72px]">
       <div className="w-full border-b border-gray-100 bg-gray-50/50">
-        <div className="max-w-[1400px] mx-auto px-5 lg:px-12 py-3.5 flex items-center gap-2 text-[13px] text-gray-500 font-medium">
-          <button
-            onClick={() => router.push("/")}
-            className="hover:text-black transition-colors"
-          >
-            Home
-          </button>
+        <nav
+          aria-label="麵包屑"
+          className="max-w-[1400px] mx-auto px-5 lg:px-12 py-3.5 flex items-center gap-2 text-[13px] text-gray-500 font-medium"
+        >
+          <Link href="/" className="hover:text-black transition-colors">
+            首頁
+          </Link>
           <span>/</span>
-          <button
-            onClick={() => router.push("/accessories")}
-            className="hover:text-black transition-colors"
-          >
-            Accessories
-          </button>
+          <Link href="/accessories" className="hover:text-black transition-colors">
+            產品列表
+          </Link>
           <span>/</span>
           <span className="text-gray-900 truncate">{product.title}</span>
-        </div>
+        </nav>
       </div>
 
       {/* 主區：左 50% 全高輪播 + 右 50% 商品資訊 */}
@@ -285,7 +294,10 @@ export default function AccessoryDetailClient({ productId }) {
 
         <div className="w-full lg:w-1/2 bg-white">
           <div className="px-5 py-8 lg:px-12 lg:py-16 pb-16 lg:pb-24">
-            <h1 className="text-2xl md:text-[2.5rem] font-bold max-w-[750px] text-gray-900 leading-tight mb-3 tracking-tight">
+            <h1
+              className="text-2xl md:text-[2.5rem] font-bold max-w-[750px] text-gray-900 leading-tight mb-3 tracking-tight"
+              data-seo-speakable
+            >
               {product.title}
             </h1>
 
@@ -308,13 +320,19 @@ export default function AccessoryDetailClient({ productId }) {
             )}
 
             {shortDescBullets ? (
-              <ul className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10 space-y-2.5 list-disc pl-5 marker:text-stone-600">
+              <ul
+                className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10 space-y-2.5 list-disc pl-5 marker:text-stone-600"
+                data-seo-speakable
+              >
                 {shortDescBullets.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10">
+              <p
+                className="text-[15px] text-stone-800 tracking-wide max-w-[750px] leading-relaxed font-normal mb-10"
+                data-seo-speakable
+              >
                 {product.shortDesc}
               </p>
             )}
@@ -338,18 +356,14 @@ export default function AccessoryDetailClient({ productId }) {
                         {isOpen ? <Minus size={20} /> : <Plus size={20} />}
                       </span>
                     </button>
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
-                        >
-                          <AccordionContent feature={feature} />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* 內容一律輸出在 HTML，方便搜尋引擎收錄；視覺上再開合 */}
+                    <div
+                      className={`overflow-hidden transition-[max-height,opacity] duration-300 ${
+                        isOpen ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <AccordionContent feature={feature} />
+                    </div>
                   </div>
                 );
               })}
