@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
+import { SEO_CONFIG } from "@/lib/seo/config";
 
 const LINE_OFFICIAL_URL =
   "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
@@ -193,8 +194,16 @@ export default function Content() {
 // Footer 內容區塊
 // ============================================================================
 const Section2 = () => {
+  const { organization, geo } = SEO_CONFIG;
+  const fullAddress = `${geo.addressRegion}${geo.addressLocality}${geo.streetAddress}`;
+
   return (
-    <footer className="w-full bg-white pt-10 pb-8 px-6 sm:px-10 lg:px-20 xl:px-32 border-t border-gray-100">
+    <footer
+      className="w-full bg-white pt-10 pb-8 px-6 sm:px-10 lg:px-20 xl:px-32 border-t border-gray-100"
+      data-sitelinks-nav
+      itemScope
+      itemType="https://schema.org/WPFooter"
+    >
       <div className="max-w-[1400px] mx-auto">
         {/* 頂部 Logo (置中) */}
         <div className="flex justify-center mb-12 md:mb-20">
@@ -206,8 +215,13 @@ const Section2 = () => {
           </Link>
         </div>
 
-        {/* 主要欄位區塊：手機兩欄，桌機五欄 */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10 sm:gap-x-8 md:gap-y-16">
+        {/* 主要欄位區塊：手機兩欄，桌機五欄（可見 Sitelinks 候選，承接首頁 SEO） */}
+        <nav
+          aria-label="網站主要頁面"
+          itemScope
+          itemType="https://schema.org/SiteNavigationElement"
+          className="grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-10 sm:gap-x-8 md:gap-y-16"
+        >
           {/* 第一欄：關於我們 */}
           <div className="lg:col-span-1">
             <h4 className="text-[13px] font-medium text-gray-400 mb-4 md:mb-6 tracking-wide">
@@ -217,25 +231,28 @@ const Section2 = () => {
               <li>
                 <Link
                   href="/weibo"
+                  itemProp="url"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  威柏科技介紹
+                  <span itemProp="name">威柏科技介紹</span>
                 </Link>
               </li>
               <li>
                 <Link
                   href="/brand"
+                  itemProp="url"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  品牌介紹
+                  <span itemProp="name">品牌介紹</span>
                 </Link>
               </li>
               <li>
                 <Link
                   href="/blog"
+                  itemProp="url"
                   className="text-[13px] md:text-[14px] font-normal text-stone-500 hover:text-stone-900 transition-colors"
                 >
-                  精選文章
+                  <span itemProp="name">精選文章</span>
                 </Link>
               </li>
             </ul>
@@ -367,10 +384,54 @@ const Section2 = () => {
               立即聯繫 <Icons.ArrowRight className="w-4 h-4" />
             </a>
           </div>
-        </div>
+        </nav>
+
+        {/* NAP：可見地址／電話（GEO／在地 SEO，承接首頁拿掉的探索區塊訊號） */}
+        <address
+          className="mt-14 not-italic text-center md:text-left"
+          itemScope
+          itemType="https://schema.org/LocalBusiness"
+        >
+          <p
+            className="text-[13px] font-medium text-stone-800"
+            itemProp="name"
+          >
+            {organization.name}
+          </p>
+          <p
+            className="mt-1 text-[12px] leading-relaxed text-stone-500"
+            itemProp="address"
+            itemScope
+            itemType="https://schema.org/PostalAddress"
+          >
+            <span itemProp="postalCode">{geo.postalCode}</span>{" "}
+            <span itemProp="addressRegion">{geo.addressRegion}</span>
+            <span itemProp="addressLocality">{geo.addressLocality}</span>
+            <span itemProp="streetAddress">{geo.streetAddress}</span>
+            <meta itemProp="addressCountry" content={geo.addressCountry} />
+          </p>
+          <p className="mt-1 text-[12px] text-stone-500">
+            <a
+              href={`tel:${organization.telephone.replace(/-/g, "")}`}
+              className="hover:text-stone-900 transition-colors"
+              itemProp="telephone"
+            >
+              {organization.telephone}
+            </a>
+            {" · "}
+            <Link
+              href="/stores"
+              className="underline-offset-2 hover:text-stone-900 hover:underline transition-colors"
+            >
+              全台門市據點
+            </Link>
+          </p>
+          <meta itemProp="url" content="https://www.smasmall.com.tw" />
+          <span className="sr-only">{fullAddress}</span>
+        </address>
 
         {/* 底部副加連結與版權宣告 */}
-        <div className="mt-24 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
             <Link
               href="/support/policies#shipping"
@@ -401,14 +462,9 @@ const Section2 = () => {
             <div className="text-[11px] font-bold text-black tracking-widest uppercase">
               WEIBO TECHNOLOGY
             </div>
-            <a
-              href="https://www.jeek-webdesign.com.tw"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] text-gray-400 hover:text-black transition-colors"
-            >
-              Design by 極客網頁設計
-            </a>
+            <span className="text-[11px] text-gray-400">
+              Design by 台灣昔馬
+            </span>
           </div>
         </div>
       </div>

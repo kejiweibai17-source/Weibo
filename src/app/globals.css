@@ -25,6 +25,14 @@ body {
   overflow-x: hidden;
   position: relative;
 }
+
+/* 手機／觸控：原生滾動，避免平滑滾動卡頓 */
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+  html,
+  body {
+    scroll-behavior: auto !important;
+  }
+}
  
  
 

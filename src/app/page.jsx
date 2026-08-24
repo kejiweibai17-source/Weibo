@@ -1,7 +1,6 @@
 // app/page.jsx
 import Client from "./home";
 import JsonLd from "@/components/seo/JsonLd";
-import HomeSiteLinksNav from "@/components/seo/HomeSiteLinksNav";
 import { getSiteUrl, ogImageUrl } from "@/lib/seo/config";
 import { buildHomePageSchemas, buildSiteNameSchema } from "@/lib/seo/schemas";
 import { getHomeBladeIntroSection } from "@/lib/homeBladeIntro.server";
@@ -146,8 +145,7 @@ export default async function Page() {
         bladeIntroSection={bladeIntroSection}
         productIntroSection={productIntroSection}
       />
-      {/* 可見快速連結：放在首頁主內容後、Footer 前，強化 Sitelinks 訊號 */}
-      <HomeSiteLinksNav seriesItems={seriesNavItems} />
+      {/* Sitelinks／GEO：可見連結與 NAP 由 Footer 承擔；結構化資料仍含 seriesLinks */}
     </>
   );
 }

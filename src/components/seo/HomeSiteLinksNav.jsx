@@ -6,8 +6,9 @@ import {
 
 /**
  * 首頁可見快速連結（協助 Google 理解 Sitelinks 候選頁）
- * - 文案與 Navbar / Footer 一致（短名稱、清楚錨點）
- * - 必須可見，避免僅 sr-only 被視為隱藏導覽
+ * @deprecated 首頁大區塊已移除；可見 Sitelinks／GEO NAP 改由 Footer 承接，
+ * JSON-LD（buildHomePageSchemas）仍輸出 sitelinks + LocalBusiness。
+ * 保留此元件以備需要時復用，目前首頁不再掛載。
  */
 export default function HomeSiteLinksNav({ seriesItems = [] }) {
   const sitelinkPaths = new Set(SITE_SITELINKS_NAV.map((i) => i.path));

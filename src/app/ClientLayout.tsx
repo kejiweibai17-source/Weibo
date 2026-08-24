@@ -7,6 +7,7 @@ import Footer from "../components/Footer/Footer1";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import CartDrawer from "@/components/cart/CartDrawer";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -25,11 +26,15 @@ export default function ClientLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 初始化 AOS
+  // 初始化 AOS（手機停用，避免滾動卡頓）
   useEffect(() => {
     AOS.init({
       duration: 800,
-      once: false,
+      once: true,
+      disable: () =>
+        window.matchMedia(
+          "(max-width: 1023px), (hover: none) and (pointer: coarse)",
+        ).matches,
     });
   }, []);
 
@@ -38,6 +43,14 @@ export default function ClientLayout({
       <style jsx global>{`
         :root {
           view-transition-name: app-root;
+        }
+
+        /* 手機／觸控：強制原生滾動，關閉平滑滾動 */
+        @media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+          html,
+          body {
+            scroll-behavior: auto !important;
+          }
         }
 
         /* 🌟 統一設定 3C 科技感的阻尼過渡時間與曲線 */
@@ -94,20 +107,22 @@ export default function ClientLayout({
         }
       `}</style>
 
-      <ScrollToTopOnNav />
+      <SmoothScrollProvider>
+        <ScrollToTopOnNav />
 
-      {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
-      <div
-        className="fixed left-0 top-0 z-[999999999999999] w-screen"
-        style={{ viewTransitionName: "none" }}
-      >
-        <Navbar />
-      </div>
+        {/* 導覽列排除在換頁動畫之外，保持固定不動 */}
+        <div
+          className="fixed left-0 top-0 z-[999999999999999] w-screen"
+          style={{ viewTransitionName: "none" }}
+        >
+          <Navbar />
+        </div>
 
-      <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen">{children}</main>
 
-      <CartDrawer />
-      <Footer />
+        <CartDrawer />
+        <Footer />
+      </SmoothScrollProvider>
     </ViewTransitions>
   );
 }

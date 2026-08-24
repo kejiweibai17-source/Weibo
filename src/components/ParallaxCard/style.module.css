@@ -1,0 +1,135 @@
+.cardContainer {
+  height: 100vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background-color: black;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0px;
+}
+
+.cardContainer .card {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  position: relative;
+  top: 0%;
+  height: 100vh;
+  width: 100%;
+  padding: 50px;
+  -webkit-transform-origin: top;
+          transform-origin: top;
+  overflow: hidden;
+}
+
+.cardContainer .card .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: black;
+  z-index: 1;
+}
+
+.cardContainer .card .body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  height: 100%;
+  margin-top: 50px;
+  gap: 50px;
+  position: relative;
+  z-index: 2;
+}
+
+.cardContainer .card .body .description {
+  width: 100%;
+  margin-left: 20%;
+  position: relative;
+  top: 25%;
+  font-weight: 200;
+  color: white;
+  letter-spacing: .12rem;
+}
+
+.cardContainer .card .body .description h2 {
+  text-align: left;
+  margin: 0px;
+  font-weight: 200;
+  font-size: 48px;
+  color: white;
+  letter-spacing: .35rem;
+  position: relative;
+  z-index: 2;
+}
+
+.cardContainer .card .body .description p {
+  font-size: 16px;
+  color: white;
+  max-width: 80%;
+}
+
+.cardContainer .card .body .description p::first-letter {
+  font-size: 28px;
+  font-family: 'Title';
+}
+
+.cardContainer .card .body .description span {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 5px;
+}
+
+.cardContainer .card .body .description span a {
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  color: white;
+}
+
+.cardContainer .card .body .imageContainer {
+  position: relative;
+  width: 60%;
+  height: 100%;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.cardContainer .card .body .imageContainer .inner {
+  width: 100%;
+  height: 100%;
+}
+
+.cardContainer .card .body .imageContainer img {
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+  .cardContainer .card .body .description {
+    width: 100%;
+    margin-left: 5%;
+    position: relative;
+    top: 5%;
+    font-weight: 200;
+    color: white;
+    letter-spacing: .12rem;
+  }
+}
+/*# sourceMappingURL=style.module.css.map */

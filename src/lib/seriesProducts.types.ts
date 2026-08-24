@@ -74,7 +74,7 @@ export type SeriesProductVideoBlock = {
   cableImage?: string;
   markerLabel?: string;
   videoUrl?: string;
-  youtubeId: string;
+  youtubeId?: string;
   coverImage?: string;
 };
 

@@ -6,6 +6,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useLenis } from "lenis/react";
 import Preloader from "./Preloader";
+import HomeMusicControl from "./HomeMusicControl";
 import {
   shouldShowHomePreloader,
 } from "@/lib/preloaderSession";
@@ -152,7 +153,10 @@ export default function HomeHero({ pageContentRef }) {
             </h1>
           </div>
         </div>
+
       </section>
+
+      <HomeMusicControl />
     </>
   );
 }

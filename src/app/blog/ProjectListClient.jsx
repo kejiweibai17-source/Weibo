@@ -6,7 +6,7 @@ import { Link } from "next-view-transitions";
 import Image from "next/image";
 import ImageTextSlider from "../../components/ImageTextSlider.jsx";
 import HeroSlider from "../../components/HeroSlideContact/page";
-import { ReactLenis } from "@studio-freight/react-lenis";
+import LenisWrapper from "@/components/LenisWrapper";
 import { blogPostPath } from "@/lib/utils";
 
 export default function HomeClient({ posts }) {
@@ -42,17 +42,7 @@ export default function HomeClient({ posts }) {
   };
 
   return (
-    <ReactLenis
-      root
-      options={{
-        duration: 2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        direction: "vertical",
-        gestureDirection: "vertical",
-        touchMultiplier: 1.5,
-        wheelMultiplier: 1.2,
-      }}
-    >
+    <LenisWrapper>
       <div>
         {/* Hero Slider */}
         <section className="pb-[100px]">
@@ -140,6 +130,6 @@ export default function HomeClient({ posts }) {
           </div>
         </section>
       </div>
-    </ReactLenis>
+    </LenisWrapper>
   );
 }

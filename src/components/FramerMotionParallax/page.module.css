@@ -1,0 +1,72 @@
+.container {
+  margin-top: 10vh;
+  min-height: 100vh;
+}
+
+.container .body {
+  margin-left: 10vw;
+}
+
+.container .body h1 {
+  margin: 0px;
+  margin-top: 10px;
+  font-size: 5vw;
+  line-height: 5vw;
+  text-transform: uppercase;
+}
+
+.container .body p {
+  color: white;
+  margin: 0px;
+  margin-top: 10px;
+  font-size: 3vw;
+  text-transform: uppercase;
+}
+
+.container .body p span {
+  position: relative;
+}
+
+.container .images {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: relative;
+  margin-top: 5vh;
+}
+
+.container .images .imageContainer {
+  position: absolute;
+}
+
+.container .images .imageContainer img {
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.container .images .imageContainer:nth-of-type(1) {
+  height: 60vh;
+  width: 50vh;
+  z-index: 1;
+}
+
+.container .images .imageContainer:nth-of-type(2) {
+  left: -2vw;
+  top: 15vh;
+  height: 400px;
+  width: 500px;
+  z-index: 2;
+}
+
+.container .images .imageContainer:nth-of-type(3) {
+  right: 0vw;
+  top: 30vh;
+  height: 400px;
+  width: 400px;
+  z-index: 3;
+}
+/*# sourceMappingURL=page.module.css.map */

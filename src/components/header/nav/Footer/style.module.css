@@ -1,0 +1,37 @@
+.footer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-top: 40px;
+}
+
+.footer ul {
+  width: 50%;
+  margin-top: 10px;
+  overflow: hidden;
+  list-style-type: none;
+  padding: 0;
+}
+
+.footer li span {
+  color: #9f9689;
+}
+
+@media only screen and (min-width: 1000px) {
+  .footer {
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+  }
+  .footer ul {
+    width: auto;
+  }
+}
+/*# sourceMappingURL=style.module.css.map */

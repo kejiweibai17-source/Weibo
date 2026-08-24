@@ -86,12 +86,14 @@ export default function SeriesProductVideo({
                 type="button"
                 aria-label="播放產品影片"
                 animate={
-                  markerReady ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }
+                  markerReady && youtubeId
+                    ? { opacity: 1, scale: 1 }
+                    : { opacity: 0, scale: 0 }
                 }
                 transition={{ type: "spring", stiffness: 280, damping: 16 }}
-                onClick={() => markerReady && setVideoOpen(true)}
+                onClick={() => markerReady && youtubeId && setVideoOpen(true)}
                 className={`absolute top-[30%] left-[35%] z-20 flex h-8 w-8 items-center justify-center rounded-full border-0 bg-[#ea580c] p-0 text-xs font-bold text-white shadow-lg ${
-                  markerReady
+                  markerReady && youtubeId
                     ? "cursor-pointer transition-transform hover:scale-110"
                     : "pointer-events-none"
                 }`}
@@ -119,7 +121,7 @@ export default function SeriesProductVideo({
       </div>
 
       <AnimatePresence>
-        {videoOpen ? (
+        {videoOpen && youtubeId ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -139,9 +139,9 @@ export default async function AccessoryDetailPage({ params }: PageProps) {
   };
   const schemas = buildAccessoryDetailSchemas(schemaSeed, SITE_URL);
   const featureText = (detail.features ?? [])
-    .map((feature) => {
+    .map((feature: { title: string; content?: string; bullets?: string[] }) => {
       const body =
-        feature.bullets?.length > 0
+        feature.bullets && feature.bullets.length > 0
           ? feature.bullets.join("、")
           : feature.content || "";
       return body ? `${feature.title}：${body}` : feature.title;
@@ -157,7 +157,7 @@ export default async function AccessoryDetailPage({ params }: PageProps) {
           {detail.shortDesc ? <p>{detail.shortDesc}</p> : null}
           {featureText.length > 0 ? (
             <ul>
-              {featureText.map((item) => (
+              {featureText.map((item: string) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
