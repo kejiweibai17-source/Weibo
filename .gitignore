@@ -30,9 +30,6 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# private IP backup — never ship / never compile
-_PRIVATE_IP_BACKUP/
-
 # vercel
 .vercel
 
@@ -40,7 +37,3 @@ _PRIVATE_IP_BACKUP/
 *.tsbuildinfo
 next-env.d.ts
 kuankoshi-clean/
-
-# client delivery — withheld modules (not included in this package)
-/wordpress/
-/scripts/

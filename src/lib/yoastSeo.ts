@@ -31,9 +31,7 @@ function pickYoastMeta(
     const top = product[key];
     if (typeof top === "string" && top.trim()) return top.trim();
 
-    const fromMeta = product.meta_data?.find(
-      (m: { key?: string; value?: unknown }) => m.key === key,
-    )?.value;
+    const fromMeta = product.meta_data?.find((m) => m.key === key)?.value;
     if (typeof fromMeta === "string" && fromMeta.trim()) return fromMeta.trim();
   }
 
