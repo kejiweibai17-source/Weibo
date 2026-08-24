@@ -209,7 +209,7 @@ function normalizeBlock(raw: unknown): SeriesBlock | null {
     const productImage =
       typeof row.productImage === "string" ? row.productImage.trim() : "";
     const youtubeId = parseVideoId(row.youtubeId ?? row.videoUrl);
-    if (!productImage || !youtubeId) return null;
+    if (!productImage) return null;
     return {
       type,
       enabled: true,
@@ -219,7 +219,7 @@ function normalizeBlock(raw: unknown): SeriesBlock | null {
       cableImage: typeof row.cableImage === "string" ? row.cableImage : "",
       markerLabel: typeof row.markerLabel === "string" ? row.markerLabel : "A",
       videoUrl: typeof row.videoUrl === "string" ? row.videoUrl : "",
-      youtubeId,
+      ...(youtubeId ? { youtubeId } : {}),
       coverImage:
         typeof row.coverImage === "string" && row.coverImage.trim()
           ? row.coverImage.trim()

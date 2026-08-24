@@ -430,7 +430,7 @@ function smasmall_series_sanitize_blocks($input, bool $allow_empty = false): arr
                 $product_image = esc_url_raw($block['productImage'] ?? '');
                 $video_raw = (string) ($block['videoUrl'] ?? ($block['youtubeId'] ?? ''));
                 $video_id = smasmall_series_parse_video_id($video_raw);
-                if (!$allow_empty && (!$enabled || $product_image === '' || $video_id === '')) {
+                if (!$allow_empty && (!$enabled || $product_image === '')) {
                     continue 2;
                 }
                 $item['enabled'] = $enabled;
@@ -1512,7 +1512,7 @@ function smasmall_series_render_block_body(string $type, array $block, int $inde
         <?php smasmall_series_render_image_field($prefix . '[cableImage]', (string) ($block['cableImage'] ?? ''), '充電線圖'); ?>
         <p><label>標記文字</label><br />
             <input type="text" class="small-text" name="<?php echo esc_attr($prefix); ?>[markerLabel]" value="<?php echo esc_attr($block['markerLabel'] ?? 'A'); ?>" /></p>
-        <p><label>影片網址或 YouTube ID <span style="color:#dc2626;">*</span></label><br />
+        <p><label>影片網址或 YouTube ID（選填，未填仍顯示區塊但不播放）</label><br />
             <input type="url" class="large-text" name="<?php echo esc_attr($prefix); ?>[videoUrl]" value="<?php echo esc_attr($block['videoUrl'] ?? ($block['youtubeId'] ?? '')); ?>" placeholder="https://www.youtube.com/watch?v=..." /></p>
         <p><label>影片封面圖（選填，留空用產品主圖）</label></p>
         <?php smasmall_series_render_image_field($prefix . '[coverImage]', (string) ($block['coverImage'] ?? ''), '影片封面圖'); ?>
