@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import { Link } from "next-view-transitions";
-import { SEO_CONFIG } from "@/lib/seo/config";
 
 const LINE_OFFICIAL_URL =
   "https://page.line.me/157yqtwl?oat_content=url&openQrModal=true";
@@ -194,9 +193,6 @@ export default function Content() {
 // Footer 內容區塊
 // ============================================================================
 const Section2 = () => {
-  const { organization, geo } = SEO_CONFIG;
-  const fullAddress = `${geo.addressRegion}${geo.addressLocality}${geo.streetAddress}`;
-
   return (
     <footer
       className="w-full bg-white pt-10 pb-8 px-6 sm:px-10 lg:px-20 xl:px-32 border-t border-gray-100"
@@ -385,50 +381,6 @@ const Section2 = () => {
             </a>
           </div>
         </nav>
-
-        {/* NAP：可見地址／電話（GEO／在地 SEO，承接首頁拿掉的探索區塊訊號） */}
-        <address
-          className="mt-14 not-italic text-center md:text-left"
-          itemScope
-          itemType="https://schema.org/LocalBusiness"
-        >
-          <p
-            className="text-[13px] font-medium text-stone-800"
-            itemProp="name"
-          >
-            {organization.name}
-          </p>
-          <p
-            className="mt-1 text-[12px] leading-relaxed text-stone-500"
-            itemProp="address"
-            itemScope
-            itemType="https://schema.org/PostalAddress"
-          >
-            <span itemProp="postalCode">{geo.postalCode}</span>{" "}
-            <span itemProp="addressRegion">{geo.addressRegion}</span>
-            <span itemProp="addressLocality">{geo.addressLocality}</span>
-            <span itemProp="streetAddress">{geo.streetAddress}</span>
-            <meta itemProp="addressCountry" content={geo.addressCountry} />
-          </p>
-          <p className="mt-1 text-[12px] text-stone-500">
-            <a
-              href={`tel:${organization.telephone.replace(/-/g, "")}`}
-              className="hover:text-stone-900 transition-colors"
-              itemProp="telephone"
-            >
-              {organization.telephone}
-            </a>
-            {" · "}
-            <Link
-              href="/stores"
-              className="underline-offset-2 hover:text-stone-900 hover:underline transition-colors"
-            >
-              全台門市據點
-            </Link>
-          </p>
-          <meta itemProp="url" content="https://www.smasmall.com.tw" />
-          <span className="sr-only">{fullAddress}</span>
-        </address>
 
         {/* 底部副加連結與版權宣告 */}
         <div className="mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-6">
